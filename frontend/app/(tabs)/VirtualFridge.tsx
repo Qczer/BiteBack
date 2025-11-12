@@ -1,9 +1,11 @@
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Pressable, StyleSheet, TextInput } from 'react-native';
 
-import GreenVar, { GrayVar } from '@/assets/colors/colors';
+import { GreenVar, GrayVar, WhiteVar } from '@/assets/colors/colors';
 import { Text, View } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+
+import Modal from 'react-native-modal';
 
 interface Filter {
   name: string;
@@ -19,6 +21,7 @@ export default function TabTwoScreen() {
   ])
 
   const [allFilters, setAllFilters] = useState<boolean>(true);
+  const [expanded, setExpanded] = useState<boolean>(false);
 
   const toggleFilter = (name: string) => {
     setFilters(prev => {
@@ -40,25 +43,55 @@ export default function TabTwoScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Virtual Fridge</Text>
+      {/* MODAL */}
+      <Modal
+        isVisible={expanded}
+        onBackdropPress={() => setExpanded(curr => !curr)}
+
+        animationIn="slideInDown"
+        animationOut="slideOutUp"
+        animationInTiming={200}
+        animationOutTiming={200}
+
+        hasBackdrop={false}
+        style={styles.modal}
+      >
+        <View style={styles.modalContent}>
+          <Pressable
+            onPressIn={() => {setExpanded(curr => !curr)}}
+            style={{alignSelf: 'flex-end'}}
+          >
+              <Ionicons name='chevron-up' size={24} color={GreenVar} />
+          </Pressable>
+        </View>
+      </Modal>
+
+      <View style={styles.topBar}>
+        <Text style={styles.title}>Virtual Fridge</Text>
+        <Pressable
+          onPressIn={() => {setExpanded(curr => !curr)}}
+        >
+          <Ionicons name='chevron-down' size={24} color={GreenVar} />
+        </Pressable>
+      </View>
       <View style={styles.search}>
         <TextInput
           style={styles.searchInput}
           placeholder='Search category'
         />
-        <TouchableOpacity style={styles.searchButton}>
+        <Pressable style={styles.searchButton}>
           <Ionicons name="search" size={22} color={GreenVar} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
       <View style={styles.filters}>
-        <TouchableOpacity style={[styles.filterButton, allFilters && styles.activeFilterButton]} onPress={toggleAll}>
+        <Pressable style={[styles.filterButton, allFilters && styles.activeFilterButton]} onPress={toggleAll}>
           <Text style={[styles.filterText, allFilters && styles.activeFilterText]}>ALL</Text>
-        </TouchableOpacity>
+        </Pressable>
         {filters.map(filter => {
           return (
-            <TouchableOpacity key={filter.name} style={[styles.filterButton, filter.active && styles.activeFilterButton]} onPress={() => toggleFilter(filter.name)}>
+            <Pressable key={filter.name} style={[styles.filterButton, filter.active && styles.activeFilterButton]} onPress={() => toggleFilter(filter.name)}>
               <Text style={[styles.filterText, filter.active && styles.activeFilterText]}>{filter.name.toUpperCase()}</Text>
-            </TouchableOpacity>
+            </Pressable>
           )
         })}
       </View>
@@ -77,7 +110,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     padding: 20,
-    backgroundColor: '#EDECE8'
+    backgroundColor: WhiteVar
+  },
+  topBar: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: "transparent",
+    width: '100%'
   },
   title: {
     fontSize: 36,
@@ -95,11 +136,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 30
+    marginTop: 30,
+    backgroundColor: "#e0ded9"
   },
   searchInput: {
     fontSize: 16,
-    color: GrayVar
+    color: GrayVar,
   },
   searchButton: {
     marginRight: 15,
@@ -126,7 +168,6 @@ const styles = StyleSheet.create({
   },
   filterText: {
     color: GreenVar
-
   },
   activeFilterText: {
     color: "#fff"
@@ -141,12 +182,24 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     rowGap: 15,
     marginTop: 30,
-    width: "100%"
+    width: "100%",
+    backgroundColor: 'transparent'
   },
   card: {
     width: "100%",
     height: 180,
     borderRadius: 20,
     backgroundColor: 'lightgray'
-  }
+  },
+
+  modal: {
+    margin: 0,
+  },
+  modalContent: {
+    flex: 1,
+    backgroundColor: WhiteVar,
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
 });
