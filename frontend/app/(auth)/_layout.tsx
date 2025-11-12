@@ -1,5 +1,5 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
 
 import { useColorScheme } from "@/components/useColorScheme";
@@ -11,49 +11,41 @@ function TabBarIcon(
     color: string;
   }>
 ) {
-  return (
-    <FontAwesome
-      size={28}
-      style={{ marginBottom: -3, alignSelf: "center" }}
-      {...props}
-    />
-  );
+  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
+    <Stack
       screenOptions={{
-        tabBarActiveTintColor: "#688c80",
-        tabBarStyle: {
-          backgroundColor: "#eeece8",
-        },
-        tabBarShowLabel: false,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: false,
       }}
     >
-      <Tabs.Screen
-        name="HomeScreen"
+      <Stack.Screen
+        name="WelcomeScreen"
         options={{
-          title: "Tab One",
-
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="VirtualFridge"
-        options={{
-          title: "Fridge",
+          title: "Welcome",
           headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="refresh" color={color} />
-          ),
         }}
       />
-    </Tabs>
+      <Stack.Screen
+        name="LoginScreen"
+        options={{
+          title: "Login",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="RegisterScreen"
+        options={{
+          title: "Register",
+          headerShown: false,
+        }}
+      />
+    </Stack>
   );
 }
