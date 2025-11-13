@@ -26,22 +26,23 @@ export default function WelcomeScreen() {
         {/* Header 40% */}
         <View style={styles.header}>
           <Text style={styles.sloganText}>
-            Fight Waste,{" "}
-            <Text style={styles.brand}>BiteBack</Text>.
+            Fight Waste, <Text style={styles.brand}>BiteBack</Text>.
           </Text>
         </View>
 
         {/* Button 30% */}
         <View style={styles.buttonContainer}>
-          <View style={[styles.buttonShadow, pressed && styles.pressedButtonShadow]}>
+          <View
+            style={[styles.buttonShadow, pressed && styles.pressedButtonShadow]}
+          >
             <Pressable
               onPress={() => {
-                router.push("./(auth)/LoginScreen");
+                router.push("./LoginScreen");
               }}
               onPressIn={() => setPressed(true)}
               onPressOut={() => setPressed(false)}
-              style={[ styles.button, pressed && styles.pressedButton ]}
-              >
+              style={[styles.button, pressed && styles.pressedButton]}
+            >
               <Text style={{ fontWeight: "bold", color: GreenVar }}>
                 GET STARTED
               </Text>
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   },
   pressedButtonShadow: {
     marginTop: 2,
-    paddingBottom: 2
+    paddingBottom: 2,
   },
   button: {
     width: "80%",
