@@ -39,19 +39,17 @@ export default function TabLayout() {
       <Tabs.Screen
         name="HomeScreen"
         options={{
-          title: "Tab One",
-
+          title: "Home",
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="VirtualFridge"
+        name="VirtualFridgeScreen"
         options={{
           title: "Fridge",
           headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="refresh" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="refresh" color={color} />
         }}
       />
     </Tabs>

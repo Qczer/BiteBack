@@ -1,12 +1,10 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import RealButton from "@/components/RealButton";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { router } from "expo-router";
-import { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function WelcomeScreen() {
-  const [pressed, setPressed] = useState(false);
-
   const [fontsLoaded] = useFonts({
     Courgette_400Regular,
   });
@@ -31,24 +29,10 @@ export default function WelcomeScreen() {
         </View>
 
         {/* Button 30% */}
-        <View style={styles.buttonContainer}>
-          <View
-            style={[styles.buttonShadow, pressed && styles.pressedButtonShadow]}
-          >
-            <Pressable
-              onPress={() => {
-                router.push("./LoginScreen");
-              }}
-              onPressIn={() => setPressed(true)}
-              onPressOut={() => setPressed(false)}
-              style={[styles.button, pressed && styles.pressedButton]}
-            >
-              <Text style={{ fontWeight: "bold", color: GreenVar }}>
-                GET STARTED
-              </Text>
-            </Pressable>
-          </View>
-        </View>
+        <RealButton
+          text="GET STARTED"
+          onPress={() => router.push("./(auth)/LoginScreen")}
+        />
 
         {/* Footer 30% */}
         <View style={styles.footer}>

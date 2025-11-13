@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, TextInput } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 
 import { GreenVar, GrayVar, WhiteVar } from '@/assets/colors/colors';
 import { Text, View } from '@/components/Themed';
@@ -6,13 +6,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 import Modal from 'react-native-modal';
+import FilterButton from '@/components/FilterButton';
+import Food from '@/classes/Food';
+import FoodComponent from '@/components/FoodComponent';
 
 interface Filter {
   name: string;
   active: boolean;
 }
 
-export default function TabTwoScreen() {
+const foodList: Food[] = [
+  { name: "Hamburger", amount: 1 },
+  { name: "Pizza", amount: 2, unit: "slices" },
+  ...Array.from({length: 30}, () => ({ name: "Spaghetti", amount: 3, unit: "kg" }))
+]
+
+export default function VirtualFridgeScreen() {
   const [filters, setFilters] = useState<Filter[]>([
     { name: "Fruit", active: false},
     { name: "Vegetables", active: false},
@@ -38,7 +47,8 @@ export default function TabTwoScreen() {
 
   const toggleAll = () => {
     setAllFilters(true);
-    setFilters(prev => prev.map(f => ({ ...f, active: false })));
+    if(!allFilters)
+      setFilters(prev => prev.map(f => ({ ...f, active: false })));
   };
 
   return (
@@ -63,9 +73,15 @@ export default function TabTwoScreen() {
           >
               <Ionicons name='chevron-up' size={24} color={GreenVar} />
           </Pressable>
+          <ScrollView contentContainerStyle={styles.modalItemsList}>
+            {foodList.map((food, i) => {
+              return <FoodComponent key={i+1} food={food} />
+            })}
+          </ScrollView>
         </View>
       </Modal>
 
+      {/* REST */}
       <View style={styles.topBar}>
         <Text style={styles.title}>Virtual Fridge</Text>
         <Pressable
@@ -84,14 +100,10 @@ export default function TabTwoScreen() {
         </Pressable>
       </View>
       <View style={styles.filters}>
-        <Pressable style={[styles.filterButton, allFilters && styles.activeFilterButton]} onPress={toggleAll}>
-          <Text style={[styles.filterText, allFilters && styles.activeFilterText]}>ALL</Text>
-        </Pressable>
-        {filters.map(filter => {
+        <FilterButton text="ALL" active={allFilters} disabled={allFilters} onPress={toggleAll} />
+        {filters.map(({ name, active }) => {
           return (
-            <Pressable key={filter.name} style={[styles.filterButton, filter.active && styles.activeFilterButton]} onPress={() => toggleFilter(filter.name)}>
-              <Text style={[styles.filterText, filter.active && styles.activeFilterText]}>{filter.name.toUpperCase()}</Text>
-            </Pressable>
+            <FilterButton key={name} text={name.toUpperCase()} active={active} onPress={() => toggleFilter(name)} />
           )
         })}
       </View>
@@ -118,13 +130,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: "transparent",
-    width: '100%'
+    width: '100%',
   },
   title: {
+    marginTop: 15,
     fontSize: 36,
     fontWeight: 'bold',
     color: "#0F3624",
-    marginTop: 30
   },
   search: {
     width: "100%",
@@ -156,27 +168,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     padding: 2
   },
-  filterButton: {
-    borderRadius: 10,
-    padding: 10,
-    outlineWidth: 1,
-    outlineColor: '#BFBFBD',
-    height: 45,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterText: {
-    color: GreenVar
-  },
-  activeFilterText: {
-    color: "#fff"
-
-  },
-  activeFilterButton: {
-    backgroundColor: GreenVar,
-    outlineWidth: 0,
-  },
   cards: {
     display: 'flex',
     flexDirection: 'column',
@@ -202,4 +193,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
+  modalItemsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 15,
+    backgroundColor: WhiteVar
+  }
 });
