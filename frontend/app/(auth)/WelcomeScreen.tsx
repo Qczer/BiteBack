@@ -24,8 +24,7 @@ export default function WelcomeScreen() {
         {/* Header 40% */}
         <View style={styles.header}>
           <Text style={styles.sloganText}>
-            Fight Waste,{" "}
-            <Text style={styles.brand}>BiteBack</Text>.
+            Fight Waste, <Text style={styles.brand}>BiteBack</Text>.
           </Text>
         </View>
 
@@ -90,7 +89,7 @@ const styles = StyleSheet.create({
   },
   pressedButtonShadow: {
     marginTop: 2,
-    paddingBottom: 2
+    paddingBottom: 2,
   },
   button: {
     width: "80%",

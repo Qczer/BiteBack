@@ -7,25 +7,25 @@ export default function Fridge() {
     const shelves = Array.from({ length: 20 }, (_, shelfIndex) => {
         const items = Array.from({ length: SHELF_SIZE }, (_, i) => {
         // Obliczamy indeks w tablicy foods z zawijaniem
-            return foods[(shelfIndex + i) % foods.length];
+          return foods[(shelfIndex + i) % foods.length];
         });
         return { index: shelfIndex, items };
     });
 
     return (
-        <View style={styles.fridgeContainer}>
-            <ScrollView contentContainerStyle={styles.scrollArea}>
-                {shelves.map(shelf => (
-                    <View key={shelf.index+1} style={styles.shelf}>
-                        {shelf.items.map((item, idx) => (
-                            <Text key={idx+1} style={styles.food}>
-                                {item}
-                            </Text>
-                        ))}
-                    </View>
-                ))}
-            </ScrollView>
-        </View>
+      <View style={styles.fridgeContainer}>
+        <ScrollView contentContainerStyle={styles.scrollArea}>
+          {shelves.map(shelf => (
+            <View key={shelf.index+1} style={styles.shelf}>
+              {shelf.items.map((item, idx) => (
+                <Text key={idx+1} style={styles.food}>
+                  {item}
+                </Text>
+              ))}
+            </View>
+          ))}
+        </ScrollView>
+      </View>
     )
 }
 
