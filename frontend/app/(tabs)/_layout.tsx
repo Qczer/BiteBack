@@ -30,7 +30,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#eeece8",
         },
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: false,

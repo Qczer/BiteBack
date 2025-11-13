@@ -32,7 +32,7 @@ export default function WelcomeScreen() {
         {/* Button 30% */}
         <RealButton
           text="GET STARTED"
-          onPress={() => router.push("./(auth)/LoginScreen")}
+          onPress={() => router.push("./LoginScreen")}
         />
 
         {/* Footer 30% */}

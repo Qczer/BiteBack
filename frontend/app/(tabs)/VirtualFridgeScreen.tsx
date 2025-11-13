@@ -9,6 +9,7 @@ import Modal from 'react-native-modal';
 import FilterButton from '@/components/FilterButton';
 import Food from '@/classes/Food';
 import FoodComponent from '@/components/FoodComponent';
+import Fridge from '@/components/Fridge';
 
 interface Filter {
   name: string;
@@ -71,8 +72,11 @@ export default function VirtualFridgeScreen() {
             onPressIn={() => {setExpanded(curr => !curr)}}
             style={{alignSelf: 'flex-end'}}
           >
-              <Ionicons name='chevron-up' size={24} color={GreenVar} />
+            <Ionicons name='chevron-up' size={24} color={GreenVar} />
           </Pressable>
+
+          <Fridge />
+
           <ScrollView contentContainerStyle={styles.modalItemsList}>
             {foodList.map((food, i) => {
               return <FoodComponent key={i+1} food={food} />
