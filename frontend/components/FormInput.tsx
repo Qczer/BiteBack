@@ -1,6 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 export default function FormInput({
@@ -8,39 +14,47 @@ export default function FormInput({
   leftIcon = "person-outline",
   rightIcon = "eye-outline",
   secure = false, // czy input ma być hasłem
+  label = "",
+  alertText = "",
 }) {
   const [secureText, setSecureText] = useState(secure);
 
   return (
-    <View style={styles.inputBox}>
-      {/* Ikona po lewej */}
-      {leftIcon && (
-        <Ionicons
-          name={leftIcon as IoniconName}
-          size={24}
-          color="lightgray"
-          style={styles.leftIcon}
-        />
-      )}
-
-      {/* Pole tekstowe */}
-      <TextInput
-        style={styles.textInput}
-        placeholder={placeholder}
-        secureTextEntry={secureText}
-      />
-
-      {/* Ikona po prawej (np. pokaz/ukryj hasło) */}
-      {rightIcon && secure && (
-        <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+    <View style={{ margin: 10 }}>
+      <View>
+        <Text style={styles.labelText}>{label}</Text>
+      </View>
+      <View style={styles.inputBox}>
+        {/* Ikona po lewej */}
+        {leftIcon && (
           <Ionicons
-            name={secureText ? (rightIcon as IoniconName) : "eye-off-outline"}
+            name={leftIcon as IoniconName}
             size={24}
-            color="#555"
-            style={styles.rightIcon}
+            color="lightgray"
+            style={styles.leftIcon}
           />
-        </TouchableOpacity>
-      )}
+        )}
+
+        {/* Pole tekstowe */}
+        <TextInput
+          style={styles.textInput}
+          placeholder={placeholder}
+          secureTextEntry={secureText}
+        />
+
+        {/* Ikona po prawej (np. pokaz/ukryj hasło) */}
+        {rightIcon && secure && (
+          <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+            <Ionicons
+              name={secureText ? (rightIcon as IoniconName) : "eye-off-outline"}
+              size={24}
+              color="#555"
+              style={styles.rightIcon}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+      <Text style={styles.warningText}>{alertText}</Text>
     </View>
   );
 }
@@ -62,8 +76,22 @@ const styles = StyleSheet.create({
   leftIcon: {
     marginRight: 8,
   },
+  labelText: {
+    textTransform: "uppercase",
+    color: "gray",
+    fontSize: 12,
+    marginLeft: 5,
+  },
+  warningText: {
+    color: "red",
+    fontSize: 12,
+    marginLeft: 5,
+    height: 14,
+    marginBottom: 5,
+  },
   textInput: {
     flex: 1,
+    color: "black",
     paddingVertical: 8,
     fontSize: 16,
   },
