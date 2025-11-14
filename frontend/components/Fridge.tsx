@@ -1,9 +1,13 @@
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 
 const foods = ["🍎", "🍌", "🥦", "🥩", "🥖", "🧀", "🍪"];
 const SHELF_SIZE = 5;
 
-export default function Fridge() {
+interface FridgeProps {
+  addStyles?: StyleProp<ViewStyle>;
+}
+
+export default function Fridge({ addStyles }: FridgeProps) {
     const shelves = Array.from({ length: 20 }, (_, shelfIndex) => {
         const items = Array.from({ length: SHELF_SIZE }, (_, i) => {
         // Obliczamy indeks w tablicy foods z zawijaniem
@@ -13,7 +17,7 @@ export default function Fridge() {
     });
 
     return (
-      <View style={styles.fridgeContainer}>
+      <View style={[styles.fridgeContainer, addStyles]}>
         <ScrollView contentContainerStyle={styles.scrollArea}>
           {shelves.map(shelf => (
             <View key={shelf.index+1} style={styles.shelf}>

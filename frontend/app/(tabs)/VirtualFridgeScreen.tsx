@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { Dimensions, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 
 import { GreenVar, GrayVar, WhiteVar } from '@/assets/colors/colors';
 import { Text, View } from '@/components/Themed';
@@ -75,7 +75,6 @@ export default function VirtualFridgeScreen() {
             <Ionicons name='chevron-up' size={24} color={GreenVar} />
           </Pressable>
 
-          <Fridge />
 
           <ScrollView contentContainerStyle={styles.modalItemsList}>
             {foodList.map((food, i) => {
@@ -84,41 +83,47 @@ export default function VirtualFridgeScreen() {
           </ScrollView>
         </View>
       </Modal>
+      <View style={styles.mainContainer}>
 
-      {/* REST */}
-      <View style={styles.topBar}>
-        <Text style={styles.title}>Virtual Fridge</Text>
-        <Pressable
-          onPressIn={() => {setExpanded(curr => !curr)}}
-        >
-          <Ionicons name='chevron-down' size={24} color={GreenVar} />
-        </Pressable>
-      </View>
-      <View style={styles.search}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder='Search category'
-        />
-        <Pressable style={styles.searchButton}>
-          <Ionicons name="search" size={22} color={GreenVar} />
-        </Pressable>
-      </View>
-      <View style={styles.filters}>
-        <FilterButton text="ALL" active={allFilters} disabled={allFilters} onPress={toggleAll} />
-        {filters.map(({ name, active }) => {
-          return (
-            <FilterButton key={name} text={name.toUpperCase()} active={active} onPress={() => toggleFilter(name)} />
-          )
-        })}
-      </View>
-      <View style={styles.cards}>
-        <View style={[styles.card, { backgroundColor: GreenVar}]}></View>
-        <View style={[styles.card, { backgroundColor: "#A08CE1"}]}></View>
-        <View style={[styles.card, { backgroundColor: "#FA9DA5"}]}></View>
+
+        {/* REST */}
+        <View style={styles.topBar}>
+          <Text style={styles.title}>Virtual Fridge</Text>
+          <Pressable
+            onPressIn={() => {setExpanded(curr => !curr)}}
+          >
+            <Ionicons name='chevron-down' size={24} color={GreenVar} />
+          </Pressable>
+        </View>
+        <View style={styles.search}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder='Search category'
+          />
+          <Pressable style={styles.searchButton}>
+            <Ionicons name="search" size={22} color={GreenVar} />
+          </Pressable>
+        </View>
+        <View style={styles.filters}>
+          <FilterButton text="ALL" active={allFilters} disabled={allFilters} onPress={toggleAll} />
+          {filters.map(({ name, active }) => {
+            return (
+              <FilterButton key={name} text={name.toUpperCase()} active={active} onPress={() => toggleFilter(name)} />
+            )
+          })}
+        </View>
+        <Fridge addStyles={{height: height * 0.6}}/>
+        {/* <View style={styles.cards}>
+          <View style={[styles.card, { backgroundColor: GreenVar}]}></View>
+          <View style={[styles.card, { backgroundColor: "#A08CE1"}]}></View>
+          <View style={[styles.card, { backgroundColor: "#FA9DA5"}]}></View>
+        </View> */}
       </View>
     </View>
   );
 }
+
+const height = Dimensions.get("window").height;
 
 const styles = StyleSheet.create({
   container: {
@@ -127,6 +132,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: 20,
     backgroundColor: WhiteVar
+  },
+  mainContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 15,
+    backgroundColor: 'transparent'
   },
   topBar: {
     display: 'flex',
@@ -152,7 +163,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 30,
     backgroundColor: "#e0ded9"
   },
   searchInput: {
@@ -168,7 +178,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     overflow: 'hidden',
     gap: 10,
-    marginTop: 15,
     backgroundColor: 'transparent',
     padding: 2
   },
@@ -176,7 +185,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     rowGap: 15,
-    marginTop: 30,
     width: "100%",
     backgroundColor: 'transparent'
   },
