@@ -1,201 +1,105 @@
-import { Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 
-import { GreenVar, GrayVar, WhiteVar } from '@/assets/colors/colors';
+import {  WhiteVar } from '@/assets/colors/colors';
 import { Text, View } from '@/components/Themed';
-import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 import Modal from 'react-native-modal';
-import FilterButton from '@/components/FilterButton';
-import Food from '@/classes/Food';
+import Food, { FoodType } from '@/classes/Food';
 import FoodComponent from '@/components/FoodComponent';
 import Fridge from '@/components/Fridge';
-
-interface Filter {
-  name: string;
-  active: boolean;
-}
+import SearchInput from '@/components/SearchInput';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import FiltersList from '@/components/FiltersList';
+import Filter from '@/classes/Filter';
+import ExpandButton from '@/components/ExpandButton';
 
 const foodList: Food[] = [
-  { name: "Hamburger", amount: 1 },
-  { name: "Pizza", amount: 2, unit: "slices" },
+  { name: "Hamburger", amount: 1, type: FoodType.junk },
+  { name: "Pizza", amount: 2, unit: "slices", type: FoodType.junk },
   ...Array.from({length: 30}, () => ({ name: "Spaghetti", amount: 3, unit: "kg" }))
 ]
 
 export default function VirtualFridgeScreen() {
   const [filters, setFilters] = useState<Filter[]>([
-    { name: "Fruit", active: false},
-    { name: "Vegetables", active: false},
-    { name: "Snacks", active: false},
+    { name: "Fruit", active: false },
+    { name: "Vegetable", active: false},
+    { name: "Snack", active: false},
     { name: "Junk", active: false},
   ])
 
-  const [allFilters, setAllFilters] = useState<boolean>(true);
   const [expanded, setExpanded] = useState<boolean>(false);
-
-  const toggleFilter = (name: string) => {
-    setFilters(prev => {
-      const updated = prev.map(f => 
-        f.name === name ? { ...f, active: !f.active } : f
-      );
-
-      const anyActive = updated.some(f => f.active);
-      setAllFilters(!anyActive);
-
-      return updated;
-    })
-  };
-
-  const toggleAll = () => {
-    setAllFilters(true);
-    if(!allFilters)
-      setFilters(prev => prev.map(f => ({ ...f, active: false })));
-  };
+  const [filterName, setFilterName] = useState<string>("");
 
   return (
-    <View style={styles.container}>
-      {/* MODAL */}
-      <Modal
-        isVisible={expanded}
-        onBackdropPress={() => setExpanded(curr => !curr)}
+    <SafeAreaProvider style={styles.container}>
+      <SafeAreaView>
+        {/* MODAL */}
+        <Modal
+          isVisible={expanded}
+          onBackdropPress={() => setExpanded(curr => !curr)}
+          statusBarTranslucent={false}
 
-        animationIn="slideInDown"
-        animationOut="slideOutUp"
-        animationInTiming={200}
-        animationOutTiming={200}
+          animationIn="slideInDown"
+          animationOut="slideOutUp"
+          animationInTiming={200}
+          animationOutTiming={200}
 
-        hasBackdrop={false}
-        style={styles.modal}
-      >
-        <View style={styles.modalContent}>
-          <Pressable
-            onPressIn={() => {setExpanded(curr => !curr)}}
-            style={{alignSelf: 'flex-end'}}
-          >
-            <Ionicons name='chevron-up' size={24} color={GreenVar} />
-          </Pressable>
-
-          <Fridge />
-
+          hasBackdrop={false}
+          style={styles.modal}
+        >
+          <ExpandButton direction="up" onPressIn={() => setExpanded(false)} />
+          <SearchInput addStyle={{width: "90%"}} onInput={setFilterName} />
           <ScrollView contentContainerStyle={styles.modalItemsList}>
-            {foodList.map((food, i) => {
+            {foodList.filter(e => e.name.toUpperCase().includes(filterName.toUpperCase())).map((food, i) => {
               return <FoodComponent key={i+1} food={food} />
             })}
           </ScrollView>
-        </View>
-      </Modal>
+        </Modal>
 
-      {/* REST */}
-      <View style={styles.topBar}>
-        <Text style={styles.title}>Virtual Fridge</Text>
-        <Pressable
-          onPressIn={() => {setExpanded(curr => !curr)}}
-        >
-          <Ionicons name='chevron-down' size={24} color={GreenVar} />
-        </Pressable>
-      </View>
-      <View style={styles.search}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder='Search category'
-        />
-        <Pressable style={styles.searchButton}>
-          <Ionicons name="search" size={22} color={GreenVar} />
-        </Pressable>
-      </View>
-      <View style={styles.filters}>
-        <FilterButton text="ALL" active={allFilters} disabled={allFilters} onPress={toggleAll} />
-        {filters.map(({ name, active }) => {
-          return (
-            <FilterButton key={name} text={name.toUpperCase()} active={active} onPress={() => toggleFilter(name)} />
-          )
-        })}
-      </View>
-      <View style={styles.cards}>
-        <View style={[styles.card, { backgroundColor: GreenVar}]}></View>
-        <View style={[styles.card, { backgroundColor: "#A08CE1"}]}></View>
-        <View style={[styles.card, { backgroundColor: "#FA9DA5"}]}></View>
-      </View>
-    </View>
+        {/* REST */}
+        <View style={styles.mainContainer}>
+          <ExpandButton direction="down" onPressIn={() => setExpanded(true)} />
+          <Text style={[styles.title, { alignSelf: 'flex-start' }]}>Virtual Fridge</Text>
+          <SearchInput/>
+          <FiltersList filters={filters} setFilters={setFilters}/>
+          <Fridge addStyles={{height: height * 0.6}}/>
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
+
+const height = Dimensions.get("window").height;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    padding: 20,
     backgroundColor: WhiteVar
   },
-  topBar: {
+  mainContainer: {
     display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    gap: 15,
+    backgroundColor: 'transparent',
     alignItems: 'center',
-    backgroundColor: "transparent",
-    width: '100%',
+    padding: 20,
   },
   title: {
-    marginTop: 15,
     fontSize: 36,
     fontWeight: 'bold',
     color: "#0F3624",
   },
-  search: {
-    width: "100%",
-    height: 45,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 30,
-    backgroundColor: "#e0ded9"
-  },
-  searchInput: {
-    fontSize: 16,
-    color: GrayVar,
-  },
-  searchButton: {
-    marginRight: 15,
-    color: GreenVar
-  },
-  filters: {
-    display: 'flex',
-    flexDirection: 'row',
-    overflow: 'hidden',
-    gap: 10,
-    marginTop: 15,
-    backgroundColor: 'transparent',
-    padding: 2
-  },
-  cards: {
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: 15,
-    marginTop: 30,
-    width: "100%",
-    backgroundColor: 'transparent'
-  },
-  card: {
-    width: "100%",
-    height: 180,
-    borderRadius: 20,
-    backgroundColor: 'lightgray'
-  },
 
   modal: {
     margin: 0,
-  },
-  modalContent: {
-    flex: 1,
-    backgroundColor: WhiteVar,
     padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 15,
+    backgroundColor: WhiteVar,
   },
   modalItemsList: {
     display: 'flex',
