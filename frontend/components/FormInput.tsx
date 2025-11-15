@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import HelpPopover from "./HelpPopover";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 export default function FormInput({
@@ -16,13 +17,39 @@ export default function FormInput({
   secure = false, // czy input ma być hasłem
   label = "",
   alertText = "",
+  showHelp = false, // <-- nowy props
+  // onValueChange = () => {},
+  setVal = (text: string) => {},
 }) {
+  const [isPopoverVisible, setIsPopoverVisible] = useState(false);
+
   const [secureText, setSecureText] = useState(secure);
 
   return (
     <View style={{ margin: 10 }}>
       <View>
-        <Text style={styles.labelText}>{label}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.labelText}>{label}</Text>
+          {secure && showHelp && (
+            <HelpPopover
+              isVisible={isPopoverVisible}
+              from={
+                <TouchableOpacity onPress={() => setIsPopoverVisible(true)}>
+                  <Ionicons
+                    name="help-circle-outline"
+                    size={18}
+                    color="gray"
+                    style={{ marginLeft: 6 }}
+                  />
+                </TouchableOpacity>
+              }
+              onRequestClose={() => setIsPopoverVisible(false)}
+              text={
+                "Each password should contain at least 7 characters, one uppercase letter, and one special character."
+              }
+            />
+          )}
+        </View>
       </View>
       <View style={styles.inputBox}>
         {/* Ikona po lewej */}
@@ -40,6 +67,10 @@ export default function FormInput({
           style={styles.textInput}
           placeholder={placeholder}
           secureTextEntry={secureText}
+          onChangeText={(text) => {
+            setVal(text);
+            // onValueChange(); // możesz przekazać wartości
+          }}
         />
 
         {/* Ikona po prawej (np. pokaz/ukryj hasło) */}

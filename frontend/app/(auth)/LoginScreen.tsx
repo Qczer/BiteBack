@@ -1,37 +1,76 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
+import toastConfig from "@/components/ToastConfig";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 
+const showToast = (message: string) => {
+  Toast.show({
+    type: "error",
+    text1: message,
+    position: "top",
+    swipeable: true,
+  });
+};
+
 export default function LoginScreen() {
-  const [secure, setSecure] = useState(true);
-  const [emailAlertText, setEmailAlertText] = useState(
-    "Account with this email does not exist."
-  );
-  const [passwordAlertText, setPasswordAlertText] = useState(
-    "This password is incorrect."
-  );
+  const [availableToLog, setAvailableToLog] = useState(false);
+  const [showPasswordHelp, setShowPasswordHelp] = useState(false);
+  // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  useEffect(() => {
+    validateForm();
+  }, [email, password]);
+  const [emailAlertText, setEmailAlertText] = useState("");
+  const [passwordAlertText, setPasswordAlertText] = useState("");
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // 7+ znakow, jeden specjalny, jedna wielka litera
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/;
+
+  const validateForm = () => {
+    if (email.length === 0 && password.length === 0) return;
+
+    /*
+      jakub u:
+       - masz zrobiona walidacje niepustych pol i spelniajacych regexpy
+       - zostala ci kwestia bazodanowa czyli niepowtorzone emaile
+       - setEmailAlertText i setPasswordAlertText: tym zmieniasz te labele czerwone pod inputami
+       - mozesz tez wywolac toast czyli takie pole u gory z komunikatem (te same co po nacisnieciu szarego log in)
+       - showToast(komunikat)
+    */
+    let emailValid = emailRegex.test(email);
+    let passwordValid = passwordRegex.test(password);
+
+    setEmailAlertText(emailValid ? "" : "Enter a valid email address.");
+
+    setPasswordAlertText(
+      passwordValid ? "" : "Password doesn't meet our requirements."
+    );
+
+    setShowPasswordHelp(!passwordValid);
+    setAvailableToLog(emailValid && passwordValid);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+      <KeyboardAvoidingView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.container}>
             {/* HEADER */}
@@ -52,6 +91,8 @@ export default function LoginScreen() {
                   leftIcon="mail-outline"
                   label="Email address"
                   alertText={emailAlertText}
+                  setVal={setEmail}
+                  // onValueChange={validateForm}
                 />
 
                 <FormInput
@@ -61,13 +102,25 @@ export default function LoginScreen() {
                   secure={true}
                   label="Password"
                   alertText={passwordAlertText}
+                  showHelp={showPasswordHelp}
+                  // onValueChange={validateForm}
+                  setVal={setPassword}
                 />
 
                 <Text style={styles.secondaryText}>Forgot password?</Text>
 
                 <Pressable
-                  onPress={() => router.replace("/(tabs)/HomeScreen")}
-                  style={styles.loginButton}
+                  onPress={
+                    availableToLog
+                      ? () => router.replace("/(tabs)/HomeScreen")
+                      : () => {
+                          showToast("Please fill in all fields correctly.");
+                        }
+                  }
+                  style={[
+                    styles.loginButton,
+                    { backgroundColor: availableToLog ? GreenVar : "gray" },
+                  ]}
                 >
                   <Text style={styles.buttonText}>Log in</Text>
                 </Pressable>
@@ -77,7 +130,10 @@ export default function LoginScreen() {
                   <Text style={styles.dividerText}>OR</Text>
                   <View style={styles.line} />
                 </View>
-                <RealButton text="Create account" />
+                <RealButton
+                  text="Create account"
+                  onPress={() => router.push("/(auth)/RegisterScreen")}
+                />
               </View>
             </View>
 
@@ -85,6 +141,7 @@ export default function LoginScreen() {
             <View style={styles.otherBlock}></View>
           </View>
         </ScrollView>
+        <Toast config={toastConfig} />
       </KeyboardAvoidingView>
     </View>
   );
@@ -99,13 +156,13 @@ const styles = StyleSheet.create({
     flex: 2,
     justifyContent: "flex-end",
     alignItems: "center",
-    backgroundColor: WhiteVar,
+    backgroundColor: "snow",
     paddingVertical: 20,
   },
   formBlock: {
     flex: 5,
     width: "100%",
-    backgroundColor: WhiteVar,
+    backgroundColor: "snow",
     justifyContent: "center",
     paddingVertical: 20,
   },
@@ -122,11 +179,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    zIndex: 1,
   },
   otherBlock: {
-    flex: 1,
-    backgroundColor: WhiteVar,
+    height: "52%",
+    position: "absolute",
+    bottom: 0,
+    zIndex: 0,
+    backgroundColor: GreenVar,
     width: "100%",
+    // borderTopLeftRadius: 20,
+    // borderTopRightRadius: 20,
   },
   headerText: {
     fontFamily: "Courgette_400Regular",
@@ -150,7 +213,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     borderRadius: 25,
-    backgroundColor: GreenVar,
     // shadow
     elevation: 3,
     shadowColor: "#000",
