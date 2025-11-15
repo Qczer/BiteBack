@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#c5c1bb",
   },
   buttonContainer: {
-    height: "20%",
+    // height: "20%",
     alignItems: "center",
     justifyContent: "center",
   },

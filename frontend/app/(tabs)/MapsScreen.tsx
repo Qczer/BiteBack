@@ -1,21 +1,10 @@
 import { Text, View } from "@/components/Themed";
-import { getItem } from "@/services/AuthService";
-import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 
-export default function HomeScreen() {
-  const [nickname, setNickname] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadEmail = async () => {
-      const nickname = await getItem("userNickname");
-      setNickname(nickname);
-    };
-    loadEmail();
-  }, []);
+export default function MapsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hello {nickname}</Text>
+      <Text style={styles.title}>Maps</Text>
       <View
         style={styles.separator}
         lightColor="#eee"

@@ -46,6 +46,13 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="CreateNicknameScreen"
+        options={{
+          title: "CreateNickname",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

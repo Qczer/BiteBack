@@ -1,4 +1,4 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 
@@ -41,7 +41,9 @@ export default function TabLayout() {
         options={{
           title: "Home",
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="home" size={28} color={color}></Ionicons>
+          ),
         }}
       />
       <Tabs.Screen
@@ -49,7 +51,39 @@ export default function TabLayout() {
         options={{
           title: "Fridge",
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="refresh" color={color} />
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="snowflake-o" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ScanScreen"
+        options={{
+          title: "Scan",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="scan" size={28} color={color}></Ionicons>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="MapsScreen"
+        options={{
+          title: "Maps",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="map-outline" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ProfileScreen"
+        options={{
+          title: "Profile",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="person" size={28} color={color} />
+          ),
         }}
       />
     </Tabs>

@@ -1,8 +1,7 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
-import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
-import { saveItem } from "@/services/AuthService";
+import { getItem, saveItem } from "@/services/AuthService";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -28,54 +27,37 @@ const showToast = (message: string) => {
   });
 };
 
-export default function RegisterScreen() {
+export default function CreateNicknameScreen() {
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadEmail = async () => {
+      const email = await getItem("userEmail");
+      setUserEmail(email);
+    };
+    loadEmail();
+  }, []);
+
   const [availableToLog, setAvailableToLog] = useState(false);
-  const [showPasswordHelp, setShowPasswordHelp] = useState(false);
-  // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
-  // const [nickname, setNickname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatedPassword, setRepeatedPassword] = useState("");
+  const [nickname, setNickname] = useState("");
   useEffect(() => {
     validateForm();
-  }, [email, password, repeatedPassword]);
-  const [emailAlertText, setEmailAlertText] = useState("");
-  const [passwordAlertText, setPasswordAlertText] = useState("");
-  const [repeatedPasswordAlertText, setRepeatedPasswordAlertText] =
-    useState("");
+  }, [nickname]);
+  const [nicknameAlertText, setNicknameAlertText] = useState("");
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // 7+ znakow, jeden specjalny, jedna wielka litera
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/;
-
-  const handleRegister = () => {
-    saveItem("userEmail", email);
-    router.replace("/(auth)/CreateNicknameScreen");
-    // saveItem("userPassword", password);
+  const handleCreateNickname = () => {
+    saveItem("userNickname", nickname);
+    router.replace("/(tabs)/HomeScreen");
   };
 
   const validateForm = () => {
-    if (email.length === 0 && password.length === 0) return;
-    let emailValid = emailRegex.test(email);
-    let passwordValid = passwordRegex.test(password);
-
-    setEmailAlertText(emailValid ? "" : "Enter a valid email address.");
-
-    setPasswordAlertText(
-      passwordValid ? "" : "Password doesn't meet our requirements."
-    );
-
-    if (passwordValid) {
-      setRepeatedPasswordAlertText(
-        repeatedPassword === password ? "" : "Passwords do not match."
-      );
-    }
-
-    setShowPasswordHelp(!passwordValid);
-    setAvailableToLog(
-      emailValid && passwordValid && repeatedPassword === password
-    );
+    if (nickname.length > 0) setAvailableToLog(true);
+    else setAvailableToLog(false);
+    // ponizsza linijke tez odkomentuj a powyzsze 2 zakomentuj
+    // if (nickname.length === 0) return;
+    // zrob walidacje nicku na obecnosc w bazie danych
+    // setNicknameAlertText("This username is already taken.");
+    // setAvailableToLog(true);
   };
 
   return (
@@ -90,22 +72,38 @@ export default function RegisterScreen() {
                 style={{ width: 50, height: 50, marginRight: 10 }}
               />
               <Text style={styles.headerText}>BiteBack</Text>
-              <Text style={styles.welcomeBackText}>Good to see you!</Text>
+              <Text style={styles.welcomeBackText}>One more step!</Text>
             </View>
 
             {/* FORM */}
             <View style={styles.formBlock}>
               <View style={styles.formBox}>
+                <View style={{ alignItems: "center", marginBottom: 20 }}>
+                  <Text
+                    style={{
+                      color: GreenVar,
+                      fontSize: 23,
+                      fontWeight: "bold",
+                      margin: 5,
+                    }}
+                  >
+                    Create your username
+                  </Text>
+                  <Text style={{}}>
+                    Your nickname will be visible to other users.
+                  </Text>
+                  <Text style={{ color: "gray", padding: 5 }}>{userEmail}</Text>
+                </View>
                 <FormInput
-                  placeholder="johndoe@mail.com"
-                  leftIcon="mail-outline"
-                  label="Email address"
-                  alertText={emailAlertText}
-                  setVal={setEmail}
+                  placeholder="Your username"
+                  leftIcon="person-outline"
+                  label="Nickname"
+                  alertText={nicknameAlertText}
+                  setVal={setNickname}
                   // onValueChange={validateForm}
                 />
 
-                <FormInput
+                {/* <FormInput
                   placeholder="Your password"
                   leftIcon="lock-closed-outline"
                   rightIcon="eye-outline"
@@ -115,22 +113,14 @@ export default function RegisterScreen() {
                   showHelp={showPasswordHelp}
                   // onValueChange={validateForm}
                   setVal={setPassword}
-                />
-                <FormInput
-                  placeholder="Your password"
-                  leftIcon="lock-closed-outline"
-                  rightIcon="eye-outline"
-                  secure={true}
-                  label="Confirm password"
-                  alertText={repeatedPasswordAlertText}
-                  showHelp={showPasswordHelp}
-                  // onValueChange={validateForm}
-                  setVal={setRepeatedPassword}
-                />
+                /> */}
+
+                {/* <Text style={styles.secondaryText}>Forgot password?</Text> */}
+
                 <Pressable
                   onPress={
                     availableToLog
-                      ? () => handleRegister()
+                      ? () => handleCreateNickname()
                       : () => {
                           showToast("Please fill in all fields correctly.");
                         }
@@ -140,18 +130,18 @@ export default function RegisterScreen() {
                     { backgroundColor: availableToLog ? GreenVar : "gray" },
                   ]}
                 >
-                  <Text style={styles.buttonText}>Create account</Text>
+                  <Text style={styles.buttonText}>Sign in</Text>
                 </Pressable>
 
-                <View style={styles.dividerContainer}>
+                {/* <View style={styles.dividerContainer}>
                   <View style={styles.line} />
                   <Text style={styles.dividerText}>OR</Text>
                   <View style={styles.line} />
                 </View>
                 <RealButton
-                  text="Sign in"
-                  onPress={() => router.push("/(auth)/LoginScreen")}
-                />
+                  text="Create account"
+                  onPress={() => router.push("/(auth)/RegisterScreen")}
+                /> */}
               </View>
             </View>
 
@@ -178,10 +168,11 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   formBlock: {
+    paddingTop: "25%",
     flex: 5,
     width: "100%",
     backgroundColor: "snow",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingVertical: 20,
   },
   formBox: {
@@ -213,6 +204,7 @@ const styles = StyleSheet.create({
     fontFamily: "Courgette_400Regular",
     color: GreenVar,
     fontSize: 36,
+    zIndex: 2,
   },
   welcomeBackText: {
     color: GreenVar,

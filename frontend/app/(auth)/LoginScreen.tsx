@@ -122,7 +122,7 @@ export default function LoginScreen() {
                     { backgroundColor: availableToLog ? GreenVar : "gray" },
                   ]}
                 >
-                  <Text style={styles.buttonText}>Log in</Text>
+                  <Text style={styles.buttonText}>Sign in</Text>
                 </Pressable>
 
                 <View style={styles.dividerContainer}>
@@ -132,7 +132,7 @@ export default function LoginScreen() {
                 </View>
                 <RealButton
                   text="Create account"
-                  onPress={() => router.push("/(auth)/RegisterScreen")}
+                  onPress={() => router.replace("/(auth)/RegisterScreen")}
                 />
               </View>
             </View>
