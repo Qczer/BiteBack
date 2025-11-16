@@ -1,3 +1,4 @@
+import HeaderBar from "@/components/HeaderBar";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
@@ -32,9 +33,12 @@ export default function ScanScreen() {
 
   if (!permission.granted) {
     return (
-      <View style={styles.center}>
-        <Text>We need your permission to use the camera</Text>
-        <Button onPress={requestPermission} title="Grant permission" />
+      <View style={{ flex: 1 }}>
+        <HeaderBar></HeaderBar>
+        <View style={styles.center}>
+          <Text>We need your permission to use the camera</Text>
+          <Button onPress={requestPermission} title="Grant permission" />
+        </View>
       </View>
     );
   }
@@ -46,8 +50,11 @@ export default function ScanScreen() {
 
   if (!showCamera) {
     return (
-      <View style={styles.center}>
-        <Button title="Open Camera" onPress={() => setShowCamera(true)} />
+      <View style={{ flex: 1 }}>
+        <HeaderBar></HeaderBar>
+        <View style={styles.center}>
+          <Button title="Open Camera" onPress={() => setShowCamera(true)} />
+        </View>
       </View>
     );
   }
@@ -86,6 +93,7 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   center: {
     flex: 1,
+    // backgroundColor: "red",
     justifyContent: "center",
     alignItems: "center",
   },

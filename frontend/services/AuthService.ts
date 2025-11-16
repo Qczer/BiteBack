@@ -12,3 +12,8 @@ export async function getItem(key: string): Promise<string | null> {
 export async function removeItem(key: string) {
   await SecureStore.deleteItemAsync(key);
 }
+
+export const getNotificationsCount = async (): Promise<number> => {
+  const raw = await getItem("notificationsCount");
+  return raw ? parseInt(raw, 10) : 3;
+};

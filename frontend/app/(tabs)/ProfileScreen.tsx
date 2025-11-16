@@ -1,3 +1,4 @@
+import HeaderBar from "@/components/HeaderBar";
 import { Text, View } from "@/components/Themed";
 import { getItem } from "@/services/AuthService";
 import { StyleSheet } from "react-native";
@@ -5,13 +6,16 @@ import { StyleSheet } from "react-native";
 export default function ProfileScreen() {
   const nickname = getItem("userNickname");
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profile</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
+    <View style={{ flex: 1 }}>
+      <HeaderBar></HeaderBar>
+      <View style={styles.container}>
+        <Text style={styles.title}>Profile</Text>
+        <View
+          style={styles.separator}
+          lightColor="#eee"
+          darkColor="rgba(255,255,255,0.1)"
+        />
+      </View>
     </View>
   );
 }

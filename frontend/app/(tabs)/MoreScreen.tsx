@@ -33,7 +33,7 @@ const MoreScreen = () => {
     },
     {
       title: "Receipt",
-      subtitle: "Create receipts and easily add to Fridge.",
+      subtitle: "Create receipts and add to Fridge.",
       iconName: "receipt-outline",
       panel: "/ReceiptScreen",
     },
