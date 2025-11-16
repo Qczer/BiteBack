@@ -5,7 +5,6 @@ import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const screenWidth = Dimensions.get("window").width;
 

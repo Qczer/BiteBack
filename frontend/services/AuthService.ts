@@ -1,12 +1,16 @@
 // services/AuthService.ts
 import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 
 export async function saveItem(key: string, value: string) {
   await SecureStore.setItemAsync(key, value);
 }
 
 export async function getItem(key: string): Promise<string | null> {
-  return await SecureStore.getItemAsync(key);
+  if (Platform.OS !== 'web') {
+    return await SecureStore.getItemAsync(key);
+  }
+  return null;
 }
 
 export async function removeItem(key: string) {

@@ -56,7 +56,7 @@ const MoreScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Image
-            source={require("../../assets/images/adaptive-icon.png")}
+            source={require("@/assets/images/adaptive-icon.png")}
             style={styles.logo}
             resizeMode="contain"
           />

@@ -86,7 +86,7 @@ export default function RegisterScreen() {
             {/* HEADER */}
             <View style={styles.headerBlock}>
               <Image
-                source={require("../../assets/images/adaptive-icon.png")}
+                source={require("@/assets/images/adaptive-icon.png")}
                 style={{ width: 50, height: 50, marginRight: 10 }}
               />
               <Text style={styles.headerText}>BiteBack</Text>

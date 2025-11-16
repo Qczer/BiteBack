@@ -21,7 +21,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../../assets/images/background.png")}
+        source={require("@/assets/images/background.png")}
         style={styles.backgroundImage}
         resizeMode="cover"
       />
