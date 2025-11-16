@@ -2,6 +2,7 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
+import { saveItem } from "@/services/AuthService";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -68,6 +69,11 @@ export default function LoginScreen() {
     setAvailableToLog(emailValid && passwordValid);
   };
 
+  const handleLogin = () => {
+    saveItem("isLoggedIn", "true");
+    router.replace("/(tabs)/HomeScreen");
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
       <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -112,7 +118,7 @@ export default function LoginScreen() {
                 <Pressable
                   onPress={
                     availableToLog
-                      ? () => router.replace("/(tabs)/HomeScreen")
+                      ? () => handleLogin()
                       : () => {
                           showToast("Please fill in all fields correctly.");
                         }

@@ -67,22 +67,22 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="MapsScreen"
-        options={{
-          title: "Maps",
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="map-outline" size={28} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="ProfileScreen"
         options={{
           title: "Profile",
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="MoreScreen"
+        options={{
+          title: "More",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="list-outline" size={28} color={color} />
           ),
         }}
       />
