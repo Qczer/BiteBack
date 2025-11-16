@@ -1,36 +1,48 @@
-import { Dimensions, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import Food, { FoodType } from "@/classes/Food";
+import { Dimensions, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle, } from "react-native";
+import FridgeFood from "./FridgeFood";
+import Filter from "@/classes/Filter";
+import FoodFilter from "@/classes/FoodFilter";
 
-const foods = ["🍎", "🍌", "🥦", "🥩", "🥖", "🧀", "🍪"];
+const food: Food[] = [
+  { name: "🍎", amount: 2, type: FoodType.fruit },
+  { name: "🍌", amount: 1, type: FoodType.fruit },
+  { name: "🥦", amount: 3, type: FoodType.vegetable },
+  { name: "🥩", amount: 8, type: FoodType.meat },
+  { name: "🥖", amount: 5, type: FoodType.junk },
+  { name: "🧀", amount: 3, type: FoodType.snack },
+  { name: "🍪", amount: 4, type: FoodType.snack },
+];
 const SHELF_SIZE = 5;
 
 interface FridgeProps {
   addStyles?: StyleProp<ViewStyle>;
+  filters?: FoodFilter[];
 }
 
-export default function Fridge({ addStyles }: FridgeProps) {
-    const shelves = Array.from({ length: 20 }, (_, shelfIndex) => {
-        const items = Array.from({ length: SHELF_SIZE }, (_, i) => {
-        // Obliczamy indeks w tablicy foods z zawijaniem
-          return foods[(shelfIndex + i) % foods.length];
-        });
-        return { index: shelfIndex, items };
-    });
+export default function Fridge({ addStyles, filters }: FridgeProps) {
+  const filteredFood = filters?.length && filters.some(f => f.active)
+    ? food.filter(f => filters.some(fl => fl.active && fl.foodType === f.type))
+    : food;
 
-    return (
-      <View style={[styles.fridgeContainer, addStyles]}>
-        <ScrollView contentContainerStyle={styles.scrollArea}>
-          {shelves.map(shelf => (
-            <View key={shelf.index+1} style={styles.shelf}>
-              {shelf.items.map((item, idx) => (
-                <Text key={idx+1} style={styles.food}>
-                  {item}
-                </Text>
-              ))}
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-    )
+  const shelves = Array.from(
+    { length: Math.ceil(filteredFood.length / SHELF_SIZE) },
+    (_, i) => filteredFood.slice(i * SHELF_SIZE, (i + 1) * SHELF_SIZE)
+  );
+
+  return (
+    <View style={[styles.fridgeContainer, addStyles]}>
+      <ScrollView contentContainerStyle={styles.scrollArea}>
+        {shelves.map((shelf, shelfIndex) => (
+          <View key={shelfIndex} style={styles.shelf}>
+            {shelf.map((food, idx) => (
+              <FridgeFood key={idx + 1} food={food} />
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
 }
 
 const { width } = Dimensions.get("window");
@@ -50,7 +62,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 8,
-    marginBottom: 25
+    marginBottom: 25,
   },
   scrollArea: {
     paddingVertical: 10,
@@ -61,7 +73,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 80,
     marginBottom: 12,
-    backgroundColor: "#ffffffcc", // lekko przezroczysta, jak szkło
+    backgroundColor: "#fafafa", // lekko przezroczysta, jak szkło
     borderRadius: 5,
     borderBottomWidth: 5,
     borderColor: "#ccc",
@@ -70,8 +82,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
-  },
-  food: {
-    fontSize: 28,
   },
 });

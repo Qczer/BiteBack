@@ -6,30 +6,40 @@ import { useState } from 'react';
 
 import Modal from 'react-native-modal';
 import Food, { FoodType } from '@/classes/Food';
-import FoodComponent from '@/components/FoodComponent';
 import Fridge from '@/components/Fridge';
 import SearchInput from '@/components/SearchInput';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import FiltersList from '@/components/FiltersList';
-import Filter from '@/classes/Filter';
+import FoodFiltersList from '@/components/FoodFiltersList';
 import ExpandButton from '@/components/ExpandButton';
+import FoodFilter from '@/classes/FoodFilter';
+import FoodList from '@/components/FoodList';
 
 const foodList: Food[] = [
   { name: "Hamburger", amount: 1, type: FoodType.junk },
   { name: "Pizza", amount: 2, unit: "slices", type: FoodType.junk },
-  ...Array.from({length: 30}, () => ({ name: "Spaghetti", amount: 3, unit: "kg" }))
+  ...Array.from({length: 30}, () => ({ name: "Spaghetti", amount: 3, unit: "kg", type: FoodType.meat }))
 ]
 
+const allFoodTypes = Object.keys(FoodType)
+  .filter(key => isNaN(Number(key))) as (keyof typeof FoodType)[];
+
 export default function VirtualFridgeScreen() {
-  const [filters, setFilters] = useState<Filter[]>([
-    { name: "Fruit", active: false },
-    { name: "Vegetable", active: false},
-    { name: "Snack", active: false},
-    { name: "Junk", active: false},
-  ])
+  const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
+    allFoodTypes.map(typeName => ({
+      foodType: FoodType[typeName],
+      active: false,
+    }))
+  );
 
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [filterName, setFilterName] = useState<string>("");
+  const [nameFilter, setNameFilter] = useState<string>("");
+
+  const filteredFoodList = foodList
+    .filter(elem => elem.name.toUpperCase().includes(nameFilter.toUpperCase()))
+    .filter(food =>
+      foodFilters.some(f => f.active && f.foodType === food.type) || 
+      !foodFilters.some(f => f.active)
+    );
 
   return (
     <SafeAreaProvider style={styles.container}>
@@ -49,21 +59,18 @@ export default function VirtualFridgeScreen() {
           style={styles.modal}
         >
           <ExpandButton direction="up" onPressIn={() => setExpanded(false)} />
-          <SearchInput addStyle={{width: "90%"}} onInput={setFilterName} />
-          <ScrollView contentContainerStyle={styles.modalItemsList}>
-            {foodList.filter(e => e.name.toUpperCase().includes(filterName.toUpperCase())).map((food, i) => {
-              return <FoodComponent key={i+1} food={food} />
-            })}
-          </ScrollView>
+          <SearchInput addStyle={{width: "90%"}} onInput={setNameFilter} />
+          <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters}/>
+          <FoodList foodList={filteredFoodList}/>
         </Modal>
 
         {/* REST */}
         <View style={styles.mainContainer}>
           <ExpandButton direction="down" onPressIn={() => setExpanded(true)} />
-          <Text style={[styles.title, { alignSelf: 'flex-start' }]}>Virtual Fridge</Text>
+          <Text style={styles.title}>Virtual Fridge</Text>
           <SearchInput/>
-          <FiltersList filters={filters} setFilters={setFilters}/>
-          <Fridge addStyles={{height: height * 0.6}}/>
+          <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters}/>
+          <Fridge addStyles={{height: height * 0.6}} filters={foodFilters}/>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -91,6 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: "#0F3624",
+    alignSelf: 'flex-start'
   },
 
   modal: {
@@ -100,11 +108,5 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     gap: 15,
     backgroundColor: WhiteVar,
-  },
-  modalItemsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 15,
-    backgroundColor: WhiteVar
   }
 });
