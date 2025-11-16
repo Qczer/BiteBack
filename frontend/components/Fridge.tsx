@@ -13,7 +13,9 @@ const food: Food[] = [
   { name: "🧀", amount: 3, type: FoodType.snack },
   { name: "🍪", amount: 4, type: FoodType.snack },
 ];
+
 const SHELF_SIZE = 5;
+const MIN_SHELVES = 5;
 
 interface FridgeProps {
   addStyles?: StyleProp<ViewStyle>;
@@ -26,7 +28,7 @@ export default function Fridge({ addStyles, filters }: FridgeProps) {
     : food;
 
   const shelves = Array.from(
-    { length: Math.ceil(filteredFood.length / SHELF_SIZE) },
+    { length: Math.max(MIN_SHELVES, Math.ceil(filteredFood.length / SHELF_SIZE)) },
     (_, i) => filteredFood.slice(i * SHELF_SIZE, (i + 1) * SHELF_SIZE)
   );
 

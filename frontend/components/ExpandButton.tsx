@@ -8,9 +8,10 @@ interface ListButtonProps {
   onPressIn?: () => void;
   onPressOut?: () => void;
   absolutePositioning?: boolean;
+  size?: number;
 }
 
-export default function ListButton({ direction, onPress, onPressIn, onPressOut, absolutePositioning = true }: ListButtonProps) {
+export default function ListButton({ direction, onPress, onPressIn, onPressOut, absolutePositioning = true, size = 24 }: ListButtonProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -18,7 +19,7 @@ export default function ListButton({ direction, onPress, onPressIn, onPressOut, 
       onPressOut={onPressOut}
       style={absolutePositioning && styles.listButton}
     >
-      <Ionicons name={direction ? `chevron-${direction}` : 'list'} size={24} color={GreenVar} />
+      <Ionicons name={direction ? `chevron-${direction}` : 'list'} size={size} color={GreenVar} />
     </Pressable>
   )
 }

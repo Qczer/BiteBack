@@ -69,7 +69,7 @@ export default function VirtualFridgeScreen() {
         <View style={styles.mainContainer}>
           <View style={styles.topBar}>
             <Text style={styles.title}>Virtual Fridge</Text>
-            <ExpandButton onPressIn={() => setExpanded(true)} absolutePositioning={false} />
+            <ExpandButton onPressIn={() => setExpanded(true)} absolutePositioning={false} size={28}/>
           </View>
           <SearchInput/>
           <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters}/>
