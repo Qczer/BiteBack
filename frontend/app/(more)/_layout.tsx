@@ -21,9 +21,9 @@ export default function Layout() {
         }}
       />
       <Stack.Screen
-        name="ReceiptScreen"
+        name="ShoppingListScreen"
         options={{
-          title: "Create receipt",
+          title: "Shopping list",
         }}
       />
       <Stack.Screen

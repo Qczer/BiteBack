@@ -34,7 +34,7 @@ export default function ScanScreen() {
   if (!permission.granted) {
     return (
       <View style={{ flex: 1 }}>
-        <HeaderBar></HeaderBar>
+        <HeaderBar />
         <View style={styles.center}>
           <Text>We need your permission to use the camera</Text>
           <Button onPress={requestPermission} title="Grant permission" />
@@ -51,7 +51,7 @@ export default function ScanScreen() {
   if (!showCamera) {
     return (
       <View style={{ flex: 1 }}>
-        <HeaderBar></HeaderBar>
+        <HeaderBar />
         <View style={styles.center}>
           <Button title="Open Camera" onPress={() => setShowCamera(true)} />
         </View>

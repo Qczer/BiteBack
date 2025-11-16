@@ -7,7 +7,7 @@ export default function ProfileScreen() {
   const nickname = getItem("userNickname");
   return (
     <View style={{ flex: 1 }}>
-      <HeaderBar></HeaderBar>
+      <HeaderBar />
       <View style={styles.container}>
         <Text style={styles.title}>Profile</Text>
         <View

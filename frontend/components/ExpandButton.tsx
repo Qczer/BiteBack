@@ -2,28 +2,29 @@ import { GreenVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet } from "react-native";
 
-interface ExpandButtonProps {
-  direction: 'up' | 'down';
+interface ListButtonProps {
+  direction?: 'up' | 'down';
   onPress?: () => void;
   onPressIn?: () => void;
   onPressOut?: () => void;
+  absolutePositioning?: boolean;
 }
 
-export default function ExpandButton({ direction, onPress, onPressIn, onPressOut }: ExpandButtonProps) {
+export default function ListButton({ direction, onPress, onPressIn, onPressOut, absolutePositioning = true }: ListButtonProps) {
   return (
     <Pressable
       onPress={onPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
-      style={styles.floatingButton}
+      style={absolutePositioning && styles.listButton}
     >
-      <Ionicons name={`chevron-${direction}`} size={24} color={GreenVar} />
+      <Ionicons name={direction ? `chevron-${direction}` : 'list'} size={24} color={GreenVar} />
     </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
-  floatingButton: {
+  listButton: {
     position: 'absolute',
     top: 20,
     right: 20,

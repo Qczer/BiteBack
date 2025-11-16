@@ -5,7 +5,7 @@ import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -32,7 +32,7 @@ export default function HeaderBar({
   if (!fontsLoaded) return null;
 
   return (
-    <SafeAreaView style={styles.header}>
+    <View style={styles.header}>
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
           <Image
@@ -52,11 +52,11 @@ export default function HeaderBar({
           )}
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
-const HEADER_HEIGHT = 108;
+const HEADER_HEIGHT = 80;
 const HEADER_BAR_HEIGHT = 48;
 
 const styles = StyleSheet.create({

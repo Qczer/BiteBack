@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 
-export default function ReceiptScreen() {
+export default function ShoppingListScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Receiptscreen</Text>
+      <Text style={styles.title}>Shopping List</Text>
       <View style={styles.separator} />
     </View>
   );

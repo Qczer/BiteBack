@@ -13,6 +13,7 @@ import FoodFiltersList from '@/components/FoodFiltersList';
 import ExpandButton from '@/components/ExpandButton';
 import FoodFilter from '@/classes/FoodFilter';
 import FoodList from '@/components/FoodList';
+import HeaderBar from '@/components/HeaderBar';
 
 const foodList: Food[] = [
   { name: "Hamburger", amount: 1, type: FoodType.junk },
@@ -42,8 +43,8 @@ export default function VirtualFridgeScreen() {
     );
 
   return (
-    <SafeAreaProvider style={styles.container}>
-      <SafeAreaView>
+    <View style={styles.container}>
+      <HeaderBar />
         {/* MODAL */}
         <Modal
           isVisible={expanded}
@@ -66,14 +67,15 @@ export default function VirtualFridgeScreen() {
 
         {/* REST */}
         <View style={styles.mainContainer}>
-          <ExpandButton direction="down" onPressIn={() => setExpanded(true)} />
-          <Text style={styles.title}>Virtual Fridge</Text>
+          <View style={styles.topBar}>
+            <Text style={styles.title}>Virtual Fridge</Text>
+            <ExpandButton onPressIn={() => setExpanded(true)} absolutePositioning={false} />
+          </View>
           <SearchInput/>
           <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters}/>
-          <Fridge addStyles={{height: height * 0.6}} filters={foodFilters}/>
+          <Fridge addStyles={{height: height * 0.55}} filters={foodFilters}/>
         </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    </View>
   );
 }
 
@@ -93,6 +95,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignItems: 'center',
     padding: 20,
+  },
+  topBar: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: 'transparent'
   },
   title: {
     fontSize: 36,

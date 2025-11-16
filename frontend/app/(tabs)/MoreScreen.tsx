@@ -32,10 +32,10 @@ const MoreScreen = () => {
       panel: "/AddPointScreen",
     },
     {
-      title: "Receipt",
-      subtitle: "Create receipts and add to Fridge.",
+      title: "Shopping List",
+      subtitle: "Create shopping lists and add items to Fridge.",
       iconName: "receipt-outline",
-      panel: "/ReceiptScreen",
+      panel: "/ShoppingListScreen",
     },
     {
       title: "Feedback",
