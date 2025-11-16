@@ -1,13 +1,18 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import RealButton from "@/components/RealButton";
+import { saveItem } from "@/services/AuthService";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { router } from "expo-router";
+import { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function WelcomeScreen() {
   const [fontsLoaded] = useFonts({
     Courgette_400Regular,
   });
+  useEffect(() => {
+    saveItem("hasSeenWelcomeScreen", "true");
+  }, []);
 
   if (!fontsLoaded) {
     return null;

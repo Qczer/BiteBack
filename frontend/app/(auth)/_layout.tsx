@@ -1,58 +1,40 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Stack } from "expo-router";
-import React from "react";
+import { getItem } from "@/services/AuthService";
+import { router, Stack } from "expo-router";
+import React, { useEffect, useState } from "react";
 
-import { useColorScheme } from "@/components/useColorScheme";
+export default function AuthLayout() {
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(
-  props: Readonly<{
-    name: React.ComponentProps<typeof FontAwesome>["name"];
-    color: string;
-  }>
-) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+  useEffect(() => {
+    const loadState = async () => {
+      const token = await getItem("isLoggedIn");
+      const hasSeen = await getItem("hasSeenWelcomeScreen");
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+      if (token === "true") {
+        // zamiast kierować na pojedynczy ekran, kierujesz na cały stack (tabs)
+        router.replace("/(tabs)/HomeScreen");
+      } else if (hasSeen === "true") {
+        setInitialRoute("LoginScreen");
+      } else {
+        setInitialRoute("WelcomeScreen");
+      }
+    };
+    loadState();
+  }, []);
+
+  if (!initialRoute) {
+    return null; // Splash/Loader
+  }
 
   return (
     <Stack
-      screenOptions={{
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: false,
-      }}
+      screenOptions={{ headerShown: false }}
+      initialRouteName={initialRoute}
     >
-      <Stack.Screen
-        name="WelcomeScreen"
-        options={{
-          title: "Welcome",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="LoginScreen"
-        options={{
-          title: "Login",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="RegisterScreen"
-        options={{
-          title: "Register",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="CreateNicknameScreen"
-        options={{
-          title: "CreateNickname",
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen name="WelcomeScreen" />
+      <Stack.Screen name="LoginScreen" />
+      <Stack.Screen name="RegisterScreen" />
+      <Stack.Screen name="CreateNicknameScreen" />
     </Stack>
   );
 }
