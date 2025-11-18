@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: "100%",
     alignSelf: "center",
-    marginVertical: 10,
+    marginTop: 10,
   },
   leftIcon: {
     marginRight: 8,

@@ -44,6 +44,12 @@ export default function Layout() {
           title: "Change settings",
         }}
       />
+      <Stack.Screen
+        name="FriendsScreen"
+        options={{
+          title: "Social hub",
+        }}
+      />
     </Stack>
   );
 }

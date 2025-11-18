@@ -1,6 +1,9 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Text, View } from "@/components/Themed";
-import { getNotificationsCount } from "@/services/AuthService";
+import {
+  getCurrencyCount,
+  getNotificationsCount,
+} from "@/services/AuthService";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -8,31 +11,33 @@ import { Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
-interface HeaderBarProps {
-  notificationsCount?: number; // teraz opcjonalne
-  nickname?: string | null;
-}
-
-export default function HeaderBar({
-  notificationsCount,
-  nickname,
-}: HeaderBarProps) {
+export default function HeaderBar() {
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
-  const [internalCount, setInternalCount] = useState<number>(0);
+  const [notifications, setNotifications] = useState<number>(0);
+  const [currency, setCurrency] = useState<number>(0);
 
+  // Ładowanie danych i cykliczne odświeżanie
   useEffect(() => {
-    if (notificationsCount === undefined) {
-      getNotificationsCount().then(setInternalCount);
-    }
-  }, [notificationsCount]);
+    const fetchData = async () => {
+      const notif = await getNotificationsCount();
+      const curr = await getCurrencyCount();
+      setNotifications(notif);
+      setCurrency(curr);
+    };
 
-  const count = notificationsCount ?? internalCount;
+    fetchData();
+
+    // odświeżaj co 30 sekund
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!fontsLoaded) return null;
 
   return (
     <View style={styles.header}>
       <View style={styles.headerBar}>
+        {/* Left side */}
         <View style={styles.headerLeft}>
           <Image
             source={require("@/assets/images/adaptive-icon.png")}
@@ -42,20 +47,34 @@ export default function HeaderBar({
           <Text style={styles.appName}>BiteBack</Text>
         </View>
 
-        <TouchableOpacity style={styles.headerRight}>
-          <Ionicons name="notifications-outline" size={28} color={GreenVar} />
-          {count > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{count > 9 ? "9+" : count}</Text>
+        {/* Right side */}
+        <View style={styles.headerRight}>
+          {/* Currency */}
+          <TouchableOpacity style={{ marginRight: 16 }}>
+            <View style={styles.currencyBox}>
+              <Ionicons name="cash-outline" size={26} color={GreenVar} />
+              <Text style={styles.currencyText}>{currency.toFixed(2)}</Text>
             </View>
-          )}
-        </TouchableOpacity>
+          </TouchableOpacity>
+
+          {/* Notifications */}
+          <TouchableOpacity>
+            <Ionicons name="notifications-outline" size={28} color={GreenVar} />
+            {notifications > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {notifications > 9 ? "9+" : notifications}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 
-const HEADER_HEIGHT = 80;
+const HEADER_HEIGHT = 100;
 const HEADER_BAR_HEIGHT = 48;
 
 const styles = StyleSheet.create({
@@ -97,13 +116,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   headerRight: {
-    padding: 4,
+    backgroundColor: WhiteVar,
+    flexDirection: "row",
+    alignItems: "center",
     position: "relative",
   },
   badge: {
     position: "absolute",
     top: -2,
-    right: -2,
+    right: -6,
     backgroundColor: "red",
     borderRadius: 10,
     minWidth: 18,
@@ -116,5 +137,16 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 11,
     fontWeight: "bold",
+  },
+  currencyBox: {
+    backgroundColor: WhiteVar,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  currencyText: {
+    marginLeft: 6,
+    fontSize: 15,
+    fontWeight: "600",
+    color: GreenVar,
   },
 });

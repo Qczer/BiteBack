@@ -23,32 +23,32 @@ const MoreScreen = () => {
 
   const panels = [
     {
-      name: 'maps',
+      name: "maps",
       iconName: "map-outline",
       panel: "/MapsScreen",
     },
     {
-      name: 'addPoint',
+      name: "addPoint",
       iconName: "add-circle-outline",
       panel: "/AddPointScreen",
     },
     {
-      name: 'shoppingLists',
+      name: "shoppingLists",
       iconName: "receipt-outline",
       panel: "/ShoppingListsScreen",
     },
     {
-      name: 'feedback',
+      name: "feedback",
       iconName: "chatbubble-ellipses-outline",
       panel: "/FeedbackScreen",
     },
     {
-      name: 'reportABug',
+      name: "reportABug",
       iconName: "bug-outline",
       panel: "/ReportBugScreen",
     },
     {
-      name: 'settings',
+      name: "settings",
       iconName: "cog-outline",
       panel: "/SettingsScreen",
     },
@@ -87,16 +87,20 @@ const MoreScreen = () => {
                   style={styles.cardIcon}
                 />
                 <View style={styles.cardText}>
-                  <Text style={styles.cardTitle}>{t(`cards.${item.name}.title`)}</Text>
-                  <Text style={styles.cardSubtitle}>{t(`cards.${item.name}.subtitle`)}</Text>
+                  <Text style={styles.cardTitle}>
+                    {t(`cards.${item.name}.title`)}
+                  </Text>
+                  <Text style={styles.cardSubtitle}>
+                    {t(`cards.${item.name}.subtitle`)}
+                  </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={GreenVar} />
               </TouchableOpacity>
             </View>
           ))}
-          <View style={styles.footer}>
+          {/* <View style={styles.footer}>
             <Text style={styles.footerText}>2025 Biteback.</Text>
-          </View>
+          </View> */}
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
