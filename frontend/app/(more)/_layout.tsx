@@ -21,7 +21,7 @@ export default function Layout() {
         }}
       />
       <Stack.Screen
-        name="ShoppingListScreen"
+        name="ShoppingListsScreen"
         options={{
           title: "Shopping list",
         }}
@@ -36,6 +36,12 @@ export default function Layout() {
         name="ReportBugScreen"
         options={{
           title: "Report a bug",
+        }}
+      />
+      <Stack.Screen
+        name="SettingsScreen"
+        options={{
+          title: "Change settings",
         }}
       />
     </Stack>

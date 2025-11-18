@@ -1,6 +1,8 @@
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import t from "@/locales/i18n";
 
 // import { useColorScheme } from "@/components/useColorScheme";
 
@@ -22,7 +24,6 @@ function TabBarIcon(
 
 export default function TabLayout() {
   // const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
@@ -39,7 +40,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="HomeScreen"
         options={{
-          title: "Home",
+          title: t("screens.home.title"),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={28} color={color}></Ionicons>
@@ -49,7 +50,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="VirtualFridgeScreen"
         options={{
-          title: "Fridge",
+          title: t("screens.fridge.title"),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="snowflake-o" color={color} />
@@ -59,7 +60,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ScanScreen"
         options={{
-          title: "Scan",
+          title: t("screens.scan.title"),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="scan" size={28} color={color}></Ionicons>
@@ -69,7 +70,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ProfileScreen"
         options={{
-          title: "Profile",
+          title: t("screens.profile.title"),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={28} color={color} />
@@ -79,7 +80,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="MoreScreen"
         options={{
-          title: "More",
+          title: t("screens.more.title"),
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="list-outline" size={28} color={color} />

@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,11 +55,13 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(more)" options={{ headerShown: false }} />
-      </Stack>
+      <LanguageProvider>
+        <Stack>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(more)" options={{ headerShown: false }} />
+        </Stack>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

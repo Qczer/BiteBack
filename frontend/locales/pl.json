@@ -1,0 +1,78 @@
+{
+  "welcome": "Witaj",
+  "login": {
+    "title": "Zaloguj się",
+    "email": "Email",
+    "password": "Hasło"
+  },
+
+  "screens": {
+    "login": {
+      "title": "Zarejestruj się",
+      "usernameLabel": "Nazwa użytkownika",
+      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "Wprowadź swoje hasło",
+      "loginButton": "Zaloguj się",
+      "forgotPasswordLink": "Zapomniałem hasło?"
+    },
+    "home": {
+      "title": "Strona główna"
+    },
+    "fridge": {
+      "title": "Lodówka",
+      "headerTitle": "Wirtualna Lodówka"
+    },
+    "scan": {
+      "title": "Skanuj"
+    },
+    "profile": {
+      "title": "Profil"
+    },
+    "more": {
+      "title": "Więcej"
+    },
+    "settings": {
+      "title": "Ustawienia"
+    }
+  },
+  "cards": {
+    "maps": {
+      "title": "Mapy sklepów",
+      "subtitle": "Znajdź najbliższe sklepy spożywcze i ich układ"
+    },
+    "addPoint": {
+      "title": "Dodaj Punkt",
+      "subtitle": "Dodaj nowy punkt oddawania jedzenia na mapie"
+    },
+    "shoppingLists": {
+      "title": "Lista zakupów",
+      "subtitle": "Stwórz i zarządzaj swoją listą zakupów"
+    },
+    "feedback": {
+      "title": "Informacje zwrotne",
+      "subtitle": "Powiedz nam co myślisz o naszej aplikacji"
+    },
+    "reportABug": {
+      "title": "Zgłoś błąd",
+      "subtitle": "Zgłoś problem techniczny lub błąd w aplikacji"
+    },
+    "settings": {
+      "title": "Ustawienia",
+      "subtitle": "Zmień ustawienia i preferencje aplikacji"
+    }
+  },
+  "filters": {
+    "all": "Wszystkie",
+    "junk": "Fast Food",
+    "vegetable": "Warzywa",
+    "fruit": "Owoce",
+    "dairy": "Nabiał",
+    "meat": "Mięso",
+    "beverage": "Napoje",
+    "snack": "Przekąski",
+    "bakery": "Piekarnia",
+    "frozen": "Mrożonki",
+    "other": "Inne"
+  }
+}

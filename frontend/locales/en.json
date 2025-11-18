@@ -1,0 +1,78 @@
+{
+  "welcome": "Welcome",
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password"
+  },
+
+  "screens": {
+    "login": {
+      "title": "Sign In",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "loginButton": "Login",
+      "forgotPasswordLink": "Forgot password?"
+    },
+    "home": {
+      "title": "Home"
+    },
+    "fridge": {
+      "title": "Fridge",
+      "headerTitle": "Virtual Fridge"
+    },
+    "scan": {
+      "title": "Scan"
+    },
+    "profile": {
+      "title": "Profile"
+    },
+    "more": {
+      "title": "More"
+    },
+    "settings": {
+      "title": "Settings"
+    }
+  },
+  "cards": {
+    "maps": {
+      "title": "Maps",
+      "subtitle": "Explore food points near you"
+    },
+    "addPoint": {
+      "title": "Add Point",
+      "subtitle": "Add a new point to the map"
+    },
+    "shoppingLists": {
+      "title": "Shopping List",
+      "subtitle": "Create shopping lists and add items to Fridge"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "subtitle": "Tell us what you think about the app"
+    },
+    "reportABug": {
+      "title": "Report a bug",
+      "subtitle": "Noticed something off? Let us know"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Change app settings and preferences"
+    }
+  },
+  "filters": {
+    "all": "All",
+    "junk": "Junk",
+    "vegetable": "Vegetable",
+    "fruit": "Fruit",
+    "dairy": "Dairy",
+    "meat": "Meat",
+    "beverage": "Beverage",
+    "snack": "Snack",
+    "bakery": "Bakery",
+    "frozen": "Frozen",
+    "other": "Other"
+  }
+}

@@ -3,6 +3,7 @@ import FilterButton from "./FilterButton";
 import { Dispatch, SetStateAction, useState } from "react";
 import FoodFilter from "@/classes/FoodFilter";
 import { FoodType } from "@/classes/Food";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FiltersListProps {
   filters: FoodFilter[];
@@ -11,6 +12,7 @@ interface FiltersListProps {
 
 export default function FoodFiltersList({ filters, setFilters }: FiltersListProps) {
   const [allFilters, setAllFilters] = useState<boolean>(true);
+  const { t } = useLanguage();
 
   const toggleFilter = (type: FoodType) => {
     setFilters((prev) => {
@@ -40,7 +42,7 @@ export default function FoodFiltersList({ filters, setFilters }: FiltersListProp
         style={{ maxHeight: 50 }}
       >
         <FilterButton
-          text="ALL"
+          text={t("filters.all").toUpperCase()}
           active={allFilters}
           disabled={allFilters}
           onPress={toggleAll}
@@ -49,7 +51,7 @@ export default function FoodFiltersList({ filters, setFilters }: FiltersListProp
           return (
             <FilterButton
               key={foodType}
-              text={FoodType[foodType].toString().toUpperCase()}
+              text={t("filters." + FoodType[foodType].toString())}
               active={active}
               onPress={() => toggleFilter(foodType)}
             />

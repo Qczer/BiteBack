@@ -14,40 +14,43 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 // Twoje kolory
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const screenWidth = Math.round(Dimensions.get("window").width);
 
 const MoreScreen = () => {
+  const { t } = useLanguage();
+
   const panels = [
     {
-      title: "Maps",
-      subtitle: "Explore food points near you",
+      name: 'maps',
       iconName: "map-outline",
       panel: "/MapsScreen",
     },
     {
-      title: "Add Point",
-      subtitle: "Add a new point to the map",
+      name: 'addPoint',
       iconName: "add-circle-outline",
       panel: "/AddPointScreen",
     },
     {
-      title: "Shopping List",
-      subtitle: "Create shopping lists and add items to Fridge.",
+      name: 'shoppingLists',
       iconName: "receipt-outline",
-      panel: "/ShoppingListScreen",
+      panel: "/ShoppingListsScreen",
     },
     {
-      title: "Feedback",
-      subtitle: "Tell us what you think about the app",
+      name: 'feedback',
       iconName: "chatbubble-ellipses-outline",
       panel: "/FeedbackScreen",
     },
     {
-      title: "Report a bug",
-      subtitle: "Noticed something off? Let us know",
+      name: 'reportABug',
       iconName: "bug-outline",
       panel: "/ReportBugScreen",
+    },
+    {
+      name: 'settings',
+      iconName: "cog-outline",
+      panel: "/SettingsScreen",
     },
   ];
 
@@ -84,8 +87,8 @@ const MoreScreen = () => {
                   style={styles.cardIcon}
                 />
                 <View style={styles.cardText}>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-                  <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                  <Text style={styles.cardTitle}>{t(`cards.${item.name}.title`)}</Text>
+                  <Text style={styles.cardSubtitle}>{t(`cards.${item.name}.subtitle`)}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={GreenVar} />
               </TouchableOpacity>

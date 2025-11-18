@@ -14,6 +14,7 @@ import ExpandButton from '@/components/ExpandButton';
 import FoodFilter from '@/classes/FoodFilter';
 import FoodList from '@/components/FoodList';
 import HeaderBar from '@/components/HeaderBar';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const foodList: Food[] = [
   { name: "Hamburger", amount: 1, type: FoodType.junk },
@@ -31,6 +32,8 @@ export default function VirtualFridgeScreen() {
       active: false,
     }))
   );
+
+  const { t } = useLanguage();
 
   const [expanded, setExpanded] = useState<boolean>(false);
   const [nameFilter, setNameFilter] = useState<string>("");
@@ -68,7 +71,7 @@ export default function VirtualFridgeScreen() {
         {/* REST */}
         <View style={styles.mainContainer}>
           <View style={styles.topBar}>
-            <Text style={styles.title}>Virtual Fridge</Text>
+            <Text style={styles.title}>{t("screens.fridge.headerTitle")}</Text>
             <ExpandButton onPressIn={() => setExpanded(true)} absolutePositioning={false} size={28}/>
           </View>
           <SearchInput/>
