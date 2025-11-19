@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
 import { i18n, translations } from '@/locales/i18n';
-import { saveItem, getItem } from '@/services/AuthService'; 
+import { setItem, getItem } from '@/services/AuthService'; 
 
 const LANGUAGE_STORAGE_KEY = 'user-language';
 
@@ -54,7 +54,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     if(!isLoading) {
       i18n.locale = lang;
       setForceUpdateKey(prevKey => prevKey + 1);
-      saveItem(LANGUAGE_STORAGE_KEY, lang);
+      setItem(LANGUAGE_STORAGE_KEY, lang);
     }
   }, [lang, isLoading]);
 

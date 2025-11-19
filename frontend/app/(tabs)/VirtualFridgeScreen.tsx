@@ -1,34 +1,31 @@
-import { Dimensions, ScrollView, StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 import {  WhiteVar } from '@/assets/colors/colors';
 import { Text, View } from '@/components/Themed';
 import { useState } from 'react';
 
 import Modal from 'react-native-modal';
-import Food, { FoodType } from '@/classes/Food';
+import { FoodCategory } from '@/classes/Food';
 import Fridge from '@/components/Fridge';
 import SearchInput from '@/components/SearchInput';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import FoodFiltersList from '@/components/FoodFiltersList';
 import ExpandButton from '@/components/ExpandButton';
 import FoodFilter from '@/classes/FoodFilter';
 import FoodList from '@/components/FoodList';
 import HeaderBar from '@/components/HeaderBar';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useUser } from '@/contexts/UserContext';
 
-const foodList: Food[] = [
-  { name: "Hamburger", amount: 1, type: FoodType.junk },
-  { name: "Pizza", amount: 2, unit: "slices", type: FoodType.junk },
-  ...Array.from({length: 30}, () => ({ name: "Spaghetti", amount: 3, unit: "kg", type: FoodType.meat }))
-]
-
-const allFoodTypes = Object.keys(FoodType)
-  .filter(key => isNaN(Number(key))) as (keyof typeof FoodType)[];
+const allFoodCategorys = Object.keys(FoodCategory)
+  .filter(key => isNaN(Number(key))) as (keyof typeof FoodCategory)[];
 
 export default function VirtualFridgeScreen() {
+  const { user } = useUser();
+  const userFood = user?.fridge || [];
+
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
-    allFoodTypes.map(typeName => ({
-      foodType: FoodType[typeName],
+    allFoodCategorys.map(typeName => ({
+      FoodCategory: FoodCategory[typeName],
       active: false,
     }))
   );
@@ -38,10 +35,10 @@ export default function VirtualFridgeScreen() {
   const [expanded, setExpanded] = useState<boolean>(false);
   const [nameFilter, setNameFilter] = useState<string>("");
 
-  const filteredFoodList = foodList
+  const filteredFoodList = userFood
     .filter(elem => elem.name.toUpperCase().includes(nameFilter.toUpperCase()))
     .filter(food =>
-      foodFilters.some(f => f.active && f.foodType === food.type) || 
+      foodFilters.some(f => f.active && f.FoodCategory === food.category) || 
       !foodFilters.some(f => f.active)
     );
 

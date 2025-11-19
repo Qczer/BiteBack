@@ -7,6 +7,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { UserProvider } from "@/contexts/UserContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -49,12 +50,14 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <LanguageProvider>
-      <Stack>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(more)" options={{ headerShown: false }} />
-      </Stack>
-    </LanguageProvider>
+    <UserProvider>
+      <LanguageProvider>
+        <Stack>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(more)" options={{ headerShown: false }} />
+        </Stack>
+      </LanguageProvider>
+    </UserProvider>
   );
 }

@@ -1,18 +1,7 @@
-import Food, { FoodType } from "@/classes/Food";
-import { Dimensions, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle, } from "react-native";
+import { Dimensions, ScrollView, StyleProp, StyleSheet, View, ViewStyle, } from "react-native";
 import FridgeFood from "./FridgeFood";
-import Filter from "@/classes/Filter";
 import FoodFilter from "@/classes/FoodFilter";
-
-const food: Food[] = [
-  { name: "🍎", amount: 2, type: FoodType.fruit },
-  { name: "🍌", amount: 1, type: FoodType.fruit },
-  { name: "🥦", amount: 3, type: FoodType.vegetable },
-  { name: "🥩", amount: 8, type: FoodType.meat },
-  { name: "🥖", amount: 5, type: FoodType.junk },
-  { name: "🧀", amount: 3, type: FoodType.snack },
-  { name: "🍪", amount: 4, type: FoodType.snack },
-];
+import { useUser } from "@/contexts/UserContext";
 
 const SHELF_SIZE = 5;
 const MIN_SHELVES = 5;
@@ -23,8 +12,11 @@ interface FridgeProps {
 }
 
 export default function Fridge({ addStyles, filters }: FridgeProps) {
+  const { user } = useUser();
+  const food = user?.fridge || [];
+
   const filteredFood = filters?.length && filters.some(f => f.active)
-    ? food.filter(f => filters.some(fl => fl.active && fl.foodType === f.type))
+    ? food.filter(f => filters.some(fl => fl.active && fl.FoodCategory === f.category))
     : food;
 
   const shelves = Array.from(

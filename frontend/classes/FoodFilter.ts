@@ -1,6 +1,6 @@
-import { FoodType } from "./Food";
+import { FoodCategory } from "./Food";
 
 export default interface FoodFilter {
-  foodType: FoodType;
+  FoodCategory: FoodCategory;
   active: boolean;
 }

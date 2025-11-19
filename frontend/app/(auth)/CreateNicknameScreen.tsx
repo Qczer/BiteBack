@@ -1,7 +1,7 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import toastConfig from "@/components/ToastConfig";
-import { getItem, saveItem } from "@/services/AuthService";
+import { getItem, setItem } from "@/services/AuthService";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -46,7 +46,7 @@ export default function CreateNicknameScreen() {
   const [nicknameAlertText, setNicknameAlertText] = useState("");
 
   const handleCreateNickname = () => {
-    saveItem("userNickname", nickname);
+    setItem("userNickname", nickname);
     router.replace("/(tabs)/HomeScreen");
   };
 

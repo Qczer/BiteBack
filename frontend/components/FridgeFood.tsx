@@ -8,13 +8,18 @@ interface FridgeFoodProps {
 }
 
 export default function FridgeFood({ food }: FridgeFoodProps) {
+  const isLocalImage = typeof food.icon === 'number'; // require return a number
+  const isRemoteImage = typeof food.icon === 'string' && food.icon.startsWith('http');
+
+  const isImage = isLocalImage || isRemoteImage;
+
   return (
     <View style={{ width: '17.5%', backgroundColor: 'transparent'}}>
-      {food.iconSrc ?
+      {isImage ?
         (
-          <Image source={food.iconSrc} style={{ maxWidth: 100, maxHeight: 100 }} />
+          <Image source={isLocalImage ? food.icon : { uri: food.icon }} style={{ width: 100, height: 100, resizeMode: 'contain' }} />
         ) : (
-          <Text style={{fontSize: 28}}>{food.name}</Text>
+          <Text style={{fontSize: 28}}>{food.icon}</Text>
         )
       }
       <Text style={styles.amount}>{food.amount}</Text>
