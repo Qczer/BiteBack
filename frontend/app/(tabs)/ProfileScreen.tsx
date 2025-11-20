@@ -1,11 +1,15 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { Text, View } from "@/components/Themed";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { useUser } from '@/hooks/useUser';
+import { useUser } from "@/hooks/useUser";
 import translate from "@/locales/i18n";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+
+import AddFriendModal from "@/components/AddFriendModal";
+import Invitations from "@/components/InvitationsModal";
+import ShareCode from "@/components/ShareCodeModal";
 
 export default function ProfileScreen() {
   const tURL = "screens.profile.";
@@ -14,8 +18,7 @@ export default function ProfileScreen() {
   const { data: user } = useUser();
   const nickname = user?.name ?? "Guest";
 
-  if (user)
-    console.log("User data:", user);
+  if (user) console.log("User data:", user);
 
   const accountDate = "2023-05-12";
   const currencyValue = 125.5;
@@ -25,8 +28,27 @@ export default function ProfileScreen() {
 
   const newInvitationsCount = 3;
 
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [showShareCode, setShowShareCode] = useState(false);
+  const [showInvitations, setShowInvitations] = useState(false);
+
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      <AddFriendModal
+        visible={showAddFriend}
+        onClose={() => setShowAddFriend(false)}
+      />
+
+      <ShareCode
+        visible={showShareCode}
+        onClose={() => setShowShareCode(false)}
+      />
+      <Invitations
+        visible={showInvitations}
+        onClose={() => setShowInvitations(false)}
+        invitations={[] as string[]}
+      />
+
       <HeaderBar />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.backgroundHigher}></View>
@@ -39,7 +61,9 @@ export default function ProfileScreen() {
           />
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{nickname}</Text>
-            <Text style={styles.infoText}>{t("joined")}: {accountDate}</Text>
+            <Text style={styles.infoText}>
+              {t("joined")}: {accountDate}
+            </Text>
             <Text style={styles.infoText}>BitePoints: {currencyValue}</Text>
           </View>
         </View>
@@ -49,7 +73,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              router.push("/(more)/FriendsScreen");
+              setShowAddFriend(true);
             }}
           >
             <Ionicons name="person-add" size={32} color={GreenVar} />
@@ -59,7 +83,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              router.push("/(more)/FriendsScreen");
+              setShowShareCode(true);
             }}
           >
             <Ionicons name="share-social" size={32} color={GreenVar} />
@@ -69,7 +93,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              router.push("/(more)/FriendsScreen");
+              setShowInvitations(true);
             }}
           >
             <Ionicons name="mail" size={32} color={GreenVar} />
@@ -115,7 +139,9 @@ export default function ProfileScreen() {
         {/* Rewards */}
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{t("bitePointsRewards")}</Text>
-          <Text style={styles.infoText}>{translate("common.comingSoon")}...</Text>
+          <Text style={styles.infoText}>
+            {translate("common.comingSoon")}...
+          </Text>
         </View>
       </ScrollView>
     </View>

@@ -1,58 +1,46 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
-import React from "react";
-import {
-  FlatList,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-interface InvitationsModalProps {
+interface InvitationsProps {
   visible: boolean;
   onClose: () => void;
   invitations: string[];
 }
 
-export default function InvitationsModal({
+export default function Invitations({
   visible,
   onClose,
-  invitations,
-}: InvitationsModalProps) {
+  invitations = [],
+}: InvitationsProps) {
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.label}>Pending Invitations</Text>
+        <View style={styles.modalBox}>
+          <Text style={styles.panelTitle}>📩 Invitations</Text>
 
           {invitations.length > 0 ? (
-            <FlatList
-              data={invitations}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.inviteRow}>
-                  <Text style={styles.inviteText}>{item}</Text>
-                  <View style={styles.actions}>
-                    <TouchableOpacity style={styles.accept}>
-                      <Text style={styles.actionText}>Accept</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.reject}>
-                      <Text style={styles.actionText}>Reject</Text>
-                    </TouchableOpacity>
-                  </View>
+            invitations.map((inv, i) => (
+              <View key={i} style={styles.inviteRow}>
+                <Text style={styles.inviteText}>{inv}</Text>
+                <View style={styles.actions}>
+                  <TouchableOpacity style={styles.accept}>
+                    <Ionicons name="checkmark" size={18} color={WhiteVar} />
+                    <Text style={styles.actionText}>Accept</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.reject}>
+                    <Ionicons name="close" size={18} color={WhiteVar} />
+                    <Text style={styles.actionText}>Reject</Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-            />
+              </View>
+            ))
           ) : (
             <Text style={styles.infoText}>No invitations</Text>
           )}
 
-          <TouchableOpacity
-            style={[styles.button, styles.cancel]}
-            onPress={onClose}
-          >
-            <Text style={styles.buttonText}>Close</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeText}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -63,69 +51,87 @@ export default function InvitationsModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
-  modalContainer: {
-    width: "85%",
+  modalBox: {
+    width: "100%",
     backgroundColor: WhiteVar,
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 16,
+    padding: 24,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
+  panelTitle: {
+    fontSize: 20,
+    fontWeight: "700",
     color: GreenVar,
-    marginBottom: 10,
+    marginBottom: 20,
+    textAlign: "center",
   },
   inviteRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 16,
     alignItems: "center",
+    backgroundColor: "#f9f9f9",
+    padding: 12,
+    borderRadius: 10,
+    elevation: 2,
   },
   inviteText: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#333",
+    fontWeight: "500",
   },
   actions: {
     flexDirection: "row",
     gap: 8,
   },
   accept: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: GreenVar,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
+    marginRight: 6,
   },
   reject: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "red",
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   actionText: {
     color: WhiteVar,
     fontWeight: "600",
+    marginLeft: 6,
   },
   infoText: {
     fontSize: 14,
     color: "#555",
-    marginBottom: 10,
+    textAlign: "center",
+    marginVertical: 20,
   },
-  button: {
-    marginTop: 20,
-    backgroundColor: GreenVar,
-    padding: 12,
-    borderRadius: 8,
+  closeButton: {
+    backgroundColor: "#eee",
+    paddingVertical: 12,
+    borderRadius: 10,
+    width: "100%",
     alignItems: "center",
+    marginTop: 20,
   },
-  cancel: {
-    backgroundColor: "#999",
-  },
-  buttonText: {
-    color: WhiteVar,
+  closeText: {
+    color: "#333",
     fontWeight: "600",
+    fontSize: 15,
   },
 });

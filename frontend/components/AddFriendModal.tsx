@@ -1,47 +1,58 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
-import * as Clipboard from "expo-clipboard";
 import { useState } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-interface ShareCodeProps {
+interface AddFriendModalProps {
   visible: boolean;
   onClose: () => void;
-  userCode?: string;
 }
 
-export default function ShareCode({
+export default function AddFriendModal({
   visible,
   onClose,
-  userCode = "ABC123",
-}: ShareCodeProps) {
-  const [copied, setCopied] = useState(false);
+}: AddFriendModalProps) {
+  const [code, setCode] = useState("");
+  const [status, setStatus] = useState<"success" | "error" | null>(null);
 
-  const copyToClipboard = async () => {
-    await Clipboard.setStringAsync(userCode);
-    setCopied(true);
-    // opcjonalnie: ukryj label po kilku sekundach
-    setTimeout(() => setCopied(false), 2000);
+  const handleSubmit = () => {
+    if (code.trim() === "ABC123") {
+      setStatus("success");
+    } else {
+      setStatus("error");
+    }
   };
 
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.panelTitle}>🔗 Share Your Code</Text>
+          <Text style={styles.panelTitle}>👥 Add Friend</Text>
 
-          <View style={styles.codeBox}>
-            <Ionicons name="key-outline" size={24} color={GreenVar} />
-            <Text style={styles.code}>{userCode}</Text>
-          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter friend code"
+            value={code}
+            onChangeText={setCode}
+          />
 
-          <TouchableOpacity style={styles.button} onPress={copyToClipboard}>
-            <Ionicons name="copy-outline" size={20} color={WhiteVar} />
-            <Text style={styles.buttonText}>Copy to Clipboard</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Ionicons name="person-add" size={20} color={WhiteVar} />
+            <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
 
-          {copied && (
-            <Text style={styles.copiedLabel}>✅ Copied to clipboard!</Text>
+          {status === "success" && (
+            <Text style={styles.success}>✅ Code accepted! Friend added.</Text>
+          )}
+          {status === "error" && (
+            <Text style={styles.error}>❌ Invalid code, please try again.</Text>
           )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -66,7 +77,6 @@ const styles = StyleSheet.create({
     backgroundColor: WhiteVar,
     borderRadius: 16,
     padding: 24,
-    alignItems: "center",
     elevation: 8,
     shadowColor: "#000",
     shadowOpacity: 0.2,
@@ -78,28 +88,20 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: GreenVar,
     marginBottom: 20,
+    textAlign: "center",
   },
-  codeBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f4f4f4",
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginBottom: 24,
-    elevation: 2,
-  },
-  code: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#333",
-    marginLeft: 10,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 16,
   },
   button: {
     flexDirection: "row",
     backgroundColor: GreenVar,
     paddingVertical: 12,
-    paddingHorizontal: 20,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -112,18 +114,25 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
   },
-  copiedLabel: {
-    marginTop: 8,
+  success: {
     color: "green",
-    fontWeight: "600",
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "500",
+  },
+  error: {
+    color: "red",
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "500",
   },
   closeButton: {
     backgroundColor: "#eee",
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 10,
     width: "100%",
     alignItems: "center",
-    marginTop: 12,
+    marginTop: 10,
   },
   closeText: {
     color: "#333",
