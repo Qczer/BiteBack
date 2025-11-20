@@ -1,11 +1,10 @@
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Picker } from "@react-native-picker/picker";
 import { StyleSheet, View } from "react-native";
-import { useState } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 const languageNames: Record<string, string> = {
-  en: 'English',
-  pl: 'Polski'
+  en: "English",
+  pl: "Polski",
 };
 
 export default function LanguageSelector() {
@@ -17,7 +16,7 @@ export default function LanguageSelector() {
         selectedValue={lang}
         onValueChange={(itemValue) => setLang(itemValue)}
       >
-        {availableLangs.map(langCode => (
+        {availableLangs.map((langCode) => (
           <Picker.Item
             key={langCode}
             label={languageNames[langCode] || langCode}
@@ -26,14 +25,15 @@ export default function LanguageSelector() {
         ))}
       </Picker>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   pickerContainer: {
-    width: '80%',
+    alignSelf: "center",
+    width: "100%",
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 8,
-  }
-})
+  },
+});

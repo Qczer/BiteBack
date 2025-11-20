@@ -1,4 +1,5 @@
 // services/AuthService.ts
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
@@ -24,4 +25,20 @@ export const getNotificationsCount = async (): Promise<number> => {
 export const getCurrencyCount = async (): Promise<number> => {
   const raw = await getItem("currencyCount");
   return raw ? parseInt(raw, 10) : 0;
+};
+
+export const handleLogout = async () => {
+  try {
+    // pobierz wszystkie klucze
+
+    removeItem("isLoggedIn");
+    removeItem("userEmail");
+    removeItem("userNickname");
+
+    // router.canGoBack(false);
+    // router.dismissAll();
+    router.replace("/(auth)/LoginScreen");
+  } catch (error) {
+    console.error("Error clearing SecureStore:", error);
+  }
 };

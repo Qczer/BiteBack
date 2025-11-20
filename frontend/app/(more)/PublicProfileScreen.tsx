@@ -21,7 +21,7 @@ export default function PublicProfileScreen() {
         {/* Karta profilu */}
         <View style={styles.card}>
           <Image
-            source={require("@/assets/images/adaptive-icon.png")}
+            source={require("@/assets/images/logo.png")}
             style={styles.avatar}
           />
           <View style={styles.cardInfo}>

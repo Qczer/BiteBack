@@ -46,12 +46,6 @@ export default function Layout() {
         }}
       />
       <Stack.Screen
-        name="FriendsScreen"
-        options={{
-          title: "Social hub",
-        }}
-      />
-      <Stack.Screen
         name="PublicProfileScreen"
         options={{
           title: "User profile",

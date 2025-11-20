@@ -68,8 +68,8 @@ export default function CreateNicknameScreen() {
             {/* HEADER */}
             <View style={styles.headerBlock}>
               <Image
-                source={require("@/assets/images/adaptive-icon.png")}
-                style={{ width: 50, height: 50, marginRight: 10 }}
+                source={require("@/assets/images/logo.png")}
+                style={{ width: 100, height: 100, marginRight: 10 }}
               />
               <Text style={styles.headerText}>BiteBack</Text>
               <Text style={styles.welcomeBackText}>One more step!</Text>
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
   },
   headerBlock: {
-    height: "25%",
+    flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "snow",

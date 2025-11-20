@@ -3,6 +3,8 @@ import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
 import { setItem } from "@/services/AuthService";
+import { Courgette_400Regular } from "@expo-google-fonts/courgette";
+import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -29,8 +31,10 @@ const showToast = (message: string) => {
 };
 
 export default function LoginScreen() {
+  const [fontsLoaded] = useFonts({
+    Courgette_400Regular,
+  });
   const [availableToLog, setAvailableToLog] = useState(false);
-  const [showPasswordHelp, setShowPasswordHelp] = useState(false);
   // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,11 +43,6 @@ export default function LoginScreen() {
   }, [email, password]);
   const [emailAlertText, setEmailAlertText] = useState("");
   const [passwordAlertText, setPasswordAlertText] = useState("");
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // 7+ znakow, jeden specjalny, jedna wielka litera
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/;
 
   const validateForm = () => {
     if (email.length === 0 && password.length === 0) return;
@@ -56,17 +55,8 @@ export default function LoginScreen() {
        - mozesz tez wywolac toast czyli takie pole u gory z komunikatem (te same co po nacisnieciu szarego log in)
        - showToast(komunikat)
     */
-    let emailValid = emailRegex.test(email);
-    let passwordValid = passwordRegex.test(password);
 
-    setEmailAlertText(emailValid ? "" : "Enter a valid email address.");
-
-    setPasswordAlertText(
-      passwordValid ? "" : "Password doesn't meet our requirements."
-    );
-
-    setShowPasswordHelp(!passwordValid);
-    setAvailableToLog(emailValid && passwordValid);
+    // setAvailableToLog(emailValid && passwordValid);
   };
 
   const handleLogin = () => {
@@ -82,8 +72,8 @@ export default function LoginScreen() {
             {/* HEADER */}
             <View style={styles.headerBlock}>
               <Image
-                source={require("@/assets/images/adaptive-icon.png")}
-                style={{ width: 50, height: 50, marginRight: 10 }}
+                source={require("@/assets/images/logo.png")}
+                style={{ width: 100, height: 100, marginRight: 10 }}
               />
               <Text style={styles.headerText}>BiteBack</Text>
               <Text style={styles.welcomeBackText}>Welcome back!</Text>
@@ -108,7 +98,7 @@ export default function LoginScreen() {
                   secure={true}
                   label="Password"
                   alertText={passwordAlertText}
-                  showHelp={showPasswordHelp}
+                  // showHelp={showPasswordHelp}
                   // onValueChange={validateForm}
                   setVal={setPassword}
                 />
@@ -159,7 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
   },
   headerBlock: {
-    flex: 2,
+    flex: 1,
     justifyContent: "flex-end",
     alignItems: "center",
     backgroundColor: "snow",

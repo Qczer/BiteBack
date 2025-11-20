@@ -1,44 +1,85 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import AddFriendModal from "@/components/AddFriendModal";
+import ConfirmModal from "@/components/ConfirmModal";
 import HeaderBar from "@/components/HeaderBar";
+import Invitations from "@/components/InvitationsModal";
+import ShareCode from "@/components/ShareCodeModal";
 import { Text, View } from "@/components/Themed";
 import { useUser } from "@/hooks/useUser";
 import translate from "@/locales/i18n";
+import { handleLogout } from "@/services/AuthService";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
-import AddFriendModal from "@/components/AddFriendModal";
-import Invitations from "@/components/InvitationsModal";
-import ShareCode from "@/components/ShareCodeModal";
-
 export default function ProfileScreen() {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
   const { data: user } = useUser();
   const nickname = user?.name ?? "Guest";
 
-  if (user) console.log("User data:", user);
-
   const accountDate = "2023-05-12";
   const currencyValue = 125.5;
 
   const friends: string[] = [];
   const leaderboard = [1, 2, 3, , 7, 9, 10];
-
   const newInvitationsCount = 3;
 
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [showShareCode, setShowShareCode] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
 
+  const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatarUri(result.assets[0].uri);
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      {/* Confirm Modal */}
+      <ConfirmModal
+        visible={showConfirm}
+        title="Confirm Logout"
+        description="Are you sure you want to logout? This will clear your data."
+        options={[
+          {
+            label: "Cancel",
+            type: "cancel",
+            onPress: () => setShowConfirm(false),
+          },
+          {
+            label: "Yes, Logout",
+            type: "danger",
+            onPress: async () => {
+              setShowConfirm(false);
+              await handleLogout();
+            },
+          },
+        ]}
+      />
+
+      {/* Modals */}
       <AddFriendModal
         visible={showAddFriend}
         onClose={() => setShowAddFriend(false)}
       />
-
       <ShareCode
         visible={showShareCode}
         onClose={() => setShowShareCode(false)}
@@ -46,7 +87,7 @@ export default function ProfileScreen() {
       <Invitations
         visible={showInvitations}
         onClose={() => setShowInvitations(false)}
-        invitations={[] as string[]}
+        invitations={[]}
       />
 
       <HeaderBar />
@@ -55,10 +96,21 @@ export default function ProfileScreen() {
 
         {/* Karta profilu */}
         <View style={styles.card}>
-          <Image
-            source={require("@/assets/images/adaptive-icon.png")}
-            style={styles.avatar}
-          />
+          <View style={{ position: "relative" }}>
+            <Image
+              source={
+                avatarUri
+                  ? { uri: avatarUri }
+                  : require("@/assets/images/logo.png")
+              }
+              style={styles.avatar}
+            />
+            {/* Ikonka edycji */}
+            <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
+              <Ionicons name="create-outline" size={20} color={WhiteVar} />
+            </TouchableOpacity>
+          </View>
+
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{nickname}</Text>
             <Text style={styles.infoText}>
@@ -142,6 +194,19 @@ export default function ProfileScreen() {
           <Text style={styles.infoText}>
             {translate("common.comingSoon")}...
           </Text>
+        </View>
+
+        {/* Logout */}
+        <View style={styles.panel}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={() => {
+              setShowConfirm(true);
+            }}
+          >
+            <Ionicons name="log-out-outline" size={24} color={WhiteVar} />
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -272,5 +337,27 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 10,
     fontWeight: "bold",
+  },
+  logoutButton: {
+    flexDirection: "row",
+    backgroundColor: "red",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoutText: {
+    color: WhiteVar,
+    fontWeight: "600",
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: GreenVar,
+    borderRadius: 16,
+    padding: 6,
   },
 });

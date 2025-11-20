@@ -40,7 +40,7 @@ export default function HeaderBar() {
         {/* Left side */}
         <View style={styles.headerLeft}>
           <Image
-            source={require("@/assets/images/adaptive-icon.png")}
+            source={require("@/assets/images/logo.png")}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -102,15 +102,17 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: WhiteVar,
   },
   logo: {
-    width: screenWidth * 0.08,
-    height: screenWidth * 0.08,
+    width: screenWidth * 0.1,
+    height: screenWidth * 0.1,
     marginRight: 8,
   },
   appName: {
     fontSize: screenWidth * 0.05,
+    lineHeight: screenWidth * 0.125,
     fontFamily: "Courgette_400Regular",
     color: GreenVar,
     fontWeight: "600",

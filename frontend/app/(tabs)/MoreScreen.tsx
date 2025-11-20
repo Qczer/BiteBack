@@ -1,6 +1,8 @@
+import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
+
 import {
   Dimensions,
   Image,
@@ -20,6 +22,7 @@ const screenWidth = Math.round(Dimensions.get("window").width);
 
 const MoreScreen = () => {
   const { t } = useLanguage();
+  const [fontsLoaded] = useFonts({ Courgette_400Regular });
 
   const panels = [
     {
@@ -59,10 +62,11 @@ const MoreScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Image
-            source={require("@/assets/images/adaptive-icon.png")}
+            source={require("@/assets/images/logo.png")}
             style={styles.logo}
             resizeMode="contain"
           />
+          <Text style={styles.appName}>BiteBack</Text>
         </View>
 
         <ScrollView style={styles.flexContainer}>
@@ -118,9 +122,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: screenWidth * 0.35,
-    height: screenWidth * 0.35,
-    margin: "10%",
+    width: screenWidth * 0.25,
+    height: screenWidth * 0.25,
+    // margin: "5%",
   },
   flexContainer: {
     flex: 1,
@@ -161,6 +165,13 @@ const styles = StyleSheet.create({
     color: GreenVar,
     fontSize: 16,
     fontWeight: "bold",
+  },
+  appName: {
+    fontSize: screenWidth * 0.07,
+    fontFamily: "Courgette_400Regular",
+    color: GreenVar,
+    fontWeight: "600",
+    marginTop: 10,
   },
 });
 
