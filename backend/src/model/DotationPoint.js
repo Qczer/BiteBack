@@ -7,6 +7,7 @@ const dotationPointSchema = new mongoose.Schema({
   postalCode: { type: String, trim: true },
   street: { type: String, trim: true }, 
   number: { type: String, trim: true },
+  authorized: {type: Boolean, default: false},
   location: {
     type: { type: String, enum: ["Point"], required: true },
     coordinates: {
@@ -16,6 +17,7 @@ const dotationPointSchema = new mongoose.Schema({
   }
 });
 
+dotationPointSchema.index({name: "text"})
 dotationPointSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("DotationPoint", dotationPointSchema, "dotation-point")
