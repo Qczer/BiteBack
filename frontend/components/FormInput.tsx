@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     color: "gray",
     fontSize: 12,
     marginLeft: 5,
+    padding: 3,
   },
   warningText: {
     color: "red",

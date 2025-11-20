@@ -1,27 +1,9 @@
+import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
+import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useRef, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
-
-// 📸 Obsługa zdjęcia w ScanScreen
-//
-// 1. Gdy użytkownik naciśnie przycisk "Take Picture", wywoływana jest funkcja `takePicture`.
-//    - Kamera robi zdjęcie i zwraca obiekt z informacjami o zdjęciu (m.in. `uri`).
-//    - `uri` to lokalna ścieżka do pliku w pamięci urządzenia.
-//
-// 2. Ten `uri` zapisujemy w stanie komponentu (`setUri(photo.uri)`).
-//    - Dzięki temu możemy wyświetlić zdjęcie w aplikacji (np. przez komponent <Image />).
-//    - Możemy też przekazać ten `uri` dalej, np. do serwera, albo zapisać w galerii.
-//
-// 3. Jeśli `uri` jest ustawione, zamiast kamery pokazujemy podgląd zdjęcia.
-//    - Użytkownik widzi zrobione zdjęcie.
-//    - Może kliknąć "Take another picture", żeby wyczyścić `uri` i wrócić do kamery.
-//
-// 👉 W praktyce:
-// - `uri` = lokalny adres zdjęcia, np. "file:///data/.../photo.jpg"
-// - Możesz użyć go w <Image source={{ uri }} /> do wyświetlenia.
-// - Możesz wysłać go na backend (np. przez fetch z FormData).
-// - Możesz też zapisać w pamięci urządzenia albo w bazie danych aplikacji.
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -31,60 +13,105 @@ export default function ScanScreen() {
 
   if (!permission) return null;
 
+  // 1️⃣ Brak zgody na kamerę
   if (!permission.granted) {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: WhiteVar }}>
         <HeaderBar />
         <View style={styles.center}>
-          <Text>We need your permission to use the camera</Text>
-          <Button onPress={requestPermission} title="Grant permission" />
+          <Ionicons name="camera-outline" size={64} color={GreenVar} />
+          <Text style={styles.title}>We need your permission</Text>
+          <Text style={styles.description}>
+            Please allow access to your camera to continue.
+          </Text>
+          <TouchableOpacity style={styles.button} onPress={requestPermission}>
+            <Text style={styles.buttonText}>Grant Permission</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
 
-  const takePicture = async () => {
-    const photo = await ref.current?.takePictureAsync();
-    if (photo?.uri) setUri(photo.uri);
-  };
-
-  if (!showCamera) {
+  // 2️⃣ Podgląd zdjęcia (jeśli zrobione)
+  if (uri) {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: WhiteVar }}>
         <HeaderBar />
         <View style={styles.center}>
-          <Button title="Open Camera" onPress={() => setShowCamera(true)} />
+          <Image source={{ uri }} style={styles.preview} />
+          <Text style={styles.description}>Here is your photo</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              setUri(null);
+              setShowCamera(true);
+            }}
+          >
+            <Text style={styles.buttonText}>Take another picture</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        ref={ref}
-        facing="back"
-        mode="picture"
-      />
-      {/* Grid overlay */}
-      <View style={styles.gridOverlay}>
-        {[...Array(2)].map((_, i) => (
-          <View
-            key={i}
-            style={[styles.gridLine, { top: `${(i + 1) * 33}%` }]}
-          />
-        ))}
-        {[...Array(2)].map((_, i) => (
-          <View
-            key={i}
-            style={[styles.gridLineVertical, { left: `${(i + 1) * 33}%` }]}
-          />
-        ))}
+  // 3️⃣ Kamera
+  if (showCamera) {
+    const takePicture = async () => {
+      const photo = await ref.current?.takePictureAsync();
+      if (photo?.uri) setUri(photo.uri);
+    };
+
+    return (
+      <View style={styles.container}>
+        <CameraView
+          style={styles.camera}
+          ref={ref}
+          facing="back"
+          mode="picture"
+        />
+
+        {/* Overlay grid */}
+        <View style={styles.gridOverlay}>
+          {[...Array(2)].map((_, i) => (
+            <View
+              key={i}
+              style={[styles.gridLine, { top: `${(i + 1) * 33}%` }]}
+            />
+          ))}
+          {[...Array(2)].map((_, i) => (
+            <View
+              key={i}
+              style={[styles.gridLineVertical, { left: `${(i + 1) * 33}%` }]}
+            />
+          ))}
+        </View>
+
+        {/* Controls */}
+        <View style={styles.controls}>
+          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+            <Ionicons name="camera" size={28} color={WhiteVar} />
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.controls}>
-        <Button title="Take Picture" onPress={takePicture} />
-        {uri && <Text style={{ color: "white" }}>Saved: {uri}</Text>}
+    );
+  }
+
+  // 4️⃣ Ekran startowy (przycisk otwarcia kamery)
+  return (
+    <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      <HeaderBar />
+      <View style={styles.center}>
+        <Ionicons name="camera-outline" size={64} color={GreenVar} />
+        <Text style={styles.title}>Camera</Text>
+        <Text style={styles.description}>
+          Open the camera to take a picture
+        </Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setShowCamera(true)}
+        >
+          <Text style={styles.buttonText}>Open Camera</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -93,9 +120,33 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   center: {
     flex: 1,
-    // backgroundColor: "red",
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: GreenVar,
+    marginTop: 16,
+  },
+  description: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginVertical: 12,
+  },
+  button: {
+    backgroundColor: GreenVar,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    marginTop: 12,
+  },
+  buttonText: {
+    color: WhiteVar,
+    fontWeight: "600",
+    fontSize: 16,
   },
   container: {
     flex: 1,
@@ -108,6 +159,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 40,
     alignSelf: "center",
+  },
+  captureButton: {
+    backgroundColor: GreenVar,
+    padding: 16,
+    borderRadius: 40,
+  },
+  preview: {
+    width: "80%",
+    height: "60%",
+    borderRadius: 12,
+    marginBottom: 20,
   },
   gridOverlay: {
     width: "100%",
