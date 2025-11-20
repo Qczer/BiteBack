@@ -50,6 +50,12 @@ export default function Layout() {
           title: "Social hub",
         }}
       />
+      <Stack.Screen
+        name="PublicProfileScreen"
+        options={{
+          title: "User profile",
+        }}
+      />
     </Stack>
   );
 }
