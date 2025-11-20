@@ -27,39 +27,63 @@
       "title": "Scan"
     },
     "profile": {
-      "title": "Profile"
+      "title": "Profile",
+      "joined": "Joined",
+      "addFriend": "Add Friend",
+      "shareCode": "Share Code",
+      "invitations": "Invitations",
+      "noFriends": "No friends yet",
+      "bitePointsRewards": "BitePoints Rewards"
     },
     "more": {
       "title": "More"
     },
     "settings": {
-      "title": "Settings"
+      "title": "Settings",
+      "headerTitle": "Change Settings"
     }
   },
   "cards": {
     "maps": {
       "title": "Maps",
-      "subtitle": "Explore food points near you"
+      "subtitle": "Explore food points near you",
+      "headerTitle": "Check Maps"
     },
     "addPoint": {
       "title": "Add Point",
-      "subtitle": "Add a new point to the map"
+      "subtitle": "Add a new point to the map",
+      "headerTitle": "Add Point",
+      "headerText": "Add a New Donation Point",
+      "subheaderText": "If your donation point is missing on the map, you can add it here. Once submitted, it will be reviewed by our administrators before appearing publicly.",
+      "nameEG": "e.g. Food Store Radlin",
+      "descEG": "Short description of the point",
+      "zipEG": "e.g. 44-310",
+      "streetEG": "e.g. Młyńska",
+      "numberEG": "e.g. 12A",
+      "cityEG": "e.g. Radlin",
+      "coordsEG": "e.g. 50.058  N, 18.495 E",
+      "submit": "Submit for Verification",
+      "infoNote": "Your submission will be reviewed by our team before it becomes visible to others."
     },
     "shoppingLists": {
       "title": "Shopping List",
-      "subtitle": "Create shopping lists and add items to Fridge"
+      "subtitle": "Create shopping lists and add items to Fridge",
+      "headerTitle": "Shopping List"
     },
     "feedback": {
       "title": "Feedback",
-      "subtitle": "Tell us what you think about the app"
+      "subtitle": "Tell us what you think about the app",
+      "headerTitle": "Feedback"
     },
     "reportABug": {
       "title": "Report a bug",
-      "subtitle": "Noticed something off? Let us know"
+      "subtitle": "Noticed something off? Let us know",
+      "headerTitle": "Report a Bug"
     },
     "settings": {
       "title": "Settings",
-      "subtitle": "Change app settings and preferences"
+      "subtitle": "Change app settings and preferences",
+      "headerTitle": "Zmień Ustawienia"
     }
   },
   "filters": {
@@ -74,5 +98,21 @@
     "bakery": "Bakery",
     "frozen": "Frozen",
     "other": "Other"
+  },
+  "common": {
+    "friends": "Friends",
+    "comingSoon": "Coming Soon",
+    "name": "Name",
+    "description": "Description",
+    "zipCode": "Zip Code",
+    "street": "Street",
+    "number": "Number",
+    "city": "City",
+    "coordinates": "Coordinates"
+  },
+  "foodEditor": {
+    "foodName": "Food Name",
+    "amount": "Amount",
+    "unit": "Unit"
   }
 }

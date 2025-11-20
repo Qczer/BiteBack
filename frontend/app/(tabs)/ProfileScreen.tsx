@@ -1,20 +1,28 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { Text, View } from "@/components/Themed";
-import { getItem } from "@/services/AuthService";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { useUser } from '@/hooks/useUser';
+import translate from "@/locales/i18n";
 
 export default function ProfileScreen() {
-  const nickname = getItem("userNickname") || "GuestUser";
+  const tURL = "screens.profile.";
+  const t = (key: string) => translate(tURL + key);
+
+  const { data: user } = useUser();
+  const nickname = user?.name ?? "Guest";
+
+  if (user)
+    console.log("User data:", user);
+
   const accountDate = "2023-05-12";
   const currencyValue = 125.5;
 
   const friends: string[] = [];
   const leaderboard = [1, 2, 3, , 7, 9, 10];
 
-  // przykładowa liczba nowych zaproszeń
   const newInvitationsCount = 3;
 
   return (
@@ -31,7 +39,7 @@ export default function ProfileScreen() {
           />
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{nickname}</Text>
-            <Text style={styles.infoText}>Joined: {accountDate}</Text>
+            <Text style={styles.infoText}>{t("joined")}: {accountDate}</Text>
             <Text style={styles.infoText}>BitePoints: {currencyValue}</Text>
           </View>
         </View>
@@ -45,7 +53,7 @@ export default function ProfileScreen() {
             }}
           >
             <Ionicons name="person-add" size={32} color={GreenVar} />
-            <Text style={styles.iconLabel}>Add Friend</Text>
+            <Text style={styles.iconLabel}>{t("addFriend")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -55,7 +63,7 @@ export default function ProfileScreen() {
             }}
           >
             <Ionicons name="share-social" size={32} color={GreenVar} />
-            <Text style={styles.iconLabel}>Share Code</Text>
+            <Text style={styles.iconLabel}>{t("shareCode")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -65,7 +73,7 @@ export default function ProfileScreen() {
             }}
           >
             <Ionicons name="mail" size={32} color={GreenVar} />
-            <Text style={styles.iconLabel}>Invitations</Text>
+            <Text style={styles.iconLabel}>{t("invitations")}</Text>
             {newInvitationsCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{newInvitationsCount}</Text>
@@ -76,7 +84,7 @@ export default function ProfileScreen() {
 
         {/* Pasek znajomych */}
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>Friends</Text>
+          <Text style={styles.panelTitle}>{translate("common.friends")}</Text>
           <View style={styles.friendsList}>
             {friends.length > 0 ? (
               friends.map((f, i) => (
@@ -85,7 +93,7 @@ export default function ProfileScreen() {
                 </Text>
               ))
             ) : (
-              <Text style={styles.infoText}>No friends yet</Text>
+              <Text style={styles.infoText}>{t("noFriends")}</Text>
             )}
           </View>
         </View>
@@ -106,8 +114,8 @@ export default function ProfileScreen() {
 
         {/* Rewards */}
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>BitePoints Rewards</Text>
-          <Text style={styles.infoText}>Coming soon...</Text>
+          <Text style={styles.panelTitle}>{t("bitePointsRewards")}</Text>
+          <Text style={styles.infoText}>{translate("common.comingSoon")}...</Text>
         </View>
       </ScrollView>
     </View>
@@ -125,8 +133,8 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "35%",
     position: "absolute",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    // borderBottomLeftRadius: 20,
+    // borderBottomRightRadius: 20,
     top: 0,
     zIndex: -1,
   },

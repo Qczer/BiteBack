@@ -12,7 +12,12 @@ import {
   View,
 } from "react-native";
 
+import translate from "@/locales/i18n";
+
 export default function AddPointScreen() {
+  const tURL = "cards.addPoint.";
+  const t = (key: string) => translate(tURL + key);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [zip, setZip] = useState("");
@@ -39,16 +44,7 @@ export default function AddPointScreen() {
       return;
     }
 
-    console.log({
-      name,
-      description,
-      zip,
-      street,
-      number,
-      city,
-      location,
-    });
-    // Here you could send data to API/backend
+    console.log({ name, description, zip, street, number, city, location });
   };
 
   return (
@@ -56,55 +52,51 @@ export default function AddPointScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Intro banner */}
         <View style={styles.headerBox}>
-          <Text style={styles.title}>Add a New Donation Point</Text>
-          <Text style={styles.subtitle}>
-            If your donation point is missing on the map, you can add it here.
-            Once submitted, it will be reviewed by our administrators before
-            appearing publicly.
-          </Text>
+          <Text style={styles.title}>{t("headerText")}</Text>
+          <Text style={styles.subtitle}>{t("subheaderText")}</Text>
         </View>
 
         {/* Form card */}
         <View style={styles.formCard}>
           <FormInput
-            label="Name"
-            placeholder="e.g. Food Store Radlin"
+            label={translate("common.name")}
+            placeholder={t("nameEG")}
             setVal={setName}
             leftIcon="business-outline"
           />
           <FormInput
-            label="Description"
-            placeholder="Short description of the point"
+            label={translate("common.description")}
+            placeholder={t("descEG")}
             setVal={setDescription}
             leftIcon="document-text-outline"
           />
           <FormInput
-            label="Zip Code"
-            placeholder="e.g. 44-310"
+            label={translate("common.zipCode")}
+            placeholder={t("zipEG")}
             setVal={setZip}
             leftIcon="mail-outline"
           />
           <FormInput
-            label="Street"
-            placeholder="e.g. Młyńska"
+            label={translate("common.street")}
+            placeholder={t("streetEG")}
             setVal={setStreet}
             leftIcon="navigate-outline"
           />
           <FormInput
-            label="Number"
-            placeholder="e.g. 12A"
+            label={translate("common.number")}
+            placeholder={t("numberEG")}
             setVal={setNumber}
             leftIcon="home-outline"
           />
           <FormInput
-            label="City"
-            placeholder="e.g. Radlin"
+            label={translate("common.city")}
+            placeholder={t("cityEG")}
             setVal={setCity}
             leftIcon="location-outline"
           />
           <FormInput
-            label="Coordinates"
-            placeholder="e.g. 50.058  N, 18.495 E"
+            label={translate("common.coordinates")}
+            placeholder={t("coordsEG")}
             setVal={setLocation}
             leftIcon="map-outline"
           />
@@ -118,14 +110,11 @@ export default function AddPointScreen() {
           ]}
           onPress={handleSubmit}
         >
-          <Text style={styles.submitText}>Submit for Verification</Text>
+          <Text style={styles.submitText}>{t("submit")}</Text>
         </TouchableOpacity>
 
         {/* Info note */}
-        <Text style={styles.infoNote}>
-          ⚠️ Your submission will be verified by an administrator before it
-          becomes visible to others.
-        </Text>
+        <Text style={styles.infoNote}>⚠️ {t("infoNote")}</Text>
       </ScrollView>
       <Toast config={toastConfig} />
     </>

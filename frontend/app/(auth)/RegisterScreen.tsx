@@ -2,7 +2,7 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
-import { saveItem } from "@/services/AuthService";
+import { setItem } from "@/services/AuthService";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -50,9 +50,9 @@ export default function RegisterScreen() {
   const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/;
 
   const handleRegister = () => {
-    saveItem("userEmail", email);
+    setItem("userEmail", email);
     router.replace("/(auth)/CreateNicknameScreen");
-    // saveItem("userPassword", password);
+    // setItem("userPassword", password);
   };
 
   const validateForm = () => {

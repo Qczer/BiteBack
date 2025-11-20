@@ -2,7 +2,7 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-export async function saveItem(key: string, value: string) {
+export async function setItem(key: string, value: string) {
   await SecureStore.setItemAsync(key, value);
 }
 

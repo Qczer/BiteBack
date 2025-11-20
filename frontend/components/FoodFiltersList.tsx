@@ -1,8 +1,8 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import FilterButton from "./FilterButton";
 import { Dispatch, SetStateAction, useState } from "react";
-import FoodFilter from "@/classes/FoodFilter";
-import { FoodType } from "@/classes/Food";
+import FoodFilter from "@/types/FoodFilter";
+import { FoodCategory } from "@/types/Food";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FiltersListProps {
@@ -14,10 +14,10 @@ export default function FoodFiltersList({ filters, setFilters }: FiltersListProp
   const [allFilters, setAllFilters] = useState<boolean>(true);
   const { t } = useLanguage();
 
-  const toggleFilter = (type: FoodType) => {
+  const toggleFilter = (type: FoodCategory) => {
     setFilters((prev) => {
       const updated = prev.map((f) =>
-        f.foodType === type ? { ...f, active: !f.active } : f
+        f.FoodCategory === type ? { ...f, active: !f.active } : f
       );
 
       const anyActive = updated.some((f) => f.active);
@@ -33,6 +33,12 @@ export default function FoodFiltersList({ filters, setFilters }: FiltersListProp
       setFilters((prev) => prev.map((f) => ({ ...f, active: false })));
   };
 
+  function getFoodCategoryKey(value: FoodCategory): keyof typeof FoodCategory {
+    return Object.keys(FoodCategory).find(
+      (key) => FoodCategory[key as keyof typeof FoodCategory] === value
+    )! as keyof typeof FoodCategory;
+  }
+
   return (
     <View style={styles.viewStyle}>
       <ScrollView 
@@ -47,13 +53,13 @@ export default function FoodFiltersList({ filters, setFilters }: FiltersListProp
           disabled={allFilters}
           onPress={toggleAll}
         />
-        {filters.map(({ foodType, active }) => {
+        {filters.map(({ FoodCategory: category, active }) => {
           return (
             <FilterButton
-              key={foodType}
-              text={t("filters." + FoodType[foodType].toString())}
+              key={category}
+              text={t("filters." + FoodCategory[getFoodCategoryKey(category)].toString())}
               active={active}
-              onPress={() => toggleFilter(foodType)}
+              onPress={() => toggleFilter(category)}
             />
           );
         })}

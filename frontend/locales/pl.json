@@ -27,7 +27,13 @@
       "title": "Skanuj"
     },
     "profile": {
-      "title": "Profil"
+      "title": "Profil",
+      "joined": "Dołączył(a)",
+      "addFriend": "Dodaj Znajomego",
+      "shareCode": "Udostępnij Kod",
+      "invitations": "Zaproszenia",
+      "noFriends": "Brak znajomych",
+      "bitePointsRewards": "Nagrody BitePoints"
     },
     "more": {
       "title": "Więcej"
@@ -39,27 +45,44 @@
   "cards": {
     "maps": {
       "title": "Mapy sklepów",
-      "subtitle": "Znajdź najbliższe sklepy spożywcze i ich układ"
+      "subtitle": "Znajdź najbliższe sklepy spożywcze i ich układ",
+      "headerTitle": "Sprawdź Mapy"
     },
     "addPoint": {
       "title": "Dodaj Punkt",
-      "subtitle": "Dodaj nowy punkt oddawania jedzenia na mapie"
+      "subtitle": "Dodaj nowy punkt oddawania jedzenia na mapie",
+      "headerTitle": "Dodaj Punkt",
+      "headerText": "Dodaj Nowy Punkt Oddawania",
+      "subheaderText": "Jeśli brakuje twojego punktu oddawania, możesz dodać go tu. Po wysłaniu, zostanie on zweryfikowany przez naszych administratorów przed pojawieniem się publicznie.",
+      "nameEG": "np. Sklep Radlin",
+      "descEG": "Krótki opis punktu",
+      "zipEG": "np. 44-310",
+      "streetEG": "np. Młyńska",
+      "numberEG": "np. 12A",
+      "cityEG": "np. Radlin",
+      "coordsEG": "np. 50.058  N, 18.495 E",
+      "submit": "Wyślij do Weryfikacji",
+      "infoNote": "Po przesłaniu, punkt zostanie sprawdzony przez naszych administratorów zanim pojawi się na mapie."
     },
     "shoppingLists": {
       "title": "Lista zakupów",
-      "subtitle": "Stwórz i zarządzaj swoją listą zakupów"
+      "subtitle": "Stwórz i zarządzaj swoją listą zakupów",
+      "headerTitle": "Lista Zakupów"
     },
     "feedback": {
       "title": "Informacje zwrotne",
-      "subtitle": "Powiedz nam co myślisz o naszej aplikacji"
+      "subtitle": "Powiedz nam co myślisz o naszej aplikacji",
+      "headerTitle": "Informacje zwrotne"
     },
     "reportABug": {
       "title": "Zgłoś błąd",
-      "subtitle": "Zgłoś problem techniczny lub błąd w aplikacji"
+      "subtitle": "Zgłoś problem techniczny lub błąd w aplikacji",
+      "headerTitle": "Zgłoś Błąd"
     },
     "settings": {
       "title": "Ustawienia",
-      "subtitle": "Zmień ustawienia i preferencje aplikacji"
+      "subtitle": "Zmień ustawienia i preferencje aplikacji",
+      "headerTitle": "Zmień Ustawienia"
     }
   },
   "filters": {
@@ -74,5 +97,21 @@
     "bakery": "Piekarnia",
     "frozen": "Mrożonki",
     "other": "Inne"
+  },
+  "common": {
+    "friends": "Znajomi",
+    "comingSoon": "Już Wkrótce",
+    "name": "Nazwa",
+    "description": "Opis",
+    "zipCode": "Kod Pocztowy",
+    "street": "Ulica",
+    "number": "Numer",
+    "city": "Miasto",
+    "coordinates": "Koordynaty"
+  },
+  "foodEditor": {
+    "foodName": "Nazwa Jedzenia",
+    "amount": "Ilość",
+    "unit": "Jednostka"
   }
 }
