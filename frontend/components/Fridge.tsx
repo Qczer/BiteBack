@@ -1,7 +1,7 @@
 import { Dimensions, ScrollView, StyleProp, StyleSheet, View, ViewStyle, } from "react-native";
 import FridgeFood from "./FridgeFood";
-import FoodFilter from "@/classes/FoodFilter";
-import { useUser } from "@/contexts/UserContext";
+import FoodFilter from "@/types/FoodFilter";
+import { useUser } from "@/contexts/AuthContext";
 
 const SHELF_SIZE = 5;
 const MIN_SHELVES = 5;

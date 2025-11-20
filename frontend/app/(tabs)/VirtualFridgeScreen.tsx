@@ -5,16 +5,16 @@ import { Text, View } from '@/components/Themed';
 import { useState } from 'react';
 
 import Modal from 'react-native-modal';
-import { FoodCategory } from '@/classes/Food';
+import { FoodCategory } from '@/types/Food';
 import Fridge from '@/components/Fridge';
 import SearchInput from '@/components/SearchInput';
 import FoodFiltersList from '@/components/FoodFiltersList';
 import ExpandButton from '@/components/ExpandButton';
-import FoodFilter from '@/classes/FoodFilter';
+import FoodFilter from '@/types/FoodFilter';
 import FoodList from '@/components/FoodList';
 import HeaderBar from '@/components/HeaderBar';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useUser } from '@/contexts/UserContext';
+import { useUser } from '@/contexts/AuthContext';
 
 const allFoodCategorys = Object.keys(FoodCategory)
   .filter(key => isNaN(Number(key))) as (keyof typeof FoodCategory)[];

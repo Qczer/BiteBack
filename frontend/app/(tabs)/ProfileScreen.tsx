@@ -5,9 +5,16 @@ import { getItem } from "@/services/AuthService";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { useUser } from '@/hooks/useUser';
+import { useState } from "react";
 
 export default function ProfileScreen() {
-  const nickname = getItem("userNickname") || "GuestUser";
+  const { data: user } = useUser();
+  const nickname = user?.name ?? "Guest";
+
+  if (user)
+    console.log("User data:", user);
+
   const accountDate = "2023-05-12";
   const currencyValue = 125.5;
 

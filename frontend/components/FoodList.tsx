@@ -1,4 +1,4 @@
-import Food from "@/classes/Food";
+import Food from "@/types/Food";
 import { ScrollView, StyleSheet } from "react-native";
 import FoodComponent from "./FoodComponent";
 import { WhiteVar } from "@/assets/colors/colors";

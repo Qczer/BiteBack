@@ -1,4 +1,4 @@
-import Food from "@/classes/Food";
+import Food from "@/types/Food";
 import { StyleSheet, Text, View } from "react-native";
 
 interface FoodComponentProps {

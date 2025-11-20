@@ -1,24 +1,20 @@
-import Food from "@/classes/Food";
+import Food from "@/types/Food";
 import ShoppingList from "@/components/ShoppingList";
-import { getItem, setItem } from "@/services/AuthService";
+import { getItem, removeItem, setItem } from "@/services/AuthService";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const SHOPPING_LISTS_KEY = "shoppingLists";
-
-export interface ShoppingListType {
-  food: Food[]
-}
+const SHOPPING_LIST_KEY = "shoppingLists";
 
 export default function ShoppingListsScreen() {
-  const [lists, setLists] = useState<ShoppingListType[]>([{food: []}]);
+  const [list, setList] = useState<Food[]>([]);
 
   useEffect(() => {
-    let shoppingLists = getItem(SHOPPING_LISTS_KEY)
+    let shoppingLists = getItem(SHOPPING_LIST_KEY)
     shoppingLists.then(data => {
       if (data) {
         try {
-          setLists(JSON.parse(data));
+          setList(JSON.parse(data));
         }
         catch (e) {
           console.error("Błąd parsowania danych", e);
@@ -28,59 +24,30 @@ export default function ShoppingListsScreen() {
   }, [])
 
   useEffect(() => {
-    setItem(SHOPPING_LISTS_KEY, JSON.stringify(lists));
-  }, [lists])
+    setItem(SHOPPING_LIST_KEY, JSON.stringify(list));
+  }, [list])
 
-  const handleAddFoodToList = (listIndex: number, newFoodItem: Food) => {
-    setLists(prevLists => {
-      const newLists = [...prevLists];
-      const targetList = { ...newLists[listIndex] };
-      targetList.food = [...targetList.food, newFoodItem];
-      newLists[listIndex] = targetList;
-      
-      return newLists;
-    });
+  const handleAddFoodToList = (newFoodItem: Food) => { 
+    setList(prev => [...prev, newFoodItem]);
   };
 
-  const handleRemoveFoodFromList = (listIndex: number, newFoodItem: Food) => {
-    setLists(prevLists => {
-      const newLists = [...prevLists];
-      const targetList = { ...newLists[listIndex] };
-      targetList.food = targetList.food.filter(f => f != newFoodItem);
-      newLists[listIndex] = targetList;
-      
-      return newLists;
-    });
+  const handleRemoveFoodFromList = (newFoodItem: Food) => {
+    setList(prev => prev.filter((f: Food) => f !== newFoodItem));
   };
 
-  const handleUpdateFood = (listIndex: number, foodIndex: number, newFood: Food) => {
-    setLists(prevLists => {
-      const newLists = [...prevLists];
-      const targetList = { ...newLists[listIndex] };
-      const newFoodArray = [...targetList.food];
-      newFoodArray[foodIndex] = newFood;
-
-      targetList.food = newFoodArray;
-      newLists[listIndex] = targetList;
-
-      if (newLists != prevLists)
-        console.log("Updated food at index", foodIndex, "in list", listIndex);
-      return newLists;
-    });
+  const handleUpdateFood = (newFood: Food, foodIndex: number) => {
+    setList(prev => prev.map((food, index) => index === foodIndex ? newFood : food));
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Shopping List</Text>
-      {lists.map((list, listIndex) => (
-        <ShoppingList
-          key={listIndex+1} 
-          list={list} 
-          onAdd={(newFood) => handleAddFoodToList(listIndex, newFood)} 
-          onRemove={(food) => handleRemoveFoodFromList(listIndex, food)}
-          onUpdate={(updatedFood, foodIndex) => handleUpdateFood(listIndex, foodIndex, updatedFood)}
-        />
-      ))}
+      <ShoppingList
+        list={list} 
+        onAdd={(newFood) => handleAddFoodToList(newFood)} 
+        onRemove={(food) => handleRemoveFoodFromList(food)}
+        onUpdate={(updatedFood, foodIndex) => handleUpdateFood(updatedFood, foodIndex)}
+      />
     </View>
   );
 }

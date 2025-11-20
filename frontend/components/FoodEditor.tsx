@@ -1,7 +1,7 @@
 import { StyleSheet, TextInput } from "react-native";
 import { View } from "./Themed";
 import { useEffect, useState } from "react";
-import Food from "@/classes/Food";
+import Food from "@/types/Food";
 
 interface FoodEditorProps {
   initialFood?: Food;
@@ -15,7 +15,8 @@ export default function FoodEditor({ initialFood, reset, onChange }: FoodEditorP
   const [unit, setUnit] = useState(initialFood?.unit ?? "");
   
   useEffect(() => {
-    onChange({ name, amount: parseFloat(amount.replace(',', '.')) || 0, unit, ...initialFood });
+    if (name && amount && unit)
+      onChange({ ...initialFood, name, amount: parseFloat(amount.replace(',', '.')) || 0, unit });
   }, [name, amount, unit])
 
   useEffect(() => {

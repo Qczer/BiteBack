@@ -1,5 +1,5 @@
 import { GreenVar } from "@/assets/colors/colors";
-import Food from "@/classes/Food";
+import Food from "@/types/Food";
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
 

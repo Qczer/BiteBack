@@ -1,11 +1,10 @@
-import { ShoppingListType } from "@/app/(more)/ShoppingListsScreen";
-import Food from "@/classes/Food";
+import Food from "@/types/Food";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import FoodEditor from "./FoodEditor";
 
 interface ShoppingListProps {
-  list: ShoppingListType;
+  list: Food[];
   onAdd: (food: Food) => void;
   onRemove: (food: Food) => void;
   onUpdate: (food: Food, foodIndex: number) => void;
@@ -13,12 +12,12 @@ interface ShoppingListProps {
 
 export default function ShoppingList({ list, onAdd, onRemove, onUpdate }: ShoppingListProps) {
   const [newFood, setNewFood] = useState<Food | null>(null);
+  const [tempFood, setTempFood] = useState<Record<number, Food>>({});
   const [editingIndices, setEditingIndices] = useState<number[]>([]);
-  const [tempEdits, setTempEdits] = useState<{ [key: number]: Food | null }>({});
   const [reset, setReset] = useState<boolean>(false);
 
   const addFood = () => {
-    if (newFood) {
+    if (newFood?.name && newFood?.amount && newFood?.unit) {
       onAdd(newFood);
       setNewFood(null);
     }
@@ -27,32 +26,33 @@ export default function ShoppingList({ list, onAdd, onRemove, onUpdate }: Shoppi
   }
 
   const handleEditClick = (index: number) => {
-    if (!editingIndices.includes(index))
+    if (!editingIndices.includes(index)) {
       setEditingIndices(prev => [...prev, index]);
+      setTempFood(prev => ({ ...prev, [index]: list[index] }) );
+    }
   }
 
   const handleOKClick = (index: number) => {
-    const editedFood = tempEdits[index];
+    if (tempFood[index] !== list[index])
+      onUpdate(tempFood[index], index);
 
-    if (editedFood) {
-      onUpdate(editedFood, index);
-      const newTemp = { ...tempEdits };
-      delete newTemp[index];
-      setTempEdits(newTemp);
-    }
-
+    setTempFood(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
     setEditingIndices(prev => prev.filter(i => i !== index));
   }
 
   return (
     <View style={[styles.container, styles.border]}>
-      {list.food.map((food, foodIndex) => {
+      {list?.map((food, foodIndex) => {
         const editing = editingIndices.includes(foodIndex);
         return (
           <View key={foodIndex+1} style={styles.foodContainer}>
             
             {editing ? (
-              <FoodEditor initialFood={food} onChange={updatedFood => {setTempEdits(prev => ({ ...prev, [foodIndex]: updatedFood }))}} />
+              <FoodEditor initialFood={food} onChange={(food: Food | null) => {if(food) setTempFood(prev => ({ ...prev, [foodIndex]: food }))}} />
             ) : (
               <>
                 <Text style={{fontSize: 16, flex: 3}}>{food.name}</Text>

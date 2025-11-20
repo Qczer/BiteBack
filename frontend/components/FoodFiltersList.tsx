@@ -1,8 +1,8 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import FilterButton from "./FilterButton";
 import { Dispatch, SetStateAction, useState } from "react";
-import FoodFilter from "@/classes/FoodFilter";
-import { FoodCategory } from "@/classes/Food";
+import FoodFilter from "@/types/FoodFilter";
+import { FoodCategory } from "@/types/Food";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FiltersListProps {
