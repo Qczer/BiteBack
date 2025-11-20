@@ -2,6 +2,7 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
+import translate from "@/locales/i18n";
 import { setItem } from "@/services/Storage";
 import { Courgette_400Regular } from "@expo-google-fonts/courgette";
 import { useFonts } from "expo-font";
@@ -31,6 +32,9 @@ const showToast = (message: string) => {
 };
 
 export default function LoginScreen() {
+  const tURL = "screens.login.";
+  const t = (key: string) => translate(tURL + key);
+
   const [fontsLoaded] = useFonts({
     Courgette_400Regular,
   });
@@ -76,34 +80,34 @@ export default function LoginScreen() {
                 style={{ width: 100, height: 100, marginRight: 10 }}
               />
               <Text style={styles.headerText}>BiteBack</Text>
-              <Text style={styles.welcomeBackText}>Welcome back!</Text>
+              <Text style={styles.welcomeBackText}>{t("welcomeBack")}</Text>
             </View>
 
             {/* FORM */}
             <View style={styles.formBlock}>
               <View style={styles.formBox}>
                 <FormInput
-                  placeholder="johndoe@mail.com"
+                  placeholder={t("emailPlaceholder")}
                   leftIcon="mail-outline"
-                  label="Email address"
+                  label={t("emailLabel")}
                   alertText={emailAlertText}
                   setVal={setEmail}
                   // onValueChange={validateForm}
                 />
 
                 <FormInput
-                  placeholder="Your password"
+                  placeholder={t("passwordPlaceholder")}
                   leftIcon="lock-closed-outline"
                   rightIcon="eye-outline"
                   secure={true}
-                  label="Password"
+                  label={t("passwordLabel")}
                   alertText={passwordAlertText}
                   // showHelp={showPasswordHelp}
                   // onValueChange={validateForm}
                   setVal={setPassword}
                 />
 
-                <Text style={styles.secondaryText}>Forgot password?</Text>
+                <Text style={styles.secondaryText}>{t("forgotPassword")}</Text>
 
                 <Pressable
                   onPress={
@@ -118,16 +122,16 @@ export default function LoginScreen() {
                     { backgroundColor: availableToLog ? GreenVar : "gray" },
                   ]}
                 >
-                  <Text style={styles.buttonText}>Sign in</Text>
+                  <Text style={styles.buttonText}>{t("signIn")}</Text>
                 </Pressable>
 
                 <View style={styles.dividerContainer}>
                   <View style={styles.line} />
-                  <Text style={styles.dividerText}>OR</Text>
+                  <Text style={styles.dividerText}>{translate("common.or").toUpperCase()}</Text>
                   <View style={styles.line} />
                 </View>
                 <RealButton
-                  text="Create account"
+                  text={t("createAccount")}
                   onPress={() => router.replace("/(auth)/RegisterScreen")}
                 />
               </View>

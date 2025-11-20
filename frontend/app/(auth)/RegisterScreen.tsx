@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import translate from "@/locales/i18n";
 
 const { width } = Dimensions.get("window");
 
@@ -29,6 +30,9 @@ const showToast = (message: string) => {
 };
 
 export default function RegisterScreen() {
+  const tURL = "screens.register.";
+  const t = (key: string) => translate(tURL + key);
+
   const [availableToLog, setAvailableToLog] = useState(false);
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
   // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
@@ -92,38 +96,38 @@ export default function RegisterScreen() {
                 style={{ width: 100, height: 100, marginRight: 10 }}
               />
               <Text style={styles.headerText}>BiteBack</Text>
-              <Text style={styles.welcomeBackText}>Good to see you!</Text>
+              <Text style={styles.welcomeBackText}>{t("goodToSeeYou")}</Text>
             </View>
 
             {/* FORM */}
             <View style={styles.formBlock}>
               <View style={styles.formBox}>
                 <FormInput
-                  placeholder="johndoe@mail.com"
+                  placeholder={t("emailPlaceholder")}
                   leftIcon="mail-outline"
-                  label="Email address"
+                  label={t("emailLabel")}
                   alertText={emailAlertText}
                   setVal={setEmail}
                   // onValueChange={validateForm}
                 />
 
                 <FormInput
-                  placeholder="Your password"
+                  placeholder={t("passwordPlaceholder")}
                   leftIcon="lock-closed-outline"
                   rightIcon="eye-outline"
                   secure={true}
-                  label="Password"
+                  label={t("passwordLabel")}
                   alertText={passwordAlertText}
                   showHelp={showPasswordHelp}
                   // onValueChange={validateForm}
                   setVal={setPassword}
                 />
                 <FormInput
-                  placeholder="Your password"
+                  placeholder={t("passwordPlaceholder")}
                   leftIcon="lock-closed-outline"
                   rightIcon="eye-outline"
                   secure={true}
-                  label="Confirm password"
+                  label={t("confirmPasswordLabel")}
                   alertText={repeatedPasswordAlertText}
                   showHelp={showPasswordHelp}
                   // onValueChange={validateForm}
@@ -134,7 +138,7 @@ export default function RegisterScreen() {
                     availableToLog
                       ? () => handleRegister()
                       : () => {
-                          showToast("Please fill in all fields correctly.");
+                          showToast(t("pleaseFillAllFields"));
                         }
                   }
                   style={[
@@ -142,16 +146,16 @@ export default function RegisterScreen() {
                     { backgroundColor: availableToLog ? GreenVar : "gray" },
                   ]}
                 >
-                  <Text style={styles.buttonText}>Create account</Text>
+                  <Text style={styles.buttonText}>{t("createAccount")}</Text>
                 </Pressable>
 
                 <View style={styles.dividerContainer}>
                   <View style={styles.line} />
-                  <Text style={styles.dividerText}>OR</Text>
+                  <Text style={styles.dividerText}>{translate("common.or").toUpperCase()}</Text>
                   <View style={styles.line} />
                 </View>
                 <RealButton
-                  text="Sign in"
+                  text={t("signIn")}
                   onPress={() => router.push("/(auth)/LoginScreen")}
                 />
               </View>

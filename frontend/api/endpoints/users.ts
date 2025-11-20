@@ -1,17 +1,13 @@
+import User from '@/types/User';
 import { axiosClient } from '../axiosClient';
 
-export interface Post {
-  id: number;
-  title: string;
-  body: string;
-}
-
-export const getPosts = async (): Promise<Post[]> => {
-  const { data } = await axiosClient.get<Post[]>('/posts');
+export const getUsers = async (): Promise<User[]> => {
+  const { data } = await axiosClient.get<User[]>('/users');
   return data;
 };
 
-export const createPost = async (newPost: Omit<Post, 'id'>) => {
-  const { data } = await axiosClient.post('/posts', newPost);
+export const getUser = async () => {
+  const { data } = await axiosClient.get<User>('/auth/me');
+  console.log(data)
   return data;
 };

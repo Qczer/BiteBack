@@ -1,12 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { axiosClient } from '@/api/axiosClient';
-import User from '@/types/User';
-
-const getUser = async () => {
-  const { data } = await axiosClient.get<User>('/auth/me');
-  console.log(data)
-  return data;
-};
+import { getUser, getUsers } from '@/api/endpoints/users';
 
 export const useUser = () => {
   return useQuery({
@@ -14,5 +7,13 @@ export const useUser = () => {
     queryFn: getUser,
     staleTime: Infinity,
     retry: 1,
+  });
+};
+
+export const useUsers = () => {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers,
+    staleTime: 1000 * 60,
   });
 };

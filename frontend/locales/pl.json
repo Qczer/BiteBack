@@ -9,12 +9,28 @@
   "screens": {
     "login": {
       "title": "Zarejestruj się",
+      "welcomeBack": "Witamy ponownie!",
       "usernameLabel": "Nazwa użytkownika",
+      "emailLabel": "Adres e-mail",
+      "emailPlaceholder": "jankowalski@gmail.com",
       "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "passwordLabel": "Hasło",
-      "passwordPlaceholder": "Wprowadź swoje hasło",
-      "loginButton": "Zaloguj się",
-      "forgotPasswordLink": "Zapomniałem hasło?"
+      "passwordPlaceholder": "Twoje hasło",
+      "signIn": "Zaloguj się",
+      "createAccount": "Stwórz konto",
+      "forgotPassword": "Zapomniałeś hasła?"
+    },
+    "register": {
+      "title": "Zarejestruj się",
+      "goodToSeeYou": "Dobrze znowu cię widzieć!",
+      "emailLabel": "Adres e-mail",
+      "emailPlaceholder": "jankowalski@gmail.com",
+      "passwordLabel": "Hasło",
+      "passwordPlaceholder": "Twoje hasło",
+      "confirmPasswordLabel": "Potwierdź Hasło",
+      "createAccount": "Stwórz konto",
+      "signIn": "Zaloguj się",
+      "pleaseFillAllFields": "Wypełnij poprawnie wszystkie pola"
     },
     "home": {
       "title": "Strona główna"
@@ -112,7 +128,8 @@
     "street": "Ulica",
     "number": "Numer",
     "city": "Miasto",
-    "coordinates": "Koordynaty"
+    "coordinates": "Koordynaty",
+    "or": "Albo"
   },
   "foodEditor": {
     "foodName": "Nazwa Jedzenia",

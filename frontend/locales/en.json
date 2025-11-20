@@ -9,12 +9,26 @@
   "screens": {
     "login": {
       "title": "Sign In",
-      "usernameLabel": "Username",
-      "usernamePlaceholder": "Enter your username",
+      "welcomeBack": "Welcome Back!",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "johndoe@mail.com",
       "passwordLabel": "Password",
-      "passwordPlaceholder": "Enter your password",
-      "loginButton": "Login",
-      "forgotPasswordLink": "Forgot password?"
+      "passwordPlaceholder": "Your password",
+      "signIn": "Sign In",
+      "createAccount": "Create account",
+      "forgotPassword": "Forgot password?"
+    },
+    "register": {
+      "title": "Register",
+      "goodToSeeYou": "Good to see you!",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "johndoe@mail.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "confirmPasswordLabel": "Confirm Password",
+      "createAccount": "Create account",
+      "signIn": "Sign In",
+      "pleaseFillAllFields": "Please fill in all fields correctly"
     },
     "home": {
       "title": "Home"
@@ -113,7 +127,8 @@
     "street": "Street",
     "number": "Number",
     "city": "City",
-    "coordinates": "Coordinates"
+    "coordinates": "Coordinates",
+    "or": "Or"
   },
   "foodEditor": {
     "foodName": "Food Name",

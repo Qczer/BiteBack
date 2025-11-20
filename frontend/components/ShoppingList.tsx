@@ -57,6 +57,9 @@ export default function ShoppingList({ list, onAdd, onRemove, onUpdate }: Shoppi
               <>
                 <Text style={{fontSize: 16, flex: 3}}>{food.name}</Text>
                 <Text style={{flex: 1.5}}>{food.amount} {food.unit}</Text>
+                <Pressable onPress={() => {}}>
+                  <Text>+</Text>
+                  </Pressable>
               </>
             )}
             {
