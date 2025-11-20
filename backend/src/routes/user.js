@@ -11,10 +11,9 @@ const JWT_EXPIRATION_TIME = "7d"
 
 // potencjalnie email do uzytkownika
 router.post("/register", (req, res) => {
-    console.log("register")
+    
     bcrypt.hash(req.body.password, 15).then(hashed => {
         const newUser = new User({
-            username: req.body.username,
             password: hashed,
             email: req.body.email,
             lang: req.body.lang || "pl",
@@ -23,16 +22,22 @@ router.post("/register", (req, res) => {
         })
         newUser.save().then(result => {
             res.status(201).json({
-                message: "Registered user " + result.username + " successfully!",
+                message: "Registered user with email" + result.email + " successfully!",
                 id: result._id
             })
         }).catch(err => {
-            console.log(err)
+            if (err.errorResponse.code == 11000) {
+                res.status(409).json({
+                    message: "This email is taken"
+                })
+                return
+            }
             res.status(500).json({
                 error: err
             })
         })
     }).catch(err => {
+        console.log(1)
         console.log(err)
         res.status(500).json({
             error: err
@@ -41,7 +46,7 @@ router.post("/register", (req, res) => {
 })
 
 router.post("/login", (req, res) => {
-    User.findOne({username: req.body.username}).then(user => {
+    User.findOne({email: req.body.email}).then(user => {
         // brak autoryzacji (nie ma takiego uzytkownika)
         if (user == null) {
             return res.status(401).json({

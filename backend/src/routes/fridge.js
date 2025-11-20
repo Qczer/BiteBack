@@ -39,13 +39,14 @@ router.post("/:userID", (req, res) => {
                 }
             })
         }
-        const {name, amount, unit, category, iconUrl} = req.body;
+        const {name, amount, unit, category, iconUrl, expDate} = req.body;
         new Food({
             name: name,
             amount: amount,
             unit: unit,
             category: category,
-            iconUrl: iconUrl
+            iconUrl: iconUrl,
+            expDate: new Date(expDate)
         }).save().then(food => {
             user.fridge.push(food._id)
             user.save().then(_ => {
