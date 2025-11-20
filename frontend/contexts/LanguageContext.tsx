@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
 import { i18n, translations } from '@/locales/i18n';
-import { setItem, getItem } from '@/services/AuthService'; 
+import { setItem, getItem } from '@/services/Storage'; 
 
 const LANGUAGE_STORAGE_KEY = 'user-language';
 

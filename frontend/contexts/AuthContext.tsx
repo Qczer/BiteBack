@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { setItem, getItem, removeItem } from '@/services/AuthService'; 
+import { setItem, getItem, removeItem } from '@/services/Storage'; 
 import Food, { FoodCategory } from '@/types/Food';
 
 interface AuthContextType {

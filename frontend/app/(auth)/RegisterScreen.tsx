@@ -2,7 +2,7 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
-import { setItem } from "@/services/AuthService";
+import { setItem } from "@/services/Storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {

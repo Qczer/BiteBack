@@ -3,7 +3,7 @@ import { Text, View } from "@/components/Themed";
 import {
   getCurrencyCount,
   getNotificationsCount,
-} from "@/services/AuthService";
+} from "@/services/Storage";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";

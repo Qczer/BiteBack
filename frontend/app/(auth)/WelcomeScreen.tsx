@@ -1,6 +1,6 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import RealButton from "@/components/RealButton";
-import { setItem } from "@/services/AuthService";
+import { setItem } from "@/services/Storage";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { router } from "expo-router";
 import { useEffect } from "react";

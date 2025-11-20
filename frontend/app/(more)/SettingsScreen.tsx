@@ -1,12 +1,16 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import ConfirmModal from "@/components/ConfirmModal"; // import modala
 import LanguageSelector from "@/components/LanguageSelector";
-import { handleLogout } from "@/services/AuthService";
+import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import translate from "@/locales/i18n";
 
 export default function SettingsScreen() {
+  const tURI = "screens.settings.";
+  const t = (key: string) => translate(tURI + key);
+
   const [showConfirm, setShowConfirm] = useState(false);
 
   return (
@@ -15,11 +19,9 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="language" size={22} color={GreenVar} />
-          <Text style={styles.sectionTitle}>Language</Text>
+          <Text style={styles.sectionTitle}>{t("language")}</Text>
         </View>
-        <Text style={styles.sectionDescription}>
-          Choose your preferred language for the app interface.
-        </Text>
+        <Text style={styles.sectionDescription}>{t("langaugeInfo")}</Text>
         <LanguageSelector />
       </View>
 
@@ -27,17 +29,15 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="log-out-outline" size={22} color={GreenVar} />
-          <Text style={styles.sectionTitle}>Logout</Text>
+          <Text style={styles.sectionTitle}>{t("logout")}</Text>
         </View>
-        <Text style={styles.sectionDescription}>
-          Sign out and clear your saved data.
-        </Text>
+        <Text style={styles.sectionDescription}>{t("logoutInfo")}</Text>
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={() => setShowConfirm(true)} // zamiast handleLogout od razu
         >
           <Ionicons name="exit-outline" size={20} color={WhiteVar} />
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{t("logout")}</Text>
         </TouchableOpacity>
       </View>
 

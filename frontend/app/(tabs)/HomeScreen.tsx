@@ -1,7 +1,7 @@
 import { WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { Text, View } from "@/components/Themed";
-import { getItem } from "@/services/AuthService";
+import { getItem } from "@/services/Storage";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 

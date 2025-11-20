@@ -7,7 +7,7 @@ import ShareCode from "@/components/ShareCodeModal";
 import { Text, View } from "@/components/Themed";
 import { useUser } from "@/hooks/useUser";
 import translate from "@/locales/i18n";
-import { handleLogout } from "@/services/AuthService";
+import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
@@ -205,7 +205,7 @@ export default function ProfileScreen() {
             }}
           >
             <Ionicons name="log-out-outline" size={24} color={WhiteVar} />
-            <Text style={styles.logoutText}>Logout</Text>
+            <Text style={styles.logoutText}>{t("logout")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

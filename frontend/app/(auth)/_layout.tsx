@@ -1,4 +1,4 @@
-import { getItem } from "@/services/AuthService";
+import { getItem } from "@/services/Storage";
 import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 

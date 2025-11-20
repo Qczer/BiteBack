@@ -1,6 +1,6 @@
 import Food from "@/types/Food";
 import ShoppingList from "@/components/ShoppingList";
-import { getItem, removeItem, setItem } from "@/services/AuthService";
+import { getItem, removeItem, setItem } from "@/services/Storage";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 

@@ -8,9 +8,9 @@ export async function setItem(key: string, value: string) {
 }
 
 export async function getItem(key: string): Promise<string | null> {
-  if (Platform.OS !== "web") {
+  if (Platform.OS !== "web")
     return await SecureStore.getItemAsync(key);
-  }
+  
   return null;
 }
 

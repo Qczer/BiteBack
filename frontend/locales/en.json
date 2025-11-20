@@ -33,14 +33,19 @@
       "shareCode": "Share Code",
       "invitations": "Invitations",
       "noFriends": "No friends yet",
-      "bitePointsRewards": "BitePoints Rewards"
+      "bitePointsRewards": "BitePoints Rewards",
+      "logout": "Logout"
     },
     "more": {
       "title": "More"
     },
     "settings": {
       "title": "Settings",
-      "headerTitle": "Change Settings"
+      "headerTitle": "Change Settings",
+      "language": "Language",
+      "langaugeInfo": "Select your preferred language for the app interface.",
+      "logout": "Logout",
+      "logoutInfo": "Sign out of your account."
     }
   },
   "cards": {

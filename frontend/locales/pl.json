@@ -33,13 +33,18 @@
       "shareCode": "Udostępnij Kod",
       "invitations": "Zaproszenia",
       "noFriends": "Brak znajomych",
-      "bitePointsRewards": "Nagrody BitePoints"
+      "bitePointsRewards": "Nagrody BitePoints",
+      "logout": "Wyloguj się"
     },
     "more": {
       "title": "Więcej"
     },
     "settings": {
-      "title": "Ustawienia"
+      "title": "Ustawienia",
+      "language": "Język",
+      "langaugeInfo": "Wybierz preferowany język interfejsu aplikacji.",
+      "logout": "Wyloguj się",
+      "logoutInfo": "Wyloguj się ze swojego konta."
     }
   },
   "cards": {
