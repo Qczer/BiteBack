@@ -1,3 +1,4 @@
+import t from "@/locales/i18n";
 import { Stack } from "expo-router";
 import React from "react";
 
@@ -11,37 +12,37 @@ export default function Layout() {
       <Stack.Screen
         name="MapsScreen"
         options={{
-          title: "Food Points Map",
+          title: t("cards.maps.headerTitle"),
         }}
       />
       <Stack.Screen
         name="AddPointScreen"
         options={{
-          title: "Add Your Point",
+          title: t("cards.addPoint.headerTitle"),
         }}
       />
       <Stack.Screen
         name="ShoppingListsScreen"
         options={{
-          title: "Shopping list",
+          title: t("cards.shoppingLists.headerTitle"),
         }}
       />
       <Stack.Screen
         name="FeedbackScreen"
         options={{
-          title: "Feedback",
+          title: t("cards.feedback.headerTitle"),
         }}
       />
       <Stack.Screen
         name="ReportBugScreen"
         options={{
-          title: "Report a bug",
+          title: t("cards.reportABug.headerTitle"),
         }}
       />
       <Stack.Screen
         name="SettingsScreen"
         options={{
-          title: "Change settings",
+          title: t("cards.settings.headerTitle"),
         }}
       />
       <Stack.Screen

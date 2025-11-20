@@ -14,13 +14,13 @@ import FoodFilter from '@/types/FoodFilter';
 import FoodList from '@/components/FoodList';
 import HeaderBar from '@/components/HeaderBar';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useUser } from '@/contexts/AuthContext';
+import { useUser } from '@/hooks/useUser';
 
 const allFoodCategorys = Object.keys(FoodCategory)
   .filter(key => isNaN(Number(key))) as (keyof typeof FoodCategory)[];
 
 export default function VirtualFridgeScreen() {
-  const { user } = useUser();
+  const { data: user } = useUser();
   const userFood = user?.fridge || [];
 
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(

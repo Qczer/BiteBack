@@ -4,6 +4,7 @@ import User from '@/types/User';
 
 const getUser = async () => {
   const { data } = await axiosClient.get<User>('/auth/me');
+  console.log(data)
   return data;
 };
 

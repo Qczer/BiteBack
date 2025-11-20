@@ -41,7 +41,6 @@ export default function ShoppingListsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Shopping List</Text>
       <ShoppingList
         list={list} 
         onAdd={(newFood) => handleAddFoodToList(newFood)} 

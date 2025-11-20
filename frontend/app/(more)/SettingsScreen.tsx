@@ -4,8 +4,6 @@ import LanguageSelector from "@/components/LanguageSelector";
 export default function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <View style={styles.separator} />
       <LanguageSelector />
     </View>
   );
