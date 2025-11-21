@@ -135,5 +135,11 @@
     "foodName": "Nazwa Jedzenia",
     "amount": "Ilość",
     "unit": "Jednostka"
+  },
+  "logoutModal": {
+    "title": "Potwierdź wylogowanie",
+    "description": "Czy jesteś pewny, że chcesz się wylogować?",
+    "cancelLabel": "Anuluj",
+    "acceptLabel": "Tak, Wyloguj"
   }
 }

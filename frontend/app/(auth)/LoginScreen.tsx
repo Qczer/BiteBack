@@ -1,9 +1,10 @@
+import { login } from "@/api/endpoints/users";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
 import translate from "@/locales/i18n";
-import { setItem } from "@/services/Storage";
+import { removeItem, setItem, setToken } from "@/services/Storage";
 import { Courgette_400Regular } from "@expo-google-fonts/courgette";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
@@ -35,37 +36,48 @@ export default function LoginScreen() {
   const tURL = "screens.login.";
   const t = (key: string) => translate(tURL + key);
 
-  const [fontsLoaded] = useFonts({
-    Courgette_400Regular,
-  });
-  const [availableToLog, setAvailableToLog] = useState(false);
-  // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
+  // const [fontsLoaded] = useFonts({
+  //   Courgette_400Regular,
+  // });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  const [allFilled, setAllFilled] = useState(false);
+
+  const [emailAlertText, setEmailAlertText] = useState("");
+  const [passwordAlertText, setPasswordAlertText] = useState("");
+
   useEffect(() => {
     validateForm();
   }, [email, password]);
-  const [emailAlertText, setEmailAlertText] = useState("");
-  const [passwordAlertText, setPasswordAlertText] = useState("");
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateForm = () => {
     if (email.length === 0 && password.length === 0) return;
 
-    /*
-      jakub u:
-       - masz zrobiona walidacje niepustych pol i spelniajacych regexpy
-       - zostala ci kwestia bazodanowa czyli niepowtorzone emaile
-       - setEmailAlertText i setPasswordAlertText: tym zmieniasz te labele czerwone pod inputami
-       - mozesz tez wywolac toast czyli takie pole u gory z komunikatem (te same co po nacisnieciu szarego log in)
-       - showToast(komunikat)
-    */
+    const isEmailValid = emailRegex.test(email);
+    setEmailAlertText(isEmailValid ? "" : "Email is not valid");
+    
+    const isPasswordValid = password.length > 0;
+    setPasswordAlertText(isPasswordValid ? "" : "Password is not valid");
 
-    // setAvailableToLog(emailValid && passwordValid);
+    setAllFilled(isEmailValid && isPasswordValid);
   };
 
-  const handleLogin = () => {
-    setItem("isLoggedIn", "true");
-    router.replace("/(tabs)/HomeScreen");
+  const handleLogin = async () => {
+    if (!allFilled) {
+      showToast("Please fill in all fields correctly.");
+      return;
+    }
+
+    const res = await login(email, password);
+    if (res.success) {
+      setToken(res.data.token)
+      router.replace("/(tabs)/HomeScreen");
+    }
+    else
+      showToast(`Error ${res.status}: ${res.message}`)
   };
 
   return (
@@ -92,7 +104,6 @@ export default function LoginScreen() {
                   label={t("emailLabel")}
                   alertText={emailAlertText}
                   setVal={setEmail}
-                  // onValueChange={validateForm}
                 />
 
                 <FormInput
@@ -103,23 +114,16 @@ export default function LoginScreen() {
                   label={t("passwordLabel")}
                   alertText={passwordAlertText}
                   // showHelp={showPasswordHelp}
-                  // onValueChange={validateForm}
                   setVal={setPassword}
                 />
 
                 <Text style={styles.secondaryText}>{t("forgotPassword")}</Text>
 
                 <Pressable
-                  onPress={
-                    availableToLog
-                      ? () => handleLogin()
-                      : () => {
-                          showToast("Please fill in all fields correctly.");
-                        }
-                  }
+                  onPress={handleLogin}
                   style={[
                     styles.loginButton,
-                    { backgroundColor: availableToLog ? GreenVar : "gray" },
+                    { backgroundColor: allFilled ? GreenVar : "gray" },
                   ]}
                 >
                   <Text style={styles.buttonText}>{t("signIn")}</Text>

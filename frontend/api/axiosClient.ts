@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://twoje-api.com/api';
+const BASE_URL = 'http://192.168.0.107:3000';
 
 export const axiosClient = axios.create({
   baseURL: BASE_URL,

@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import translate from "@/locales/i18n";
+import LogoutModal from "@/components/LogoutModal";
 
 export default function SettingsScreen() {
   const tURI = "screens.settings.";
@@ -46,27 +47,7 @@ export default function SettingsScreen() {
         <Text style={styles.footerText}>Stacked © 2025</Text>
       </View>
 
-      {/* Confirm Modal */}
-      <ConfirmModal
-        visible={showConfirm}
-        title="Confirm Logout"
-        description="Are you sure you want to logout? This will clear your saved data."
-        options={[
-          {
-            label: "Cancel",
-            type: "cancel",
-            onPress: () => setShowConfirm(false),
-          },
-          {
-            label: "Yes, Logout",
-            type: "danger",
-            onPress: async () => {
-              setShowConfirm(false);
-              await handleLogout();
-            },
-          },
-        ]}
-      />
+      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); await handleLogout(); }} />
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { setItem, getItem, removeItem } from '@/services/Storage'; 
-import Food, { FoodCategory } from '@/types/Food';
+import { setItem, removeItem, getToken as getStorageToken } from '@/services/Storage'; 
+import { auth } from '@/api/endpoints/users';
 
 interface AuthContextType {
   token: string | null;
@@ -9,25 +9,16 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-const food: Food[] = [
-  { name: "apple", icon: "🍎", amount: 2, category: FoodCategory.Fruit },
-  { name: "banana", icon: "🍌", amount: 1, category: FoodCategory.Fruit },
-  { name: "broccoli", icon: "🥦", amount: 3, category: FoodCategory.Vegetable },
-  { name: "meat", icon: "🥩", amount: 8, category: FoodCategory.Meat },
-  { name: "baguette", icon: "🥖", amount: 5, category: FoodCategory.Junk },
-  { name: "cheese", icon: "🍪", amount: 4, category: FoodCategory.Snack },
-  { name: "cookie", icon: "🧀", amount: 3, category: FoodCategory.Snack },
-];
-
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
-      const userToken = await getItem('userToken');
+      const userToken = await getStorageToken();
       setToken(userToken);
       setIsLoading(false);
     };

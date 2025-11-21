@@ -134,5 +134,11 @@
     "foodName": "Food Name",
     "amount": "Amount",
     "unit": "Unit"
+  },
+  "logoutModal": {
+    "title": "Confirm Logout",
+    "description": "Are you sure you want to logout? This will clear your saved data.",
+    "cancelLabel": "Cancel",
+    "acceptLabel": "Yes, Logout"
   }
 }

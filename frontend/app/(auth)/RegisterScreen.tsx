@@ -55,10 +55,9 @@ export default function RegisterScreen() {
 
   const handleRegister = () => {
     setItem("userEmail", email);
-    setItem("isLoggedIn", "true");
-    // normalnie funkcja login z tymi parametrami
+
+    
     router.replace("/(auth)/CreateNicknameScreen");
-    // setItem("userPassword", password);
   };
 
   const validateForm = () => {

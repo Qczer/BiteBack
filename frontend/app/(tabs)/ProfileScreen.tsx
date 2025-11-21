@@ -3,6 +3,7 @@ import AddFriendModal from "@/components/AddFriendModal";
 import ConfirmModal from "@/components/ConfirmModal";
 import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
+import LogoutModal from "@/components/LogoutModal";
 import ShareCode from "@/components/ShareCodeModal";
 import { Text, View } from "@/components/Themed";
 import { useUser } from "@/hooks/useUser";
@@ -53,27 +54,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
-      {/* Confirm Modal */}
-      <ConfirmModal
-        visible={showConfirm}
-        title="Confirm Logout"
-        description="Are you sure you want to logout? This will clear your data."
-        options={[
-          {
-            label: "Cancel",
-            type: "cancel",
-            onPress: () => setShowConfirm(false),
-          },
-          {
-            label: "Yes, Logout",
-            type: "danger",
-            onPress: async () => {
-              setShowConfirm(false);
-              await handleLogout();
-            },
-          },
-        ]}
-      />
+      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); await handleLogout(); }} />
 
       {/* Modals */}
       <AddFriendModal

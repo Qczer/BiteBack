@@ -18,6 +18,15 @@ export async function removeItem(key: string) {
   await SecureStore.deleteItemAsync(key);
 }
 
+export async function getToken(): Promise<string | null> {
+  const data: any = await getItem("token");
+  return data.token;
+}
+
+export async function setToken(token: string) {
+  await setItem("token", token);
+}
+
 export const getNotificationsCount = async (): Promise<number> => {
   const raw = await getItem("notificationsCount");
   return raw ? parseInt(raw, 10) : 0;
@@ -29,9 +38,6 @@ export const getCurrencyCount = async (): Promise<number> => {
 
 export const handleLogout = async () => {
   try {
-    // pobierz wszystkie klucze
-
-    removeItem("isLoggedIn");
     removeItem("userEmail");
     removeItem("userNickname");
 

@@ -1,4 +1,5 @@
-import { getItem } from "@/services/Storage";
+import { auth } from "@/api/endpoints/users";
+import { getItem, getToken } from "@/services/Storage";
 import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 
@@ -7,24 +8,22 @@ export default function AuthLayout() {
 
   useEffect(() => {
     const loadState = async () => {
-      const token = await getItem("isLoggedIn");
+      const token = await getToken();
       const hasSeen = await getItem("hasSeenWelcomeScreen");
+      const res = await auth(token ?? "");
 
-      if (token === "true") {
-        // zamiast kierować na pojedynczy ekran, kierujesz na cały stack (tabs)
+      if (res.success)
         router.replace("/(tabs)/HomeScreen");
-      } else if (hasSeen === "true") {
+      else if (hasSeen === "true")
         setInitialRoute("LoginScreen");
-      } else {
+      else
         setInitialRoute("WelcomeScreen");
-      }
     };
     loadState();
   }, []);
 
-  if (!initialRoute) {
+  if (!initialRoute)
     return null; // Splash/Loader
-  }
 
   return (
     <Stack
