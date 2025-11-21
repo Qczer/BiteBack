@@ -19,8 +19,7 @@ export async function removeItem(key: string) {
 }
 
 export async function getToken(): Promise<string | null> {
-  const data: any = await getItem("token");
-  return data.token;
+  return await getItem("token");
 }
 
 export async function setToken(token: string) {

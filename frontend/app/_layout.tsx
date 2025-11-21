@@ -8,7 +8,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,15 +53,13 @@ function RootLayoutNav() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LanguageProvider>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(more)" options={{ headerShown: false }} />
-          </Stack>
-        </LanguageProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <Stack>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(more)" options={{ headerShown: false }} />
+        </Stack>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }
