@@ -4,12 +4,12 @@ const Food = require("../model/Food.js");
 const User = require("../model/UserModel.js"); 
 
 const serverError = (err, res) => {
+    console.log(err)
     res.status(500).json({
         error: err
     })
 }
 
-// GET (all items), POST (Add to fridge), PATCH (item), DELETE (item) 
 mongoose.connect(process.env.MONGO_URI);
 const router = express.Router();
 
@@ -22,6 +22,7 @@ router.get("/:userID", (req, res) => {
                     message: `No user found with given ID: ${req.params.userID}` 
                 }
             })
+            return
         }
         res.status(200).json({
             fridgeItemsCount: user.fridge.length, 
@@ -29,7 +30,16 @@ router.get("/:userID", (req, res) => {
         })
     }).catch(err => serverError(err, res))
 })
-
+/* PRZYKLADOWY REQUEST BODY:
+{
+    "name": "Banan", 
+    "amount": 5, 
+    "unit": "g", 
+    "category": "fruit", 
+    "iconUrl": "banan.png",
+    "expDate": "2025-11-30"
+}
+*/
 router.post("/:userID", (req, res) => {
     User.findOne({_id: req.params.userID}).then(user => {
         if (user == null) {
@@ -38,6 +48,7 @@ router.post("/:userID", (req, res) => {
                     message: `No user found with given ID: ${req.params.userID}` 
                 }
             })
+            return
         }
         const {name, amount, unit, category, iconUrl, expDate} = req.body;
         new Food({
@@ -58,12 +69,83 @@ router.post("/:userID", (req, res) => {
     }).catch(err => serverError(err, res))
 })
 
+/* PRZYKLADOWY REQUEST BODY:
+{
+    "id": "691f9c659c29f4295c5fcbcf",
+    "params": [
+        {
+            "name": "name",
+            "value": "apple"
+        }
+    ]
+}
+*/
 router.patch("/:userID", (req, res) => {
-    
+    User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
+        if (user == null) {
+            res.status(404).json({
+                error: {
+                    code: 0, // brak takiego uzytkownika
+                    message: `No user found with given ID: ${req.params.userID}` 
+                }
+            })
+            return;
+        }
+
+        const food = user.fridge.find(food => food._id.toString() == req.body.id);
+        if (food == null) {
+            res.status(404).json({
+                error: {
+                    code: 1, // brak takiego jedzenia
+                    message: "No food found with provided ID for that user"
+                }
+            })
+            return;
+        }
+        req.body.params.forEach(param => {
+            food[param.name] = param.value
+        });
+        food.save()
+
+        res.status(200).json({
+            message: "Food has been updated successfully",
+            updatedFood: food
+        });
+    }).catch(err => serverError(err, res))
 })
 
+/* PRZYKLADOWY REQUEST BODY:
+{
+    "id": "691f9c659c29f4295c5fcbcf",
+}
+*/
 router.delete("/:userID", (req, res) => {
+    User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
+        if (user == null) {
+            res.status(404).json({
+                error: {
+                    message: `No user found with given ID: ${req.params.userID}` 
+                }
+            })
+        }
 
+        const food = user.fridge.find(food => food._id.toString() == req.body.id);
+        if (food == null) {
+            res.status(404).json({
+                error: {
+                    code: 1, // brak takiego jedzenia
+                    message: "No food found with provided ID for that user"
+                }
+            })
+            return;
+        }
+        user.fridge.remove(food)
+        user.save()
+
+        res.status(200).json({
+            message: "Food has been deleted successfully",
+        });
+    }).catch(err => serverError(err, res))
 })
 
 

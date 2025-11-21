@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path")
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
@@ -9,26 +11,41 @@ const router = express.Router();
 
 const JWT_EXPIRATION_TIME = "7d"
 
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, "./storage/avatars"); // folder na pliki
+    },
+    filename: function(req, file, cb) {
+        const date = Date.now();
+        cb(null, date + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
 // potencjalnie email do uzytkownika
-router.post("/register", (req, res) => {
+router.post("/register", upload.single("avatar"), (req, res) => {
     
     bcrypt.hash(req.body.password, 15).then(hashed => {
         const newUser = new User({
+            username: req.body.username,
             password: hashed,
             email: req.body.email,
             lang: req.body.lang || "pl",
             fridge: [],
-            bitescore: 0
+            bitescore: 0,
+            avatar: req.file ? req.file.filename : "nopfp.png"
         })
         newUser.save().then(result => {
             res.status(201).json({
-                message: "Registered user with email" + result.email + " successfully!",
+                message: "Registered user with username" + result.username + " successfully!",
                 id: result._id
             })
         }).catch(err => {
+            console.log(err)
             if (err.errorResponse.code == 11000) {
                 res.status(409).json({
-                    message: "This email is taken"
+                    message: "This username is taken"
                 })
                 return
             }
@@ -46,7 +63,7 @@ router.post("/register", (req, res) => {
 })
 
 router.post("/login", (req, res) => {
-    User.findOne({email: req.body.email}).then(user => {
+    User.findOne({email: req.body.username}).then(user => {
         // brak autoryzacji (nie ma takiego uzytkownika)
         if (user == null) {
             return res.status(401).json({
@@ -65,10 +82,7 @@ router.post("/login", (req, res) => {
             // sukces
             if (result) {
                 const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: JWT_EXPIRATION_TIME});
-                res.status(200).json({
-                    token: token,
-                    expiresIn: JWT_EXPIRATION_TIME,                    
-                })
+                res.status(200).json(token)
             } else {
                 // brak autoryzacji (niepoprawne hasło)
                 return res.status(401).json({
@@ -105,4 +119,22 @@ router.get("/auth", (req, res) => {
     }
 })
 
+// zamiennik za oczekiwane /profile 
+router.get("/:userID", (req, res) => {
+    User.findOne({_id: req.params.userID}).then(user => {
+        if (user == null) {
+            res.status(404).json({
+                error: {
+                    code: 0, // brak takiego uzytkownika
+                    message: `No user found with given ID: ${req.params.userID}` 
+                }
+            })
+            return;
+        }
+        const userCopy = { ...user._doc }
+        delete userCopy.password
+        userCopy.avatar = `${req.protocol}://${req.get('host')}/storage/avatars/${user.avatar}`;
+        res.status(200).json(userCopy)
+    }).catch(err => serverError(err, res))
+})
 module.exports = router
