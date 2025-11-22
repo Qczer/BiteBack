@@ -63,7 +63,7 @@ router.post("/register", upload.single("avatar"), (req, res) => {
 })
 
 router.post("/login", (req, res) => {
-    User.findOne({email: req.body.username}).then(user => {
+    User.findOne({email: req.body.email}).then(user => {
         // brak autoryzacji (nie ma takiego uzytkownika)
         if (user == null) {
             return res.status(401).json({
