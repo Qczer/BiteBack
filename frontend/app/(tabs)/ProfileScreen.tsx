@@ -98,7 +98,7 @@ export default function ProfileScreen() {
             <Text style={styles.infoText}>
               {t("joined")}: {accountDate}
             </Text>
-            <Text style={styles.infoText}>BitePoints: {currencyValue}</Text>
+            <Text style={styles.infoText}>BiteScore: {currencyValue}</Text>
           </View>
         </View>
 
@@ -172,7 +172,7 @@ export default function ProfileScreen() {
 
         {/* Rewards */}
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>{t("bitePointsRewards")}</Text>
+          <Text style={styles.panelTitle}>{t("biteScoreRewards")}</Text>
           <Text style={styles.infoText}>
             {translate("common.comingSoon")}...
           </Text>

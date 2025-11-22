@@ -2,12 +2,16 @@ import React, { createContext, useState, useContext, ReactNode, useMemo, useEffe
 import { getItem, getToken, removeItem, removeToken } from '@/services/Storage'; 
 import { auth, getUser } from '@/api/endpoints/user';
 import User from '@/types/User';
+import Food from '@/types/Food';
+import { getFridge } from '@/api/endpoints/fridge';
 
 interface UserContextType {
   user: User | null;
   userId: string;
   token: string;
   setToken: React.Dispatch<React.SetStateAction<string>>;
+  userFood: Food[];
+  setUserFood: React.Dispatch<React.SetStateAction<Food[]>>;
   clearUser: () => void;
 }
 
@@ -17,6 +21,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
+  const [userFood, setUserFood] = useState<Food[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,20 +31,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setToken(token ?? "");
 
         if (token) {
-          const res = await auth(token);
+          const authRes = await auth(token);
   
-          if (res.success)
-            setUserId(res.data.userId);
+          if (authRes.success)
+            setUserId(authRes.data.userId);
           else {
             removeItem("userId")
             removeToken();
             return;
           }
 
-          const userRes = await getUser(res.data.userId);
+          const userRes = await getUser(authRes.data.userId);
 
           if (userRes.success)
             setUser(userRes.data)
+
+          const fetchData = async () => {
+            const fridgeRes = await getFridge(authRes.data.userId);
+            if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
+          };
+    
+          fetchData();
         }
       }
       catch (error) {
@@ -64,9 +76,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       userId,
       token,
       setToken,
+      userFood,
+      setUserFood,
       clearUser
     };
-  }, [user, userId]);
+  }, [user, userId, userFood]);
 
   if (isLoading)
     return null; 

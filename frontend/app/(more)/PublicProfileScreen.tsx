@@ -27,7 +27,7 @@ export default function PublicProfileScreen() {
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{nickname}</Text>
             <Text style={styles.infoText}>Joined: {accountDate}</Text>
-            <Text style={styles.infoText}>BitePoints: {currencyValue}</Text>
+            <Text style={styles.infoText}>BiteScore: {currencyValue}</Text>
           </View>
         </View>
 

@@ -1,6 +1,7 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { Text, View } from "@/components/Themed";
+import { useUser } from "@/contexts/UserContext";
 import { getItem } from "@/services/Storage";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -13,61 +14,50 @@ import {
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 
+interface Category {
+  name: string;
+  population: number;
+  color: string,
+  legendFontColor: string,
+  legendFontSize: number,
+}
+
 const screenWidth = Dimensions.get("window").width;
 export default function HomeScreen() {
   const [nickname, setNickname] = useState<string | null>(null);
+  const { userFood } = useUser();
+  const [pieData, setPieData] = useState<Category[]>();
 
-  const pieData = [
-    {
-      name: "Meat",
-      population: 5,
-      color: "#b22222",
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-    {
-      name: "Dairy",
-      population: 3,
-      color: "#87ceeb",
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-    {
-      name: "Fruit",
-      population: 7,
-      color: GreenVar,
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-    {
-      name: "Vegetable",
-      population: 6,
-      color: "#228b22",
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-    {
-      name: "Snacks",
-      population: 4,
-      color: "#ffd700",
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-    {
-      name: "Fastfood",
-      population: 2,
-      color: "#ff8c00",
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-    {
-      name: "Other",
-      population: 3,
-      color: "#808080",
-      legendFontColor: "#333",
-      legendFontSize: 11,
-    },
-  ];
+  const categoryColors: Record<string, string> = {
+    meat: "#b22222",
+    dairy: "#87ceeb",
+    fruit: "#228b22",
+    vegetable: "#228b22",
+    snacks: "#ffd700",
+    fastfood: "#ff8c00",
+    other: "#808080",
+  };
+  
+  const fridgeToPieData = () => {
+    let categories: Record<string, number> = {};
+
+    userFood.forEach(food => {
+      if(food.category)
+        categories[food.category] = (categories[food.category] || 0) + 1;
+    })
+
+    const pieData = Object.keys(categories).map(key => {
+      return {
+        name: key.charAt(0).toUpperCase() + key.slice(1),
+        population: categories[key],
+        color: categoryColors[key] || "#ccc",
+        legendFontColor: "#333",
+        legendFontSize: 11,
+      };
+    });
+
+    setPieData(pieData);
+  }
 
   useEffect(() => {
     const loadNickname = async () => {
@@ -75,7 +65,11 @@ export default function HomeScreen() {
       setNickname(nickname);
     };
     loadNickname();
+
+    fridgeToPieData()
   }, []);
+
+  const todayStr = new Date().toDateString();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -92,11 +86,11 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>Fridge Overview</Text>
         <View style={styles.summaryRow}>
           <Feather name="box" size={20} color={GreenVar} />
-          <Text style={styles.summaryText}>12 items stored</Text>
+          <Text style={styles.summaryText}>{userFood.length} items stored</Text>
         </View>
         <View style={styles.summaryRow}>
           <Feather name="alert-circle" size={20} color="orange" />
-          <Text style={styles.summaryText}>2 expiring today</Text>
+          <Text style={styles.summaryText}>{userFood.filter(food => new Date(food.expDate ?? '').toDateString() == todayStr).length} expiring today</Text>
         </View>
       </View>
 
@@ -107,8 +101,8 @@ export default function HomeScreen() {
         {/* Wyśrodkowany wykres */}
         <View style={styles.chartWrapper}>
           <PieChart
-            data={pieData}
-            width={screenWidth * 0.8} // 👈 trochę mniejszy, żeby legenda miała miejsce
+            data={pieData ?? []}
+            width={screenWidth * 0.8}
             height={220}
             chartConfig={{
               backgroundColor: WhiteVar,
@@ -142,34 +136,35 @@ export default function HomeScreen() {
       {/* RECENTLY ADDED */}
       <View style={[styles.recentBlock, styles.shadow]}>
         <Text style={styles.sectionTitle}>Recently Added</Text>
-        <View style={styles.recentItem}>
-          <Text style={styles.recentName}>Milk</Text>
-          <Text style={styles.recentMeta}>1L • 2025-11-24</Text>
-        </View>
-        <View style={styles.recentItem}>
-          <Text style={styles.recentName}>Tomatoes</Text>
-          <Text style={styles.recentMeta}>500g • 2025-11-26</Text>
-        </View>
-        <View style={styles.recentItem}>
-          <Text style={styles.recentName}>Yogurt</Text>
-          <Text style={styles.recentMeta}>2x • 2025-11-28</Text>
-        </View>
+        {
+          userFood.slice(-3).reverse().map((item, index) => (
+            <View key={index+1} style={styles.recentItem}>
+              <Text style={styles.recentName}>{item.name}</Text>
+              <Text style={styles.recentMeta}>{item.amount + (item.unit ?? '')} • {item.expDate ? new Date(item.expDate).toLocaleDateString() : ''} </Text>
+            </View>
+          ))
+        }
       </View>
 
       {/* SZYBKIE AKCJE */}
       <View style={styles.quickActions}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => router.push("/(tabs)/ScanScreen")}
+        >
           <Feather name="plus-circle" size={20} color={WhiteVar} />
           <Text style={styles.actionText}>Scan Food</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => {}}
+        >
           {/* TODO */}
           <Feather
             name="book-open"
             size={20}
             color={WhiteVar}
-            onPress={() => router.push("/(more)/SettingsScreen")}
           />
           <Text style={styles.actionText}>Recipes</Text>
         </TouchableOpacity>
@@ -294,17 +289,18 @@ const styles = StyleSheet.create({
   quickActions: {
     backgroundColor: WhiteVar,
     flexDirection: "row",
-    justifyContent: "space-around",
-    width: "90%",
+    width: "85%",
     marginVertical: 20,
+    gap: 15,
   },
   actionButton: {
+    flex: 1,
     backgroundColor: GreenVar,
     paddingVertical: 12,
-    paddingHorizontal: 16,
     borderRadius: 12,
     alignItems: "center",
-    gap: 6,
+    justifyContent: "center",
+    gap: 6
   },
   actionText: {
     color: WhiteVar,

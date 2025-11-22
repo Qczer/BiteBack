@@ -13,7 +13,7 @@ import HeaderBar from "@/components/HeaderBar";
 import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
-import Food, { FoodCategory } from "@/types/Food";
+import { FoodCategory } from "@/types/Food";
 import FoodFilter from "@/types/FoodFilter";
 import { useFocusEffect } from "expo-router";
 import Modal from "react-native-modal";
@@ -23,8 +23,7 @@ const allFoodCategorys = Object.keys(FoodCategory).filter((key) =>
 ) as (keyof typeof FoodCategory)[];
 
 export default function VirtualFridgeScreen() {
-  const { userId } = useUser();
-  const [userFood, setUserFood] = useState<Food[]>([]);
+  const { userId, userFood, setUserFood } = useUser();
 
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
     allFoodCategorys.map((typeName) => ({

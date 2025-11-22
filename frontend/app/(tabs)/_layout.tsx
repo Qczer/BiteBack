@@ -1,49 +1,65 @@
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
+import { View, Platform, Text } from "react-native";
 import { useLanguage } from "@/contexts/LanguageContext";
 import t from "@/locales/i18n";
 
-// import { useColorScheme } from "@/components/useColorScheme";
+// Zdefiniujmy kolory w jednym miejscu
+const COLORS = {
+  primary: "#547067", // Twój zielony
+  active: "#547067",
+  inactive: "#999999",
+  background: "#ffffff",
+};
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(
-  props: Readonly<{
-    name: React.ComponentProps<typeof FontAwesome>["name"];
-    color: string;
-  }>
-) {
-  return (
-    <FontAwesome
-      size={28}
-      style={{ marginBottom: -3, alignSelf: "center" }}
-      {...props}
+const TabIcon = ({ focused, name, size }: { focused: boolean; name: any; size?: number; }) => (
+  <View style={{ alignItems: "center", justifyContent: "center", top: Platform.OS === "ios" ? 5 : 0 }}>
+    <Ionicons
+      name={focused ? name : `${name}-outline`}
+      size={size ?? 28}
+      color={focused ? COLORS.active : COLORS.inactive}
     />
-  );
-}
+  </View>
+);
 
 export default function TabLayout() {
-  // const colorScheme = useColorScheme();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#547067ff",
-        tabBarStyle: {
-          backgroundColor: "#eeece8",
-        },
-        tabBarShowLabel: true,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
         headerShown: false,
+        tabBarActiveTintColor: COLORS.active,
+        tabBarInactiveTintColor: COLORS.inactive,
+        tabBarShowLabel: false, 
+        tabBarStyle: {
+          elevation: 5,
+          backgroundColor: COLORS.background,
+          borderTopLeftRadius: 15,
+          borderTopRightRadius: 15,
+          height: 60,
+          borderTopWidth: 0,
+          // Cień na iOS:
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.5,
+          paddingBottom: 0,
+          paddingTop: 10
+        },
       }}
     >
       <Tabs.Screen
         name="HomeScreen"
         options={{
           title: t("screens.home.title"),
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={28} color={color}></Ionicons>
+          tabBarIcon: ({ focused }) => (
+            <TabIcon 
+              focused={focused} 
+              name="home"
+            />
           ),
         }}
       />
@@ -51,29 +67,51 @@ export default function TabLayout() {
         name="VirtualFridgeScreen"
         options={{
           title: t("screens.fridge.title"),
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="snowflake-o" color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon 
+              focused={focused} 
+              name="snow"
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="ScanScreen"
         options={{
           title: t("screens.scan.title"),
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="scan" size={28} color={color}></Ionicons>
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                top: Platform.OS === "ios" ? -15 : -20,
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: COLORS.primary,
+                justifyContent: "center",
+                alignItems: "center",
+                elevation: 10,
+                shadowColor: COLORS.primary,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.4,
+                shadowRadius: 4,
+              }}
+            >
+              <Ionicons name="scan" size={30} color="#fff" />
+            </View>
           ),
         }}
       />
+
       <Tabs.Screen
         name="ProfileScreen"
         options={{
           title: t("screens.profile.title"),
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person" size={28} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon 
+              focused={focused} 
+              name="person"
+            />
           ),
         }}
       />
@@ -81,9 +119,11 @@ export default function TabLayout() {
         name="MoreScreen"
         options={{
           title: t("screens.more.title"),
-          headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="list-outline" size={28} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon 
+              focused={focused} 
+              name="settings"
+            />
           ),
         }}
       />
