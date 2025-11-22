@@ -1,0 +1,245 @@
+import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import Food from "@/types/Food";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import {
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+
+interface FoodModalProps {
+  visible: boolean;
+  onClose: () => void;
+  food: Food | null;
+}
+
+export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
+  if (!food) return null;
+
+  const [editedFood, setEditedFood] = useState<Food>(food);
+  const [open, setOpen] = useState(false);
+  const [categoryValue, setCategoryValue] = useState(editedFood.category);
+  const [items, setItems] = useState([
+    { label: "Meat 🍖", value: "meat" },
+    { label: "Dairy 🥛", value: "dairy" },
+    { label: "Fruit 🍎", value: "fruit" },
+    { label: "Vegetable 🥦", value: "vegetable" },
+    { label: "Snacks 🍪", value: "snacks" },
+    { label: "Fastfood 🍔", value: "fastfood" },
+    { label: "Other ❓", value: "other" },
+  ]);
+
+  const isLocalImage = typeof food.iconUrl === "number";
+  const isRemoteImage =
+    typeof food.iconUrl === "string" && food.iconUrl.startsWith("http");
+  const isImage = isLocalImage || isRemoteImage;
+
+  const handleChange = (key: keyof Food, value: string) => {
+    setEditedFood({ ...editedFood, [key]: value });
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.modalBox}>
+          {/* HEADER */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Edit Product</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color="#333" />
+            </TouchableOpacity>
+          </View>
+
+          {/* IMAGE + EDIT ICON */}
+          <View style={styles.imageRow}>
+            {isImage ? (
+              <Image
+                source={
+                  isLocalImage
+                    ? (food.iconUrl as any)
+                    : { uri: food.iconUrl as any }
+                }
+                style={styles.image}
+              />
+            ) : (
+              <Ionicons name="cube-outline" size={80} color="gray" />
+            )}
+            <TouchableOpacity style={styles.editIcon}>
+              <Ionicons name="create-outline" size={22} color={GreenVar} />
+            </TouchableOpacity>
+          </View>
+
+          {/* INFO (EDITABLE) */}
+          <View style={styles.infoBlock}>
+            {/* NAME */}
+            <Text style={styles.label}>Name</Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.input}
+                value={editedFood.name || ""}
+                onChangeText={(text) => handleChange("name", text)}
+                placeholder="Product name"
+              />
+              <Ionicons name="create-outline" size={20} color={GreenVar} />
+            </View>
+
+            {/* AMOUNT */}
+            <Text style={styles.label}>Amount</Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.input}
+                value={editedFood.amount?.toString() || ""}
+                onChangeText={(text) => handleChange("amount", text)}
+                placeholder="Amount"
+              />
+              <Ionicons name="create-outline" size={20} color={GreenVar} />
+            </View>
+
+            {/* CATEGORY */}
+            <Text style={styles.label}>Category</Text>
+            <DropDownPicker
+              open={open}
+              value={categoryValue as string}
+              items={items}
+              setOpen={setOpen}
+              setValue={(callback) => {
+                const newValue = callback(categoryValue);
+                setCategoryValue(newValue);
+                handleChange("category", newValue);
+              }}
+              setItems={setItems}
+              placeholder="Select category"
+              style={{ marginBottom: 10 }}
+              dropDownContainerStyle={{ borderColor: "#ddd" }}
+            />
+
+            {/* EXPIRY DATE */}
+            <Text style={styles.label}>Expiry Date</Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.input}
+                value={editedFood.expDate ? editedFood.expDate.toString() : ""}
+                onChangeText={(text) => handleChange("expDate", text)}
+                placeholder="Expiry Date"
+              />
+              <Ionicons name="create-outline" size={20} color={GreenVar} />
+            </View>
+          </View>
+
+          {/* ACTIONS */}
+          <View style={styles.actions}>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="save-outline" size={18} color={WhiteVar} />
+              <Text style={styles.actionText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: "red" }]}
+            >
+              <Ionicons name="trash-outline" size={18} color={WhiteVar} />
+              <Text style={styles.actionText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    width: "85%",
+    backgroundColor: WhiteVar,
+    borderRadius: 12,
+    padding: 20,
+    elevation: 5,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: GreenVar,
+  },
+  imageRow: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  image: {
+    width: 120,
+    height: 120,
+    resizeMode: "contain",
+    marginBottom: 8,
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: "35%",
+    backgroundColor: WhiteVar,
+    borderRadius: 20,
+    padding: 4,
+    elevation: 2,
+  },
+  infoBlock: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#555",
+    marginBottom: 4,
+    marginTop: 8,
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    paddingVertical: 6,
+    color: "#333",
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: GreenVar,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    gap: 6,
+  },
+  actionText: {
+    color: WhiteVar,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+});

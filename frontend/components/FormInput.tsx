@@ -119,7 +119,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 5,
     height: 14,
-    marginBottom: 5,
+    marginTop: 5,
+    // marginBottom: 5,
   },
   textInput: {
     flex: 1,

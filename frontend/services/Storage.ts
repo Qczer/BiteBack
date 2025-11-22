@@ -8,9 +8,8 @@ export async function setItem(key: string, value: string) {
 }
 
 export async function getItem(key: string): Promise<string | null> {
-  if (Platform.OS !== "web")
-    return await SecureStore.getItemAsync(key);
-  
+  if (Platform.OS !== "web") return await SecureStore.getItemAsync(key);
+
   return null;
 }
 
@@ -18,10 +17,15 @@ export async function removeItem(key: string) {
   await SecureStore.deleteItemAsync(key);
 }
 
-export async function getToken(): Promise<string | null> { return await getItem("token"); }
-export async function setToken(token: string) { await setItem("token", token); }
-export async function removeToken() { await removeItem("token"); }
-
+export async function getToken(): Promise<string | null> {
+  return await getItem("token");
+}
+export async function setToken(token: string) {
+  await setItem("token", token);
+}
+export async function removeToken() {
+  await removeItem("token");
+}
 
 export const getNotificationsCount = async (): Promise<number> => {
   const raw = await getItem("notificationsCount");
@@ -40,10 +44,4 @@ export const handleLogout = async () => {
   } catch (error) {
     console.error("Error clearing SecureStore:", error);
   }
-};
-
-export const handleRegister = () => {
-  removeItem("userEmail");
-
-  router.replace("/(auth)/CreateNicknameScreen");
 };

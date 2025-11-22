@@ -1,11 +1,13 @@
+import { register } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
-import { removeItem, setItem, setToken } from "@/services/Storage";
+import translate from "@/locales/i18n";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -16,8 +18,6 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import translate from "@/locales/i18n";
-import { register } from "@/api/endpoints/user";
 
 const { width } = Dimensions.get("window");
 
@@ -38,6 +38,7 @@ export default function RegisterScreen() {
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
   // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
   // const [nickname, setNickname] = useState("");
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -46,7 +47,8 @@ export default function RegisterScreen() {
   const [emailAlertText, setEmailAlertText] = useState("");
   const [usernameAlertText, setUsernameAlertText] = useState("");
   const [passwordAlertText, setPasswordAlertText] = useState("");
-  const [repeatedPasswordAlertText, setRepeatedPasswordAlertText] = useState("");
+  const [repeatedPasswordAlertText, setRepeatedPasswordAlertText] =
+    useState("");
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/; // 7+ znakow, jeden specjalny, jedna wielka litera
@@ -61,15 +63,24 @@ export default function RegisterScreen() {
       return;
     }
 
-    const res = await register(email, username, password);
-    if (res.success)
-      router.replace("/LoginScreen");
-    else
-      showToast(`Error ${res.status}: ${res.message}`)
+    setLoading(true);
+    try {
+      const res = await register(email, username, password);
+      // TODO: autolog
+      if (res.success) router.replace("/LoginScreen");
+      else {
+        showToast(`Error ${res.status}: ${res.message}`);
+      }
+    } catch (error) {
+      showToast("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const validateForm = () => {
-    if (email.length === 0 || username.length === 0 || password.length === 0) return;
+    if (email.length === 0 || username.length === 0 || password.length === 0)
+      return;
 
     let emailValid = emailRegex.test(email);
     let passwordValid = passwordRegex.test(password);
@@ -87,9 +98,7 @@ export default function RegisterScreen() {
     }
 
     setShowPasswordHelp(!passwordValid);
-    setAllFilled(
-      emailValid && passwordValid && repeatedPassword === password
-    );
+    setAllFilled(emailValid && passwordValid && repeatedPassword === password);
   };
 
   return (
@@ -151,17 +160,24 @@ export default function RegisterScreen() {
                 />
                 <Pressable
                   onPress={handleRegister}
+                  disabled={loading}
                   style={[
                     styles.loginButton,
                     { backgroundColor: allFilled ? GreenVar : "gray" },
                   ]}
                 >
-                  <Text style={styles.buttonText}>{t("createAccount")}</Text>
+                  {loading ? (
+                    <ActivityIndicator color={WhiteVar}></ActivityIndicator>
+                  ) : (
+                    <Text style={styles.buttonText}>{t("createAccount")}</Text>
+                  )}
                 </Pressable>
 
                 <View style={styles.dividerContainer}>
                   <View style={styles.line} />
-                  <Text style={styles.dividerText}>{translate("common.or").toUpperCase()}</Text>
+                  <Text style={styles.dividerText}>
+                    {translate("common.or").toUpperCase()}
+                  </Text>
                   <View style={styles.line} />
                 </View>
                 <RealButton
@@ -201,8 +217,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   formBox: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     gap: 10,
     width: width * 0.85,
     backgroundColor: WhiteVar,

@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Twoje kolory
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
@@ -59,7 +59,7 @@ const MoreScreen = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Image
             source={require("@/assets/images/logo.png")}
@@ -106,7 +106,7 @@ const MoreScreen = () => {
             <Text style={styles.footerText}>2025 Biteback.</Text>
           </View> */}
         </ScrollView>
-      </SafeAreaView>
+      </View>
     </SafeAreaProvider>
   );
 };

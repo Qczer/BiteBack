@@ -4,12 +4,13 @@ import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
 import translate from "@/locales/i18n";
-import { removeItem, setItem, setToken } from "@/services/Storage";
+import { setToken } from "@/services/Storage";
 import { Courgette_400Regular } from "@expo-google-fonts/courgette";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -39,9 +40,11 @@ export default function LoginScreen() {
   const [fontsLoaded] = useFonts({
     Courgette_400Regular,
   });
+
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+
   const [allFilled, setAllFilled] = useState(false);
 
   const [emailAlertText, setEmailAlertText] = useState("");
@@ -58,7 +61,7 @@ export default function LoginScreen() {
 
     const isEmailValid = emailRegex.test(email);
     setEmailAlertText(isEmailValid ? "" : "Email is not valid");
-    
+
     const isPasswordValid = password.length > 0;
     setPasswordAlertText(isPasswordValid ? "" : "Password is not valid");
 
@@ -71,13 +74,18 @@ export default function LoginScreen() {
       return;
     }
 
-    const res = await login(email, password);
-    if (res.success) {
-      setToken(res.data)
-      router.replace("/(tabs)/HomeScreen");
+    setLoading(true);
+    try {
+      const res = await login(email, password);
+      if (res.success) {
+        setToken(res.data);
+        router.replace("/(tabs)/HomeScreen");
+      } else showToast(`Error ${res.status}: ${res.message}`);
+    } catch (error) {
+      showToast("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    else
-      showToast(`Error ${res.status}: ${res.message}`)
   };
 
   return (
@@ -121,17 +129,27 @@ export default function LoginScreen() {
 
                 <Pressable
                   onPress={handleLogin}
+                  disabled={loading}
                   style={[
                     styles.loginButton,
-                    { backgroundColor: allFilled ? GreenVar : "gray" },
+                    {
+                      backgroundColor:
+                        allFilled && !loading ? GreenVar : "gray",
+                    },
                   ]}
                 >
-                  <Text style={styles.buttonText}>{t("signIn")}</Text>
+                  {loading ? (
+                    <ActivityIndicator color={WhiteVar} />
+                  ) : (
+                    <Text style={styles.buttonText}>{t("signIn")}</Text>
+                  )}
                 </Pressable>
 
                 <View style={styles.dividerContainer}>
                   <View style={styles.line} />
-                  <Text style={styles.dividerText}>{translate("common.or").toUpperCase()}</Text>
+                  <Text style={styles.dividerText}>
+                    {translate("common.or").toUpperCase()}
+                  </Text>
                   <View style={styles.line} />
                 </View>
                 <RealButton
