@@ -1,87 +1,138 @@
-import Food from "@/types/Food";
+import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import ShoppingList from "@/components/ShoppingList";
-import { getItem, removeItem, setItem } from "@/services/Storage";
-import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from "react-native";
-import { router, useLocalSearchParams } from 'expo-router';
-import Toast from "react-native-toast-message";
 import toastConfig from "@/components/ToastConfig";
+import { getItem, setItem } from "@/services/Storage";
+import Food from "@/types/Food";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 import { showToast } from "../(auth)/LoginScreen";
-
 
 const SHOPPING_LIST_KEY = "shoppingLists";
 
 export default function ShoppingListsScreen() {
   const { food, fromScan } = useLocalSearchParams();
-  const [list, setList] = useState<Food[]>(food ? JSON.parse(food as string) : []);
+  const [list, setList] = useState<Food[]>(
+    food ? JSON.parse(food as string) : []
+  );
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    if (fromScan)
-      return;
+    if (fromScan) return;
 
-    let shoppingLists = getItem(SHOPPING_LIST_KEY)
-    shoppingLists.then(data => {
+    getItem(SHOPPING_LIST_KEY).then((data) => {
       if (data) {
         try {
           setList(JSON.parse(data));
-        }
-        catch (e) {
+        } catch (e) {
           console.error("Błąd parsowania danych", e);
         }
       }
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
-    if (!fromScan)
-      setItem(SHOPPING_LIST_KEY, JSON.stringify(list));
-  }, [list])
+    if (!fromScan) setItem(SHOPPING_LIST_KEY, JSON.stringify(list));
+  }, [list]);
 
-  const handleAddFoodToList = (newFoodItem: Food) => { 
-    setList(prev => [...prev, newFoodItem]);
+  const handleAddFoodToList = (newFoodItem: Food) => {
+    setList((prev) => [...prev, newFoodItem]);
   };
 
   const handleRemoveFoodFromList = (newFoodItem: Food) => {
-    setList(prev => prev.filter((f: Food) => f !== newFoodItem));
+    setList((prev) => prev.filter((f: Food) => f !== newFoodItem));
   };
 
   const handleUpdateFood = (newFood: Food, foodIndex: number) => {
-    setList(prev => prev.map((food, index) => index === foodIndex ? newFood : food));
+    setList((prev) =>
+      prev.map((food, index) => (index === foodIndex ? newFood : food))
+    );
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }}>
-      <ScrollView>
+    <View
+      style={[
+        styles.screen,
+        {
+          paddingTop: insets.top + 10,
+          paddingBottom: insets.bottom + 10,
+        },
+      ]}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        nestedScrollEnabled
+      >
+        {/* HEADER */}
+        <View style={styles.headerBlock}>
+          <View style={styles.headerRow}>
+            <Ionicons name="cart-outline" size={24} color={GreenVar} />
+            <Text style={styles.screenTitle}>Shopping List</Text>
+          </View>
+          <Text style={styles.screenSubtitle}>
+            Add product to your shopping list to remember what to buy! Then, you
+            can easily move them to your Virtual Fridge.
+          </Text>
+        </View>
+
+        {/* LIST */}
         <View style={styles.container}>
           <ShoppingList
-            list={list} 
-            onAdd={(newFood) => handleAddFoodToList(newFood)} 
-            onRemove={(food) => handleRemoveFoodFromList(food)}
-            onUpdate={(updatedFood, foodIndex) => handleUpdateFood(updatedFood, foodIndex)}
-            clearList={() => { setList([]); if(fromScan) {  router.replace("/(tabs)/VirtualFridgeScreen")} }}
+            list={list}
+            onAdd={handleAddFoodToList}
+            onRemove={handleRemoveFoodFromList}
+            onUpdate={handleUpdateFood}
+            clearList={() => {
+              setList([]);
+              if (fromScan) {
+                router.replace("/(tabs)/VirtualFridgeScreen");
+              }
+            }}
             showToast={(key: string) => showToast(key)}
-            />
+          />
         </View>
       </ScrollView>
       <Toast config={toastConfig} />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+    backgroundColor: WhiteVar,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  headerBlock: {
+    marginBottom: 20,
+  },
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 30
+    marginBottom: 10,
+    gap: 8,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
+  screenTitle: {
+    textAlign: "center",
+    fontSize: 22,
+    fontWeight: "700",
+    color: GreenVar,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+  screenSubtitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  container: {
+    flex: 1,
+    gap: 16,
   },
 });

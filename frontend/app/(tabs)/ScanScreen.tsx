@@ -1,15 +1,24 @@
 import { axiosClient } from "@/api/axiosClient";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
+import translate from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
-import translate from "@/locales/i18n";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
+const screenHeight = Math.round(Dimensions.get("window").height);
 export default function ScanScreen() {
-  const tURL = "screens.scan."
+  const tURL = "screens.scan.";
   const t = (key: string) => translate(tURL + key);
 
   const [permission, requestPermission] = useCameraPermissions();
@@ -67,9 +76,10 @@ export default function ScanScreen() {
       if (!ref.current) return;
 
       setLoading(true);
-      const snapshot = await ref.current?.takePictureAsync({ skipProcessing: true });
-      if (snapshot?.uri)
-        setSnapshotUri(snapshot.uri);
+      const snapshot = await ref.current?.takePictureAsync({
+        skipProcessing: true,
+      });
+      if (snapshot?.uri) setSnapshotUri(snapshot.uri);
 
       try {
         const photo = await ref.current?.takePictureAsync({ imageType: "png" });
@@ -80,7 +90,7 @@ export default function ScanScreen() {
           form.append("image", {
             uri: photo.uri,
             name: "image.png",
-            type: "image/png"
+            type: "image/png",
           } as any);
 
           try {
@@ -90,17 +100,17 @@ export default function ScanScreen() {
               },
             });
 
-            router.replace({pathname: "/(more)/ShoppingListsScreen", params: { food: JSON.stringify(result.data), fromScan: "true" }});
-          }
-          catch (err) {
+            router.replace({
+              pathname: "/(more)/ShoppingListsScreen",
+              params: { food: JSON.stringify(result.data), fromScan: "true" },
+            });
+          } catch (err) {
             console.error("Upload failed:", err);
           }
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.error("Błąd zdjęcia", e);
-      }
-      finally {
+      } finally {
         setLoading(false);
         setShowCamera(false);
         setSnapshotUri(null);
@@ -109,9 +119,23 @@ export default function ScanScreen() {
 
     return (
       <View style={styles.container}>
-        { loading && (
-          <ActivityIndicator size="large" style={{position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: "-50%" }, { translateY: "-50%" }, { scale: 1.75 }], zIndex: 100}} />
+        {loading && (
+          <ActivityIndicator
+            size="large"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: [
+                { translateX: "-50%" },
+                { translateY: "-50%" },
+                { scale: 1.75 },
+              ],
+              zIndex: 100,
+            }}
+          />
         )}
+
         <CameraView
           style={styles.camera}
           ref={ref}
@@ -121,7 +145,10 @@ export default function ScanScreen() {
           enableTorch={flashlightOn}
         />
         {snapshotUri && (
-          <Image source={{ uri: snapshotUri }} style={[StyleSheet.absoluteFill, { zIndex: 10 }]} />
+          <Image
+            source={{ uri: snapshotUri }}
+            style={[StyleSheet.absoluteFill, { zIndex: 10 }]}
+          />
         )}
 
         {/* Overlay grid */}
@@ -145,7 +172,13 @@ export default function ScanScreen() {
           <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
             <Ionicons name="camera" size={28} color={WhiteVar} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.flashlightButton, { opacity: flashlightOn ? 0.5 : 0.9 }]} onPress={() => setFlashlightOn(prev => !prev)}>
+          <TouchableOpacity
+            style={[
+              styles.flashlightButton,
+              { opacity: flashlightOn ? 0.5 : 0.9 },
+            ]}
+            onPress={() => setFlashlightOn((prev) => !prev)}
+          >
             <Ionicons name="flashlight" size={28} color={WhiteVar} />
           </TouchableOpacity>
         </View>
@@ -160,15 +193,17 @@ export default function ScanScreen() {
       <View style={styles.center}>
         <Ionicons name="camera-outline" size={64} color={GreenVar} />
         <Text style={styles.title}>{t("camera")}</Text>
-        <Text style={styles.description}>
-          {t("cameraDesc")}
-        </Text>
+        <Text style={styles.description}>{t("cameraDesc")}</Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => setShowCamera(true)}
         >
           <Text style={styles.buttonText}>{t("openCamera")}</Text>
         </TouchableOpacity>
+        <View style={{ margin: 20 }}>
+          <Text style={styles.warning}>{t("cameraWarning1")}</Text>
+          <Text style={styles.warning}>{t("cameraWarning2")}</Text>
+        </View>
       </View>
     </View>
   );
@@ -216,18 +251,18 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 60,
     alignSelf: "center",
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    width: '90%'
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "90%",
   },
   captureButton: {
     position: "absolute",
     backgroundColor: GreenVar,
     padding: 16,
     borderRadius: 40,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   flashlightButton: {
     position: "absolute",
@@ -260,5 +295,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 1,
     backgroundColor: "rgba(255,255,255,0.5)",
+  },
+  warning: {
+    alignSelf: "center",
+    textAlign: "center",
+    color: "red",
+    fontSize: 16,
+    fontWeight: "600",
+    zIndex: 1,
   },
 });

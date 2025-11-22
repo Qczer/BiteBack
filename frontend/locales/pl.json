@@ -42,7 +42,16 @@
       "headerTitle": "Wirtualna Lodówka"
     },
     "scan": {
-      "title": "Skanuj"
+      "title": "Skanuj",
+      "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
+      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników.",
+      "permissionTitle": "Potrzebujemy twojej zgody",
+      "permissionDesc": "Proszę zezwolić na dostęp do kamery, aby kontynuować.",
+      "grantPermission": "Zezwól na dostęp",
+      "camera": "Kamera",
+      "cameraDesc": "Otwórz kamerę, aby zrobić zdjęcie",
+      "openCamera": "Otwórz Kamerę"
+
     },
     "profile": {
       "title": "Profil",
@@ -91,7 +100,8 @@
       "title": "Lista zakupów",
       "subtitle": "Stwórz i zarządzaj swoją listą zakupów",
       "headerTitle": "Lista Zakupów",
-      "addBtn": "Dodaj do Lodówki"
+      "addBtn": "Dodaj do Lodówki",
+      "addToList": "Dodaj do listy zakupów"
     },
     "feedback": {
       "title": "Informacje zwrotne",
@@ -137,7 +147,8 @@
   "foodEditor": {
     "foodName": "Nazwa Jedzenia",
     "amount": "Ilość",
-    "unit": "Jednostka"
+    "unit": "Jednostka",
+    "category": "Kategoria"
   },
   "logoutModal": {
     "title": "Potwierdź wylogowanie",

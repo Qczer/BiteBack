@@ -1,6 +1,7 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import {
   Image,
@@ -22,7 +23,19 @@ interface FoodModalProps {
 export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   if (!food) return null;
 
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+
   const [editedFood, setEditedFood] = useState<Food>(food);
+  const [unitOpen, setUnitOpen] = useState(false);
+  const [unitValue, setUnitValue] = useState(editedFood.unit || null);
+  const [unitItems, setUnitItems] = useState([
+    { label: "Kilogram (kg)", value: "kg" },
+    { label: "Gram (g)", value: "g" },
+    { label: "Mililiter (ml)", value: "ml" },
+    { label: "Litr (l)", value: "l" },
+  ]);
+
   const [open, setOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState(editedFood.category);
   const [items, setItems] = useState([
@@ -106,9 +119,30 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
               <Ionicons name="create-outline" size={20} color={GreenVar} />
             </View>
 
+            {/* UNIT */}
+            <Text style={styles.label}>Unit</Text>
+            <DropDownPicker
+              open={unitOpen}
+              value={unitValue}
+              items={unitItems}
+              setOpen={setUnitOpen}
+              setValue={(callback) => {
+                const newValue = callback(unitValue);
+                setUnitValue(newValue);
+                handleChange("unit", newValue);
+              }}
+              setItems={setUnitItems}
+              placeholder="Select unit"
+              style={{ marginBottom: 10 }}
+              dropDownContainerStyle={{ borderColor: "#ddd" }}
+              zIndex={5}
+              // zIndexInverse={4000}
+            />
+
             {/* CATEGORY */}
             <Text style={styles.label}>Category</Text>
             <DropDownPicker
+              zIndex={3}
               open={open}
               value={categoryValue as string}
               items={items}
@@ -127,13 +161,34 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
             {/* EXPIRY DATE */}
             <Text style={styles.label}>Expiry Date</Text>
             <View style={styles.inputRow}>
-              <TextInput
-                style={styles.input}
-                value={editedFood.expDate ? editedFood.expDate.toString() : ""}
-                onChangeText={(text) => handleChange("expDate", text)}
-                placeholder="Expiry Date"
-              />
+              {/* Podgląd aktualnej daty */}
+              <Text style={styles.datePreview}>
+                {date ? date.toLocaleDateString() : "No date selected"}
+              </Text>
+
+              {/* Przycisk do wyboru daty */}
+              <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShow(true)}
+              >
+                <Text style={styles.dateButtonText}>Pick date</Text>
+              </TouchableOpacity>
+
+              {/* Ikonka edycji */}
               <Ionicons name="create-outline" size={20} color={GreenVar} />
+
+              {/* Picker w modalu */}
+              {show && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShow(false);
+                    if (selectedDate) setDate(selectedDate);
+                  }}
+                />
+              )}
             </View>
           </View>
 
@@ -159,6 +214,11 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
@@ -169,6 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     elevation: 5,
+    zIndex: 1,
   },
   header: {
     flexDirection: "row",
@@ -240,6 +301,26 @@ const styles = StyleSheet.create({
   actionText: {
     color: WhiteVar,
     fontSize: 14,
+    fontWeight: "500",
+  },
+  datePreview: {
+    flex: 1,
+    fontSize: 14,
+    color: "#333",
+  },
+
+  dateButton: {
+    margin: 5,
+    backgroundColor: GreenVar,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+
+  dateButtonText: {
+    color: WhiteVar,
+    fontSize: 13,
     fontWeight: "500",
   },
 });

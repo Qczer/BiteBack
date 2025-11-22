@@ -22,9 +22,7 @@ export default function AuthLayout() {
     loadState();
   }, []);
 
-  if (!initialRoute)
-    // TODO:
-    return <SplashScreen />; // Splash/Loader
+  if (!initialRoute) return <SplashScreen />; // Splash/Loader
 
   return (
     <Stack

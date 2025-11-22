@@ -38,8 +38,7 @@ export default function VirtualFridgeScreen() {
       // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
         const res = await getFridge(userId);
-        if (res?.data) 
-          setUserFood(res.data.fridge);
+        if (res?.data) setUserFood(res.data.fridge);
       };
 
       fetchData();
