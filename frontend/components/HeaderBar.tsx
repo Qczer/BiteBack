@@ -52,7 +52,8 @@ export default function HeaderBar() {
           {/* Currency */}
           <TouchableOpacity style={{ marginRight: 16 }}>
             <View style={styles.currencyBox}>
-              <Ionicons name="cash-outline" size={26} color={GreenVar} />
+              {/* <Ionicons name="cash-outline" size={26} color={GreenVar} /> */}
+              <Image source={require("@/assets/images/BiteScore.png")} style={{ width: 35, height: 35 }}/>
               <Text style={styles.currencyText}>{currency.toFixed(2)}</Text>
             </View>
           </TouchableOpacity>

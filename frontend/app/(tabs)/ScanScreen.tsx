@@ -1,15 +1,24 @@
+import { axiosClient } from "@/api/axiosClient";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { router } from "expo-router";
 import { useRef, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import translate from "@/locales/i18n";
 
 export default function ScanScreen() {
+  const tURL = "screens.scan."
+  const t = (key: string) => translate(tURL + key);
+
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
   const [uri, setUri] = useState<string | null>(null);
+  const [snapshotUri, setSnapshotUri] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [flashlightOn, setFlashlightOn] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (!permission) return null;
 
@@ -20,12 +29,10 @@ export default function ScanScreen() {
         <HeaderBar />
         <View style={styles.center}>
           <Ionicons name="camera-outline" size={64} color={GreenVar} />
-          <Text style={styles.title}>We need your permission</Text>
-          <Text style={styles.description}>
-            Please allow access to your camera to continue.
-          </Text>
+          <Text style={styles.title}>{t("permissionTitle")}</Text>
+          <Text style={styles.description}>{t("permissionDesc")}</Text>
           <TouchableOpacity style={styles.button} onPress={requestPermission}>
-            <Text style={styles.buttonText}>Grant Permission</Text>
+            <Text style={styles.buttonText}>{t("grantPermission")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -33,7 +40,7 @@ export default function ScanScreen() {
   }
 
   // 2️⃣ Podgląd zdjęcia (jeśli zrobione)
-  if (uri) {
+  if (uri && !showCamera) {
     return (
       <View style={{ flex: 1, backgroundColor: WhiteVar }}>
         <HeaderBar />
@@ -57,18 +64,65 @@ export default function ScanScreen() {
   // 3️⃣ Kamera
   if (showCamera) {
     const takePicture = async () => {
-      const photo = await ref.current?.takePictureAsync();
-      if (photo?.uri) setUri(photo.uri);
+      if (!ref.current) return;
+
+      setLoading(true);
+      const snapshot = await ref.current?.takePictureAsync({ skipProcessing: true });
+      if (snapshot?.uri)
+        setSnapshotUri(snapshot.uri);
+
+      try {
+        const photo = await ref.current?.takePictureAsync({ imageType: "png" });
+        if (photo?.uri) {
+          setUri(photo.uri);
+
+          const form = new FormData();
+          form.append("image", {
+            uri: photo.uri,
+            name: "image.png",
+            type: "image/png"
+          } as any);
+
+          try {
+            const result = await axiosClient.post("/ai/scan/", form, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            });
+
+            router.replace({pathname: "/(more)/ShoppingListsScreen", params: { food: JSON.stringify(result.data), fromScan: "true" }});
+          }
+          catch (err) {
+            console.error("Upload failed:", err);
+          }
+        }
+      }
+      catch (e) {
+        console.error("Błąd zdjęcia", e);
+      }
+      finally {
+        setLoading(false);
+        setShowCamera(false);
+        setSnapshotUri(null);
+      }
     };
 
     return (
       <View style={styles.container}>
+        { loading && (
+          <ActivityIndicator size="large" style={{position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: "-50%" }, { translateY: "-50%" }, { scale: 1.75 }], zIndex: 100}} />
+        )}
         <CameraView
           style={styles.camera}
           ref={ref}
           facing="back"
           mode="picture"
+          animateShutter={true}
+          enableTorch={flashlightOn}
         />
+        {snapshotUri && (
+            <Image source={{ uri: snapshotUri }} style={[StyleSheet.absoluteFill, { zIndex: 10 }]} />
+        )}
 
         {/* Overlay grid */}
         <View style={styles.gridOverlay}>
@@ -91,6 +145,9 @@ export default function ScanScreen() {
           <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
             <Ionicons name="camera" size={28} color={WhiteVar} />
           </TouchableOpacity>
+          <TouchableOpacity style={[styles.flashlightButton, { opacity: flashlightOn ? 0.5 : 0.9 }]} onPress={() => setFlashlightOn(prev => !prev)}>
+            <Ionicons name="flashlight" size={28} color={WhiteVar} />
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -102,15 +159,15 @@ export default function ScanScreen() {
       <HeaderBar />
       <View style={styles.center}>
         <Ionicons name="camera-outline" size={64} color={GreenVar} />
-        <Text style={styles.title}>Camera</Text>
+        <Text style={styles.title}>{t("camera")}</Text>
         <Text style={styles.description}>
-          Open the camera to take a picture
+          {t("cameraDesc")}
         </Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => setShowCamera(true)}
         >
-          <Text style={styles.buttonText}>Open Camera</Text>
+          <Text style={styles.buttonText}>{t("openCamera")}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -157,13 +214,27 @@ const styles = StyleSheet.create({
   },
   controls: {
     position: "absolute",
-    bottom: 40,
+    bottom: 60,
     alignSelf: "center",
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '90%'
   },
   captureButton: {
+    position: "absolute",
     backgroundColor: GreenVar,
     padding: 16,
     borderRadius: 40,
+    alignSelf: 'center',
+  },
+  flashlightButton: {
+    position: "absolute",
+    backgroundColor: GreenVar,
+    padding: 10,
+    borderRadius: 40,
+    right: 10,
   },
   preview: {
     width: "80%",

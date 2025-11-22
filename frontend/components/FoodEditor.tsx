@@ -33,9 +33,11 @@ export default function FoodEditor({ initialFood, reset, onChange }: FoodEditorP
 
   return (
     <View style={styles.addFoodContainer}>
-      <TextInput style={[styles.textInput, { flex: 3 }]} placeholder={t("foodName")} value={name} onChangeText={setName} autoFocus />
-      <TextInput style={[styles.textInput, { flex: 1.5 }]} placeholder={t("amount")} keyboardType="numeric" value={amount} onChangeText={setAmount} />
-      <TextInput style={[styles.textInput, { flex: 1 }]} placeholder={t("unit")} value={unit} onChangeText={setUnit} />
+      <TextInput style={[styles.textInput, { flex: 3, fontWeight: '500' }]} placeholder={t("foodName")} value={name} onChangeText={setName} />
+      <View style={styles.amountContainer}>
+        <TextInput style={[styles.textInput, { flex: 0.5, textAlign: 'right' }]} placeholder={t("amount")} keyboardType="numeric" value={amount} onChangeText={setAmount} />
+        <TextInput style={[styles.textInput, { flex: 1, textAlign: 'left' }]} placeholder={t("unit")} value={unit} onChangeText={setUnit} />
+      </View>
     </View>
   )
 }
@@ -44,16 +46,22 @@ const styles = StyleSheet.create({
   addFoodContainer: {
     display: 'flex',
     flexDirection: 'row',
-    width: '90%',
-    gap: 10,
-    marginTop: 20,
+    flex: 1,
     backgroundColor: 'transparent'
   },
   textInput: {
+    fontSize: 16,
     borderBottomWidth: 1,
+    marginBottom: -1,
     borderColor: 'black',
     borderRadius: 5,
     padding: 0,
-    margin: 0
+    paddingHorizontal: 5,
+    margin: 0,
+  },
+  amountContainer: {
+    flex: 1.5, 
+    display: 'flex', 
+    flexDirection: 'row',
   }
 })

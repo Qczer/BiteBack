@@ -2,10 +2,10 @@ import { Dimensions, StyleSheet } from 'react-native';
 
 import {  WhiteVar } from '@/assets/colors/colors';
 import { Text, View } from '@/components/Themed';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import Modal from 'react-native-modal';
-import { FoodCategory } from '@/types/Food';
+import Food, { FoodCategory } from '@/types/Food';
 import Fridge from '@/components/Fridge';
 import SearchInput from '@/components/SearchInput';
 import FoodFiltersList from '@/components/FoodFiltersList';
@@ -14,20 +14,39 @@ import FoodFilter from '@/types/FoodFilter';
 import FoodList from '@/components/FoodList';
 import HeaderBar from '@/components/HeaderBar';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useUser } from '@/hooks/useUser';
+import { getFridge } from '@/api/endpoints/fridge';
+import { useUser } from '@/contexts/UserContext';
+import { useFocusEffect } from 'expo-router';
 
 const allFoodCategorys = Object.keys(FoodCategory)
   .filter(key => isNaN(Number(key))) as (keyof typeof FoodCategory)[];
 
 export default function VirtualFridgeScreen() {
-  const { data: user } = useUser();
-  const userFood = user?.fridge || [];
+  const { userId } = useUser();
+  const [userFood, setUserFood] = useState<Food[]>([]);
 
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
     allFoodCategorys.map(typeName => ({
       FoodCategory: FoodCategory[typeName],
       active: false,
     }))
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      // Ten kod wykonuje sie gdy wejdziesz na ekran
+      const fetchData = async () => {
+      const res = await getFridge(userId);
+      if (res?.data)
+        setUserFood(res.data.fridge)
+      }
+
+      fetchData();
+
+      return () => {
+        // Opcjonalnie: gdy WYJDZIESZ z ekranu (stracisz focus)
+      };
+    }, [])
   );
 
   const { t } = useLanguage();
@@ -73,7 +92,7 @@ export default function VirtualFridgeScreen() {
           </View>
           <SearchInput/>
           <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters}/>
-          <Fridge addStyles={{height: height * 0.55}} filters={foodFilters}/>
+          <Fridge food={userFood} addStyles={{height: height * 0.55}} filters={foodFilters}/>
         </View>
     </View>
   );

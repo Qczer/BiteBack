@@ -1,20 +1,22 @@
-import { auth } from "@/api/endpoints/users";
-import { getItem, getToken } from "@/services/Storage";
+import { auth } from "@/api/endpoints/user";
+import { useUser } from "@/contexts/UserContext";
+import { getItem, getToken, removeItem, setItem } from "@/services/Storage";
 import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 
 export default function AuthLayout() {
+  const { userId } = useUser();
   const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   useEffect(() => {
     const loadState = async () => {
-      const token = await getToken();
       const hasSeen = await getItem("hasSeenWelcomeScreen");
-      const res = await auth(token ?? "");
-
-      if (res.success)
+      if (userId) {
         router.replace("/(tabs)/HomeScreen");
-      else if (hasSeen === "true")
+        return;
+      }
+
+      if (hasSeen === "true")
         setInitialRoute("LoginScreen");
       else
         setInitialRoute("WelcomeScreen");

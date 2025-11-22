@@ -18,13 +18,10 @@ export async function removeItem(key: string) {
   await SecureStore.deleteItemAsync(key);
 }
 
-export async function getToken(): Promise<string | null> {
-  return await getItem("token");
-}
+export async function getToken(): Promise<string | null> { return await getItem("token"); }
+export async function setToken(token: string) { await setItem("token", token); }
+export async function removeToken() { await removeItem("token"); }
 
-export async function setToken(token: string) {
-  await setItem("token", token);
-}
 
 export const getNotificationsCount = async (): Promise<number> => {
   const raw = await getItem("notificationsCount");
@@ -37,13 +34,16 @@ export const getCurrencyCount = async (): Promise<number> => {
 
 export const handleLogout = async () => {
   try {
-    removeItem("userEmail");
-    removeItem("userNickname");
+    await removeToken();
 
-    // router.canGoBack(false);
-    // router.dismissAll();
-    router.replace("/(auth)/LoginScreen");
+    router.replace("/LoginScreen");
   } catch (error) {
     console.error("Error clearing SecureStore:", error);
   }
+};
+
+export const handleRegister = () => {
+  removeItem("userEmail");
+
+  router.replace("/(auth)/CreateNicknameScreen");
 };

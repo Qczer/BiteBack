@@ -2,13 +2,8 @@ import User from '@/types/User';
 import { axiosClient } from '../axiosClient';
 import { AxiosError } from 'axios';
 
-interface LoginResponse {
-  token: string;
-  expiresIn: string;
-}
-
 type LoginResult =
-| { success: true; data: LoginResponse }
+| { success: true; data: string }
 | { success: false; status: number | null; message?: string };
 
 interface AuthResponse {
@@ -20,15 +15,20 @@ type AuthResult =
 | { success: true; data: AuthResponse }
 | { success: false; status: number | null; message?: string };
 
-export const getUsers = async (): Promise<User[]> => {
-  const { data } = await axiosClient.get<User[]>('/users');
-  return data;
-};
+export const getUser = async (userId: string) => {
+  try {
+    const { data } = await axiosClient.get(`/user/${userId}`);
+    return { success: true, data }
+  }
+  catch (error) {
+    const err = error as AxiosError<any>; 
 
-export const getUser = async () => {
-  const { data } = await axiosClient.get<User>('/user');
-  console.log(data)
-  return data;
+    return {
+      success: false,
+      status: err.response?.status ?? null,
+      message: err.response?.data?.message
+    }
+  }
 };
 
 export const auth = async (token: string): Promise<AuthResult> => {
@@ -51,7 +51,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
   const body = {  email, password };
 
   try {
-    const { data } = await axiosClient.post<LoginResponse>('/user/login', body);
+    const { data } = await axiosClient.post<string>('/user/login', body);
 
     return { success: true, data };
   }
@@ -66,11 +66,11 @@ export const login = async (email: string, password: string): Promise<LoginResul
   }
 };
 
-export const register = async (email: string, nickname: string, password: string): Promise<LoginResult> => {
-  const body = {  email, nickname, password };
+export const register = async (email: string, username: string, password: string): Promise<LoginResult> => {
+  const body = {  email, username, password };
 
   try {
-    const { data } = await axiosClient.post<LoginResponse>('/user/login', body);
+    const { data } = await axiosClient.post('/user/register', body);
 
     return { success: true, data };
   }

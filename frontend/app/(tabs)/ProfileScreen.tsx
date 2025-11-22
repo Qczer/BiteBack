@@ -1,12 +1,11 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
-import ConfirmModal from "@/components/ConfirmModal";
 import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
 import LogoutModal from "@/components/LogoutModal";
 import ShareCode from "@/components/ShareCodeModal";
 import { Text, View } from "@/components/Themed";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,8 +20,7 @@ export default function ProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  const { data: user } = useUser();
-  const nickname = user?.name ?? "Guest";
+  const { user }  = useUser();
 
   const accountDate = "2023-05-12";
   const currencyValue = 125.5;
@@ -77,7 +75,7 @@ export default function ProfileScreen() {
 
         {/* Karta profilu */}
         <View style={styles.card}>
-          <View style={{ position: "relative" }}>
+          <View style={{ position: "relative", backgroundColor: 'transparent' }}>
             <Image
               source={
                 avatarUri
@@ -88,12 +86,12 @@ export default function ProfileScreen() {
             />
             {/* Ikonka edycji */}
             <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
-              <Ionicons name="create-outline" size={20} color={WhiteVar} />
+              <Ionicons name="create-outline" size={18} color={WhiteVar} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.cardInfo}>
-            <Text style={styles.nickname}>{nickname}</Text>
+            <Text style={styles.nickname}>{user?.username ?? "Guest"}</Text>
             <Text style={styles.infoText}>
               {t("joined")}: {accountDate}
             </Text>
@@ -181,6 +179,7 @@ export default function ProfileScreen() {
         <View style={styles.panel}>
           <TouchableOpacity
             style={styles.logoutButton}
+            activeOpacity={0.6}
             onPress={() => {
               setShowConfirm(true);
             }}
@@ -230,6 +229,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 40,
     marginRight: 16,
+    backgroundColor: 'transparent'
   },
   cardInfo: {
     flexDirection: "column",
@@ -339,6 +339,6 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: GreenVar,
     borderRadius: 16,
-    padding: 6,
+    padding: 8,
   },
 });

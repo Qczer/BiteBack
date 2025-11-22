@@ -2,7 +2,7 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
-import { removeItem, setItem } from "@/services/Storage";
+import { removeItem, setItem, setToken } from "@/services/Storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import translate from "@/locales/i18n";
+import { register } from "@/api/endpoints/user";
 
 const { width } = Dimensions.get("window");
 
@@ -33,34 +34,43 @@ export default function RegisterScreen() {
   const tURL = "screens.register.";
   const t = (key: string) => translate(tURL + key);
 
-  const [availableToLog, setAvailableToLog] = useState(false);
+  const [allFilled, setAllFilled] = useState(false);
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
   // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
   // const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [repeatedPassword, setRepeatedPassword] = useState("");
+
+  const [emailAlertText, setEmailAlertText] = useState("");
+  const [usernameAlertText, setUsernameAlertText] = useState("");
+  const [passwordAlertText, setPasswordAlertText] = useState("");
+  const [repeatedPasswordAlertText, setRepeatedPasswordAlertText] = useState("");
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/; // 7+ znakow, jeden specjalny, jedna wielka litera
+
   useEffect(() => {
     validateForm();
   }, [email, password, repeatedPassword]);
-  const [emailAlertText, setEmailAlertText] = useState("");
-  const [passwordAlertText, setPasswordAlertText] = useState("");
-  const [repeatedPasswordAlertText, setRepeatedPasswordAlertText] =
-    useState("");
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const handleRegister = async () => {
+    if (!allFilled) {
+      showToast(t("pleaseFillAllFields"));
+      return;
+    }
 
-  // 7+ znakow, jeden specjalny, jedna wielka litera
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/;
-
-  const handleRegister = () => {
-    removeItem("userEmail");
-
-    router.replace("/(auth)/CreateNicknameScreen");
+    const res = await register(email, username, password);
+    if (res.success)
+      router.replace("/LoginScreen");
+    else
+      showToast(`Error ${res.status}: ${res.message}`)
   };
 
   const validateForm = () => {
-    if (email.length === 0 && password.length === 0) return;
+    if (email.length === 0 || username.length === 0 || password.length === 0) return;
+
     let emailValid = emailRegex.test(email);
     let passwordValid = passwordRegex.test(password);
 
@@ -77,7 +87,7 @@ export default function RegisterScreen() {
     }
 
     setShowPasswordHelp(!passwordValid);
-    setAvailableToLog(
+    setAllFilled(
       emailValid && passwordValid && repeatedPassword === password
     );
   };
@@ -108,6 +118,14 @@ export default function RegisterScreen() {
                   setVal={setEmail}
                   // onValueChange={validateForm}
                 />
+                <FormInput
+                  placeholder={t("usernamePlaceholder")}
+                  leftIcon="person-outline"
+                  label={t("usernameLabel")}
+                  alertText={usernameAlertText}
+                  setVal={setUsername}
+                  // onValueChange={validateForm}
+                />
 
                 <FormInput
                   placeholder={t("passwordPlaceholder")}
@@ -132,16 +150,10 @@ export default function RegisterScreen() {
                   setVal={setRepeatedPassword}
                 />
                 <Pressable
-                  onPress={
-                    availableToLog
-                      ? () => handleRegister()
-                      : () => {
-                          showToast(t("pleaseFillAllFields"));
-                        }
-                  }
+                  onPress={handleRegister}
                   style={[
                     styles.loginButton,
-                    { backgroundColor: availableToLog ? GreenVar : "gray" },
+                    { backgroundColor: allFilled ? GreenVar : "gray" },
                   ]}
                 >
                   <Text style={styles.buttonText}>{t("createAccount")}</Text>
@@ -182,17 +194,19 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   formBlock: {
-    flex: 5,
+    flex: 6,
     width: "100%",
     backgroundColor: "snow",
     justifyContent: "center",
     paddingVertical: 20,
   },
   formBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
     width: width * 0.85,
     backgroundColor: WhiteVar,
     alignSelf: "center",
-    justifyContent: "space-around",
     borderRadius: 20,
     padding: "5%",
     // cross-platform shadow

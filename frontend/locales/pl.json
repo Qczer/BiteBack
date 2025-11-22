@@ -25,6 +25,8 @@
       "goodToSeeYou": "Dobrze znowu cię widzieć!",
       "emailLabel": "Adres e-mail",
       "emailPlaceholder": "jankowalski@gmail.com",
+      "usernameLabel": "Nazwa",
+      "usernamePlaceholder": "Twoja nazwa",
       "passwordLabel": "Hasło",
       "passwordPlaceholder": "Twoje hasło",
       "confirmPasswordLabel": "Potwierdź Hasło",
@@ -88,7 +90,8 @@
     "shoppingLists": {
       "title": "Lista zakupów",
       "subtitle": "Stwórz i zarządzaj swoją listą zakupów",
-      "headerTitle": "Lista Zakupów"
+      "headerTitle": "Lista Zakupów",
+      "addBtn": "Dodaj do Lodówki"
     },
     "feedback": {
       "title": "Informacje zwrotne",

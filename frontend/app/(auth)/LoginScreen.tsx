@@ -1,4 +1,4 @@
-import { login } from "@/api/endpoints/users";
+import { login } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
@@ -23,7 +23,7 @@ import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 
-const showToast = (message: string) => {
+export const showToast = (message: string) => {
   Toast.show({
     type: "error",
     text1: message,
@@ -36,9 +36,9 @@ export default function LoginScreen() {
   const tURL = "screens.login.";
   const t = (key: string) => translate(tURL + key);
 
-  // const [fontsLoaded] = useFonts({
-  //   Courgette_400Regular,
-  // });
+  const [fontsLoaded] = useFonts({
+    Courgette_400Regular,
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
@@ -73,7 +73,7 @@ export default function LoginScreen() {
 
     const res = await login(email, password);
     if (res.success) {
-      setToken(res.data.token)
+      setToken(res.data)
       router.replace("/(tabs)/HomeScreen");
     }
     else

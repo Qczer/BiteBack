@@ -1,20 +1,18 @@
 import { Dimensions, ScrollView, StyleProp, StyleSheet, View, ViewStyle, } from "react-native";
 import FridgeFood from "./FridgeFood";
 import FoodFilter from "@/types/FoodFilter";
-import { useUser } from "@/hooks/useUser";
+import Food from "@/types/Food";
 
 const SHELF_SIZE = 5;
 const MIN_SHELVES = 5;
 
 interface FridgeProps {
+  food: Food[];
   addStyles?: StyleProp<ViewStyle>;
   filters?: FoodFilter[];
 }
 
-export default function Fridge({ addStyles, filters }: FridgeProps) {
-  const { data: user } = useUser();
-  const food = user?.fridge || [];
-
+export default function Fridge({ food, addStyles, filters }: FridgeProps) {
   const filteredFood = filters?.length && filters.some(f => f.active)
     ? food.filter(f => filters.some(fl => fl.active && fl.FoodCategory === f.category))
     : food;

@@ -36,6 +36,7 @@ export default function ConfirmModal({
                   opt.type === "cancel" && styles.cancel,
                   opt.type === "danger" && styles.danger,
                 ]}
+                activeOpacity={0.65}
                 onPress={opt.onPress}
               >
                 <Text style={styles.buttonText}>{opt.label}</Text>
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#4CAF50", // default zielony
   },
   cancel: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#979797",
   },
   danger: {
     backgroundColor: "red",

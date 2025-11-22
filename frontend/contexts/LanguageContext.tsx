@@ -54,7 +54,8 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     if(!isLoading) {
       i18n.locale = lang;
       setForceUpdateKey(prevKey => prevKey + 1);
-      setItem(LANGUAGE_STORAGE_KEY, lang);
+      if (!lang)
+        setItem(LANGUAGE_STORAGE_KEY, lang);
     }
   }, [lang, isLoading]);
 
