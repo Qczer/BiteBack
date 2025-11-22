@@ -1,5 +1,4 @@
-import { StyleSheet, TextInput } from "react-native";
-import { View } from "./Themed";
+import { StyleSheet, TextInput, View } from "react-native";
 import { useEffect, useState } from "react";
 import Food from "@/types/Food";
 import translate from "@/locales/i18n";
@@ -33,10 +32,10 @@ export default function FoodEditor({ initialFood, reset, onChange }: FoodEditorP
 
   return (
     <View style={styles.addFoodContainer}>
-      <TextInput style={[styles.textInput, { flex: 3, fontWeight: '500' }]} placeholder={t("foodName")} value={name} onChangeText={setName} />
+      <TextInput style={[styles.textInput, { flex: 3, fontWeight: '500' }]} placeholder={t("foodName")} value={name} onChangeText={setName}  underlineColorAndroid="transparent" />
       <View style={styles.amountContainer}>
-        <TextInput style={[styles.textInput, { flex: 0.5, textAlign: 'right' }]} placeholder={t("amount")} keyboardType="numeric" value={amount} onChangeText={setAmount} />
-        <TextInput style={[styles.textInput, { flex: 1, textAlign: 'left' }]} placeholder={t("unit")} value={unit} onChangeText={setUnit} />
+        <TextInput style={[styles.textInput, { flex: 0.5, textAlign: 'right' }]} placeholder={t("amount")} keyboardType="numeric" value={amount} onChangeText={setAmount}  underlineColorAndroid="transparent" />
+        <TextInput style={[styles.textInput, { flex: 1, textAlign: 'left' }]} placeholder={t("unit")} value={unit} onChangeText={setUnit}  underlineColorAndroid="transparent" />
       </View>
     </View>
   )
@@ -52,12 +51,11 @@ const styles = StyleSheet.create({
   textInput: {
     fontSize: 16,
     borderBottomWidth: 1,
-    marginBottom: -1,
     borderColor: 'black',
     borderRadius: 5,
     padding: 0,
-    paddingHorizontal: 5,
     margin: 0,
+    paddingHorizontal: 5,
   },
   amountContainer: {
     flex: 1.5, 
