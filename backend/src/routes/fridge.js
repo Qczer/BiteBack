@@ -40,34 +40,35 @@ router.get("/:userID", (req, res) => {
     "expDate": "2025-11-30"
 }
 */
-router.post("/:userID", (req, res) => {
-    User.findOne({_id: req.params.userID}).then(user => {
-        if (user == null) {
-            res.status(404).json({
-                error: {
-                    message: `No user found with given ID: ${req.params.userID}` 
-                }
-            })
-            return
+router.post("/:userID", async (req, res) => {
+    try {
+        const user = await User.findOne({_id: req.params.userID});
+        if (!user) {
+            return res.status(404).json({
+                error: { message: `No user found with given ID: ${req.params.userID}` }
+            });
         }
-        const {name, amount, unit, category, iconUrl, expDate} = req.body;
-        new Food({
-            name: name,
-            amount: amount,
-            unit: unit,
-            category: category,
-            iconUrl: iconUrl,
-            expDate: new Date(expDate)
-        }).save().then(food => {
-            user.fridge.push(food._id)
-            user.save().then(_ => {
-                res.status(201).json({
-                    message: `${name} has beed added to ${user.username} fridge!` 
-                })
-            }).catch(err => serverError(err, res))
-        }).catch(err => serverError(err, res))
-    }).catch(err => serverError(err, res))
-})
+
+        console.log("Log: " + req.body[0]);
+
+        const foodItems = req.body.map(item => ({
+            ...item,
+            expDate: new Date(item.expDate)
+        }));
+
+        const savedFoods = await Food.insertMany(foodItems);
+        
+        user.fridge.push(...savedFoods.map(f => f._id));
+        await user.save();
+
+        res.status(201).json({
+            message: `${savedFoods.length} items have been added to ${user.username} fridge!`
+        });
+    }
+    catch (err) {
+        serverError(err, res);
+    }
+});
 
 /* PRZYKLADOWY REQUEST BODY:
 {

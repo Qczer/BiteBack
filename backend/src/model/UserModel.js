@@ -8,7 +8,8 @@ const userSchema = mongoose.Schema({
     lang: {type: String, enum: ["pl", "en"], required: true, default: "pl"},
     fridge: [{type: mongoose.Types.ObjectId, ref: "Food", default: []}],
     bitescore: {type: Number, default: 0},
-    avatar: {type: String, default: "nopfp.png"}
+    avatar: {type: String, default: "nopfp.png"},
+    createDate: {type: Date, default: new Date.now(), required: true}
 })
 
 module.exports = mongoose.model("User", userSchema)
