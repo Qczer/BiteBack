@@ -1,17 +1,21 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
-import { getItem, getToken, setItem } from '@/services/Storage'; 
+import { getItem, getToken, removeItem, removeToken } from '@/services/Storage'; 
 import { auth, getUser } from '@/api/endpoints/user';
 import User from '@/types/User';
 
 interface UserContextType {
   user: User | null;
   userId: string;
+  token: string;
+  setToken: React.Dispatch<React.SetStateAction<string>>;
+  clearUser: () => void;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -19,16 +23,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const loadUser = async () => {
       try {
         const token = await getToken();
+        setToken(token ?? "");
 
         if (token) {
           const res = await auth(token);
   
-          if (res.success) {
-            setItem("userId", res.data.userId)
+          if (res.success)
             setUserId(res.data.userId);
-          }
-          else
+          else {
+            removeItem("userId")
+            removeToken();
             return;
+          }
 
           const userRes = await getUser(res.data.userId);
 
@@ -45,12 +51,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
 
     loadUser();
-  }, [])
+  }, [token])
+
+  const clearUser = () => {
+    setUserId("");
+    setUser(null);
+  }
 
   const value = useMemo(() => {
     return {
       user,
-      userId
+      userId,
+      token,
+      setToken,
+      clearUser
     };
   }, [user, userId]);
 

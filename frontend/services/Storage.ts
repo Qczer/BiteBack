@@ -1,4 +1,5 @@
 // services/AuthService.ts
+import { useUser } from "@/contexts/UserContext";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";

@@ -14,6 +14,8 @@ import { useState } from "react";
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function ProfileScreen() {
+  const { clearUser } = useUser();
+
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
@@ -52,7 +54,8 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
-      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); await handleLogout(); }} />
+  
+      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); clearUser(); await handleLogout(); }} />
 
       {/* Modals */}
       <AddFriendModal

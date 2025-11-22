@@ -7,8 +7,11 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import translate from "@/locales/i18n";
 import LogoutModal from "@/components/LogoutModal";
+import { useUser } from "@/contexts/UserContext";
 
 export default function SettingsScreen() {
+  const { clearUser } = useUser();
+
   const tURI = "screens.settings.";
   const t = (key: string) => translate(tURI + key);
 
@@ -47,7 +50,7 @@ export default function SettingsScreen() {
         <Text style={styles.footerText}>Stacked © 2025</Text>
       </View>
 
-      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); await handleLogout(); }} />
+      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); clearUser(); await handleLogout(); }} />
     </View>
   );
 }

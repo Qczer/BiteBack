@@ -3,8 +3,9 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
 import toastConfig from "@/components/ToastConfig";
+import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
-import { setToken } from "@/services/Storage";
+import { setToken as saveTokenToStorage } from "@/services/Storage";
 import { Courgette_400Regular } from "@expo-google-fonts/courgette";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
@@ -34,6 +35,8 @@ export const showToast = (message: string) => {
 };
 
 export default function LoginScreen() {
+  const { setToken } = useUser()
+
   const tURL = "screens.login.";
   const t = (key: string) => translate(tURL + key);
 
@@ -78,6 +81,8 @@ export default function LoginScreen() {
     try {
       const res = await login(email, password);
       if (res.success) {
+
+        await saveTokenToStorage(res.data);
         setToken(res.data);
         router.replace("/(tabs)/HomeScreen");
       } else showToast(`Error ${res.status}: ${res.message}`);

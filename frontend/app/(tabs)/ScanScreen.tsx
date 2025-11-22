@@ -121,7 +121,7 @@ export default function ScanScreen() {
           enableTorch={flashlightOn}
         />
         {snapshotUri && (
-            <Image source={{ uri: snapshotUri }} style={[StyleSheet.absoluteFill, { zIndex: 10 }]} />
+          <Image source={{ uri: snapshotUri }} style={[StyleSheet.absoluteFill, { zIndex: 10 }]} />
         )}
 
         {/* Overlay grid */}

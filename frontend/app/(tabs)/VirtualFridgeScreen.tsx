@@ -37,10 +37,9 @@ export default function VirtualFridgeScreen() {
     useCallback(() => {
       // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
-        console.log("fetching fridge data..., userId:", userId);
         const res = await getFridge(userId);
-        if (res?.data) setUserFood(res.data.fridge);
-        else console.log("No fridge data returned");
+        if (res?.data) 
+          setUserFood(res.data.fridge);
       };
 
       fetchData();
