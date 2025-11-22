@@ -1,20 +1,20 @@
-const mongoose = require("mongoose")
-const express = require("express");
-const Food = require("../model/Food.js");
-const User = require("../model/UserModel.js"); 
+import express from "express"
 
+import Food from "../model/Food.js"
+import User from "../model/User.js"
+
+
+const router = express.Router();
+
+
+// Routes
 const serverError = (err, res) => {
     console.log(err)
     res.status(500).json({
         error: err
     })
 }
-
-mongoose.connect(process.env.MONGO_URI);
-const router = express.Router();
-
-
-router.get("/:userID", (req, res) => {
+router.get("/:userID", async (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({
@@ -30,17 +30,8 @@ router.get("/:userID", (req, res) => {
         })
     }).catch(err => serverError(err, res))
 })
-/* PRZYKLADOWY REQUEST BODY:
-{
-    "name": "Banan", 
-    "amount": 5, 
-    "unit": "g", 
-    "category": "fruit", 
-    "iconUrl": "banan.png",
-    "expDate": "2025-11-30"
-}
-*/
-router.post("/:userID", async (req, res) => {
+
+router.post("/:userId", async (req, res) => {
     try {
         const user = await User.findOne({_id: req.params.userID});
         if (!user) {
@@ -70,18 +61,11 @@ router.post("/:userID", async (req, res) => {
     }
 });
 
-/* PRZYKLADOWY REQUEST BODY:
-{
-    "id": "691f9c659c29f4295c5fcbcf",
-    "params": [
-        {
-            "name": "name",
-            "value": "apple"
-        }
-    ]
-}
-*/
-router.patch("/:userID", (req, res) => {
+router.put("/:userId", (req, res) => {
+
+})
+
+router.patch("/:userId", (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({
@@ -115,11 +99,6 @@ router.patch("/:userID", (req, res) => {
     }).catch(err => serverError(err, res))
 })
 
-/* PRZYKLADOWY REQUEST BODY:
-{
-    "id": "691f9c659c29f4295c5fcbcf",
-}
-*/
 router.delete("/:userID", (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
@@ -150,5 +129,4 @@ router.delete("/:userID", (req, res) => {
 })
 
 
-
-module.exports = router
+export default router

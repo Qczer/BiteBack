@@ -1,4 +1,5 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
+
 
 const foodSchema = mongoose.Schema({
     name: {type: String, required: true},
@@ -9,4 +10,7 @@ const foodSchema = mongoose.Schema({
     expDate: {type: Date, required: true}
 })
 
-module.exports = mongoose.model("Food", foodSchema)
+const Food = mongoose.model("Food", foodSchema)
+
+
+export default Food

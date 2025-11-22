@@ -1,11 +1,11 @@
-const express = require("express");
-const multer = require("multer");
-const axios = require("axios");
-const FormData = require("form-data");
+import express from "express"
+import multer from "multer"
+import axios from "axios"
+import FormData from "form-data"
+
 
 const router = express.Router();
 
-// In-memory storage (no disk)
 const upload = multer({
     storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
@@ -14,9 +14,10 @@ const upload = multer({
     },
 });
 
-// Route accepts image upload and forwards it to FastAPI
+
+// Routes
 router.post("/scan", upload.single("image"), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    if (!req.file) return res.status(400).json({error: "No file uploaded"});
 
     const form = new FormData();
     form.append("image", req.file.buffer, {
@@ -26,7 +27,7 @@ router.post("/scan", upload.single("image"), async (req, res) => {
 
     try {
         const response = await axios.post("http://ai:8001/scan/", form, {
-            headers: form.getHeaders(), // enforces multipart/form-data
+            headers: form.getHeaders(),
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
         });
@@ -48,4 +49,5 @@ router.post("/scan", upload.single("image"), async (req, res) => {
     }
 });
 
-module.exports = router;
+
+export default router

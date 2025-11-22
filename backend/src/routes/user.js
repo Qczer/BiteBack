@@ -1,12 +1,12 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path")
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
-const User = require("../model/UserModel.js"); 
+import express from "express"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
+import path from "path"
+import multer from "multer";
 
-mongoose.connect(process.env.MONGO_URI);
+import User from "../model/User.js"
+
+
 const router = express.Router();
 
 const JWT_EXPIRATION_TIME = "7d"
@@ -23,6 +23,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+
+// Routes
 // potencjalnie email do uzytkownika
 router.post("/register", upload.single("avatar"), (req, res) => {
     
@@ -137,4 +139,6 @@ router.get("/:userID", (req, res) => {
         res.status(200).json(userCopy)
     }).catch(err => serverError(err, res))
 })
-module.exports = router
+
+
+export default router
