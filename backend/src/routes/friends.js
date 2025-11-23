@@ -6,17 +6,17 @@ import { authenticateToken } from "./user.js";
 const router = express.Router();
 
 // --- 1. POBIERANIE ZNAJOMYCH DLA KONKRETNEGO ID ---
-// GET /api/friends/:userId
-router.get('/:userId', async (req, res) => {
+// GET /api/friends/:userID
+router.get('/:userID', async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { userID } = req.params;
 
         // Walidacja ID (czy to w ogóle jest poprawne ID MongoDB)
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!mongoose.Types.ObjectId.isValid(userID)) {
             return res.status(400).json({ message: "Nieprawidłowe ID użytkownika." });
         }
 
-        const user = await User.findById(userId)
+        const user = await User.findById(userID)
             .populate('friends', 'username email avatar')
             .populate('friendRequests', 'username avatar');
 
@@ -25,7 +25,7 @@ router.get('/:userId', async (req, res) => {
         }
 
         res.status(200).json({
-            userId: user._id,
+            userID: user._id,
             username: user.username,
             friends: user.friends,
             requests: user.friendRequests

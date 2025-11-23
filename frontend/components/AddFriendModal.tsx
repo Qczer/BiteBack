@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {sendFriendRequest} from "@/api/endpoints/friends";
+import {useUser} from "@/contexts/UserContext";
 
 interface AddFriendModalProps {
   visible: boolean;
@@ -19,15 +21,13 @@ export default function AddFriendModal({
   visible,
   onClose,
 }: AddFriendModalProps) {
-  const [code, setCode] = useState("");
+  const { token } = useUser();
+  const [name, setName] = useState("");
   const [status, setStatus] = useState<"success" | "error" | null>(null);
 
-  const handleSubmit = () => {
-    if (code.trim() === "ABC123") {
-      setStatus("success");
-    } else {
-      setStatus("error");
-    }
+  const handleSubmit = async () => {
+    const token = name;
+    await sendFriendRequest(token, token);
   };
 
   return (
@@ -38,9 +38,9 @@ export default function AddFriendModal({
 
           <TextInput
             style={styles.input}
-            placeholder="Enter friend code"
-            value={code}
-            onChangeText={setCode}
+            placeholder="Enter friend's name"
+            value={name}
+            onChangeText={setName}
           />
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>

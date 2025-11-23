@@ -22,7 +22,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { clearUser } = useUser();
+  const { user, userFriends, clearUser } = useUser();
+  console.log("=========================");
+  console.log("UserID: " + userFriends?.userID);
+  console.log("Username: ", userFriends?.username);
+  console.log("Friends: ", userFriends?.friends);
+  console.log("Requests: ", userFriends?.requests);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
@@ -30,9 +35,6 @@ export default function ProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  const { user } = useUser();
-
-  const friends: string[] = [];
   const leaderboard = [1, 2, 3, 5, 7, 9, 10];
   const newInvitationsCount = 3;
 
@@ -140,9 +142,9 @@ export default function ProfileScreen() {
           >
             <Ionicons name="mail" size={32} color={GreenVar} />
             <Text style={styles.iconLabel}>{t("invitations")}</Text>
-            {newInvitationsCount > 0 && (
+            { userFriends && userFriends.requests.length > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{newInvitationsCount}</Text>
+                <Text style={styles.badgeText}>{userFriends.requests.length}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -152,10 +154,10 @@ export default function ProfileScreen() {
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{translate("common.friends")}</Text>
           <View style={styles.friendsList}>
-            {friends.length > 0 ? (
-              friends.map((f, i) => (
+            {userFriends && userFriends.friends?.length > 0 ? (
+              userFriends.friends.map((f, i) => (
                 <Text key={i} style={styles.friend}>
-                  👤 {f}
+                  👤 {f.username}
                 </Text>
               ))
             ) : (
@@ -177,7 +179,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Leaderboard – tylko jeśli są znajomi */}
-        {friends.length > 0 && (
+        {userFriends && userFriends.friends.length > 0 && (
           <View style={styles.panel}>
             <Text style={styles.panelTitle}>Leaderboard</Text>
             <View style={styles.leaderboard}>
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
     backgroundColor: "snow",
   },
   friend: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
   },
   leaderboard: {
@@ -316,8 +318,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "90%",
-    marginVertical: 20,
-    marginBottom: 40,
+    marginTop: 50,
+    marginVertical: 40,
     backgroundColor: WhiteVar,
   },
   iconButton: {

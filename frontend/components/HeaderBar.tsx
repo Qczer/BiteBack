@@ -26,7 +26,6 @@ export default function HeaderBar() {
     const fetchData = async () => {
       const notifRes = await getNotifications();
 
-      console.log("Notifications count:", notifRes);
       setNotifications(notifRes);
     };
 
