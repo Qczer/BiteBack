@@ -23,6 +23,7 @@ export default function ProfileScreen() {
 
   const { user }  = useUser();
 
+  const friends: string[] = [];
   const leaderboard = [1, 2, 3, 5, 7, 9, 10];
   const newInvitationsCount = 3;
 
