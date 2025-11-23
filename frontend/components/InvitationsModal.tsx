@@ -1,49 +1,46 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import {acceptFriendRequest, rejectFriendRequest} from "@/api/endpoints/friends";
+import {Modal, StyleSheet, Text, Touchable, TouchableOpacity, View} from "react-native";
 import {useUser} from "@/contexts/UserContext";
 
 interface InvitationsProps {
   visible: boolean;
   onClose: () => void;
   invitations: string[];
+  onAccept: (index: number) => void;
+  onReject: (index: number) => void;
 }
 
 export default function Invitations({
   visible,
   onClose,
   invitations = [],
+  onAccept,
+  onReject,
 }: InvitationsProps) {
-  const { token } = useUser();
-
-  const handleAccept = async (index: number) => {
-    console.log("Accept", index);
-    await acceptFriendRequest(invitations[index], token);
-    invitations = invitations.splice(index, 1);
-  }
-  const handleReject = async (index: number) => {
-    console.log("Reject", index);
-    await rejectFriendRequest(invitations[index], token);
-    invitations = invitations.splice(index, 1);
-  }
+  const { refreshData } = useUser();
 
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
           <Text style={styles.panelTitle}>📩 Invitations</Text>
-
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={async () => await refreshData()}
+          >
+            <Ionicons name="refresh" size={24} color={GreenVar} />
+          </TouchableOpacity>
           {invitations.length > 0 ? (
             invitations.map((inv, i) => (
               <View key={i} style={styles.inviteRow}>
                 <Text style={styles.inviteText}>{inv}</Text>
                 <View style={styles.actions}>
-                  <TouchableOpacity style={styles.accept} onPress={() => handleAccept(i)}>
+                  <TouchableOpacity style={styles.accept} onPress={() => onAccept(i)}>
                     <Ionicons name="checkmark" size={18} color={WhiteVar} />
                     <Text style={styles.actionText}>Accept</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.reject} onPress={() => handleReject(i)}>
+                  <TouchableOpacity style={styles.reject} onPress={() => onReject(i)}>
                     <Ionicons name="close" size={18} color={WhiteVar} />
                     <Text style={styles.actionText}>Reject</Text>
                   </TouchableOpacity>
@@ -88,6 +85,11 @@ const styles = StyleSheet.create({
     color: GreenVar,
     marginBottom: 20,
     textAlign: "center",
+  },
+  refreshButton: {
+    position: 'absolute',
+    right: 0,
+    padding: 4
   },
   inviteRow: {
     flexDirection: "row",

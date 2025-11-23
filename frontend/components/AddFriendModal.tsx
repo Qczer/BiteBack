@@ -24,11 +24,15 @@ export default function AddFriendModal({
   const { token } = useUser();
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"success" | "error" | null>(null);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
     const res = await sendFriendRequest(name, token);
-    if (res?.success) {
-      console.log("Sent friend request");
+    if (res?.success)
+      setStatus("success");
+    else {
+      setStatus("error");
+      setMessage(res.message)
     }
   };
 
@@ -54,7 +58,7 @@ export default function AddFriendModal({
             <Text style={styles.success}>✅ Code accepted! Friend added.</Text>
           )}
           {status === "error" && (
-            <Text style={styles.error}>❌ Invalid code, please try again.</Text>
+            <Text style={styles.error}>❌ {message}</Text>
           )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>

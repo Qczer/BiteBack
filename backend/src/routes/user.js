@@ -27,14 +27,16 @@ const upload = multer({ storage: storage });
 // MIDDLEWARE DO AUTORYZACJI
 export const authenticateToken = (req, res, next) => {
     try {
-        if (!req.headers.authorization) {
-            throw new Error("Missing Authorization header");
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return res.status(401).json({ message: "Brak nagłówka Authorization" });
         }
 
-        const token = req.headers.authorization.split(" ")[1];
+        const token = authHeader.split(" ")[1];
 
         if (!token) {
-            throw new Error("Missing token in Bearer string");
+            return res.status(401).json({ message: "Brak tokena w nagłówku (format: Bearer <token>)" });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -44,10 +46,24 @@ export const authenticateToken = (req, res, next) => {
 
     } catch(err) {
         console.log("Auth Error:", err.message);
-        res.status(401).json({
-            error: {
-                message: "Invalid or expired token!"
-            }
+
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                message: "Token wygasł",
+                code: "TOKEN_EXPIRED"
+            });
+        }
+
+        if (err.name === 'JsonWebTokenError') {
+            return res.status(401).json({
+                message: "Nieprawidłowy token (zły podpis lub struktura)",
+                code: "INVALID_TOKEN"
+            });
+        }
+
+        return res.status(401).json({
+            message: "Błąd autoryzacji",
+            details: err.message
         });
     }
 };
@@ -153,22 +169,6 @@ router.get("/:userID", (req, res) => {
         delete userCopy.password
         userCopy.avatar = `${req.protocol}://${req.get('host')}/storage/avatars/${user.avatar}`;
         res.status(200).json(userCopy)
-    }).catch(err => serverError(err, res))
-})
-
-// zamiennik za oczekiwane /profile
-router.get("/id/:username", (req, res) => {
-    User.findOne({ username: req.params.username}).then(user => {
-        if (user == null) {
-            res.status(404).json({
-                error: {
-                    code: 0,
-                    message: `No user found with given username: ${req.params.username}`
-                }
-            })
-            return;
-        }
-        res.status(200).json(user._id);
     }).catch(err => serverError(err, res))
 })
 

@@ -1,5 +1,26 @@
 import Food from "./Food";
 
+export interface FriendInterface {
+  "_id": string,
+  "username": string,
+  "email": string,
+  "avatar": string,
+  "bitescore": number
+}
+
+export interface RequestInterface {
+  "_id": string,
+  "username": string,
+  "avatar": string
+}
+
+export interface UserFriendsInterface {
+  "userID": string;
+  "username": string;
+  "friends": FriendInterface[],
+  "requests": RequestInterface[]
+}
+
 export interface UserProps {
   _id: string;
   __v?: number;
@@ -10,6 +31,8 @@ export interface UserProps {
   fridge: Food[];
   lang: string;
   username: string;
+  friends: string[];
+  requests: string[];
 }
 
 export default class User {

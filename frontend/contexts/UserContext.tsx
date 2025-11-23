@@ -1,38 +1,17 @@
 import { getFridge } from "@/api/endpoints/fridge";
-import { getFriends } from "@/api/endpoints/friends";
 import { auth, getUser } from "@/api/endpoints/user";
 import { getToken, removeItem, removeToken } from "@/services/Storage";
 import Food from "@/types/Food";
-import User from "@/types/User";
+import User, {UserFriendsInterface} from "@/types/User";
 import React, {
   createContext,
-  ReactNode,
+  ReactNode, useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
-
-interface FriendInterface {
-  _id: string;
-  username: string;
-  email: string;
-  avatar: string;
-  bitescore: number;
-}
-
-interface RequestInterface {
-  _id: string;
-  username: string;
-  avatar: string;
-}
-
-interface UserFriendsInterface {
-  userID: string;
-  username: string;
-  friends: FriendInterface[];
-  requests: RequestInterface[];
-}
+import {getFriends} from "@/api/endpoints/friends";
 
 interface UserContextType {
   user: User | null;
@@ -42,11 +21,10 @@ interface UserContextType {
   userFood: Food[];
   userFriends: UserFriendsInterface | null;
   setUserFood: React.Dispatch<React.SetStateAction<Food[]>>;
-  setUserFriends: React.Dispatch<
-    React.SetStateAction<UserFriendsInterface | null>
-  >;
+  setUserFriends: React.Dispatch<React.SetStateAction<UserFriendsInterface | null>>;
   getNotifications: () => Promise<number>;
   clearUser: () => void;
+  refreshData: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -54,55 +32,62 @@ const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string>("");
-  const [userID, setuserID] = useState<string>("");
+  const [userID, setUserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
-  const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(
-    null
-  );
+  const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const token = await getToken();
-        setToken(token ?? "");
+  const refreshData = useCallback(async () => {
+    try {
+      const token = await getToken();
+      setToken(token ?? "");
 
-        if (token) {
-          const authRes = await auth(token);
+      if (token) {
+        const authRes = await auth(token);
 
-          if (authRes.success) setuserID(authRes.data.userID);
-          else {
-            removeItem("userID");
-            removeToken();
-            return;
-          }
-
-          const userRes = await getUser(authRes.data.userID);
-
-          const friendsRes = await getFriends(authRes.data.userID);
-
-          if (userRes.success) setUser(userRes.data);
-          if (friendsRes.data) setUserFriends(friendsRes.data);
-
-          const fetchData = async () => {
-            const fridgeRes = await getFridge(authRes.data.userID);
-            if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
-          };
-
-          fetchData();
+        if (authRes.success)
+          setUserID(authRes.data.userID);
+        else {
+          removeToken();
+          return;
         }
-      } catch (error) {
-        console.error("Failed to load User from storage", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    loadUser();
-  }, [token]);
+        const userRes = await getUser(authRes.data.userID);
+
+        const friendsRes = await getFriends(authRes.data.userID, token);
+
+        if (userRes.success)
+          setUser(userRes.data);
+        if (friendsRes.data)
+          setUserFriends(friendsRes.data);
+
+        const fetchData = async () => {
+          const fridgeRes = await getFridge(authRes.data.userID);
+          if (fridgeRes?.data)
+            setUserFood(fridgeRes.data.fridge);
+        };
+
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Failed to load User from storage", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshData();
+
+    const intervalId = setInterval(() => {
+      refreshData();
+    }, 15000);
+
+    return () => clearInterval(intervalId);
+  }, [refreshData]);
 
   const clearUser = () => {
-    setuserID("");
+    setUserID("");
     setUser(null);
     setUserFriends(null);
   };
@@ -134,6 +119,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setUserFriends,
       getNotifications,
       clearUser,
+      refreshData
     };
   }, [
     user,
@@ -146,6 +132,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUserFriends,
     getNotifications,
     clearUser,
+    refreshData
   ]);
 
   if (isLoading) return null;

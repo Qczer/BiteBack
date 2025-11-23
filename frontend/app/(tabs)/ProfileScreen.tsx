@@ -19,11 +19,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {acceptFriendRequest, rejectFriendRequest} from "@/api/endpoints/friends";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { user, userFriends, clearUser } = useUser();
+  const { user, userFriends, token, clearUser, refreshData } = useUser();
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
@@ -81,6 +82,18 @@ export default function ProfileScreen() {
         visible={showInvitations}
         onClose={() => setShowInvitations(false)}
         invitations={userFriends?.requests.map(r => r.username) ?? []}
+        onAccept={async (index: number) => {
+          if (!userFriends)
+            return;
+          await acceptFriendRequest(userFriends.requests[index].username, token);
+          await refreshData();
+        }}
+        onReject={async (index: number) => {
+          if (!userFriends)
+            return;
+          await rejectFriendRequest(userFriends.requests[index].username, token);
+          await refreshData();
+        }}
       />
 
       <HeaderBar />

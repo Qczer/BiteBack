@@ -1,10 +1,9 @@
 import { axiosClient } from "@/api/axiosClient";
 import { AxiosError } from "axios";
-import {getUserID} from "@/api/endpoints/user";
 
-export const getFriends = async (userID: string) => {
+export const getFriends = async (userID: string, token: string) => {
   try {
-    const { data } = await axiosClient.get(`/friends/${userID}`);
+    const { data } = await axiosClient.get(`/friends/${userID}`, { headers: { "Authorization": `Bearer ${token}` }});
     return { success: true, data }
   }
   catch (error) {
@@ -20,15 +19,7 @@ export const getFriends = async (userID: string) => {
 
 export const sendFriendRequest = async (recipientName: string, token: string) => {
   try {
-    const res = await getUserID(recipientName);
-
-    if (!res.success)
-      return;
-
-    const recipientID = res.data;
-    const { data } = await axiosClient.post(`/friends/request/${recipientID}`, {}, { headers: { "Authorization": `Bearer ${token}` },});
-
-    console.log(data);
+    const { data } = await axiosClient.post(`/friends/request/${recipientName}`, {}, { headers: { "Authorization": `Bearer ${token}` }});
     return { success: true, data };
   }
   catch(error) {
@@ -44,15 +35,7 @@ export const sendFriendRequest = async (recipientName: string, token: string) =>
 
 export const acceptFriendRequest = async (requesterName: string, token: string) => {
   try {
-    const res = await getUserID(requesterName);
-
-    if (!res.success)
-      return;
-
-    const recipientID = res.data;
-    const { data } = await axiosClient.post(`/friends/accept/${recipientID}`, {}, { headers: { "Authorization": `Bearer ${token}` },});
-
-    console.log(data);
+    const { data } = await axiosClient.post(`/friends/accept/${requesterName}`, {}, { headers: { "Authorization": `Bearer ${token}` },});
     return { success: true, data };
   }
   catch(error) {
@@ -68,15 +51,7 @@ export const acceptFriendRequest = async (requesterName: string, token: string) 
 
 export const rejectFriendRequest = async (requesterName: string, token: string) => {
   try {
-    const res = await getUserID(requesterName);
-
-    if (!res.success)
-      return;
-
-    const recipientID = res.data;
-    const { data } = await axiosClient.post(`/friends/reject/${recipientID}`, {}, { headers: { "Authorization": `Bearer ${token}` },});
-
-    console.log(data);
+    const { data } = await axiosClient.post(`/friends/reject/${requesterName}`, {}, { headers: { "Authorization": `Bearer ${token}` },});
     return { success: true, data };
   }
   catch(error) {

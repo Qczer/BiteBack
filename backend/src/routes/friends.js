@@ -5,15 +5,20 @@ import { authenticateToken } from "./user.js";
 
 const router = express.Router();
 
-// --- 1. POBIERANIE ZNAJOMYCH DLA KONKRETNEGO ID ---
 // GET /api/friends/:userID
-router.get('/:userID', async (req, res) => {
+router.get('/:userID', authenticateToken, async (req, res) => {
     try {
         const { userID } = req.params;
 
-        // Walidacja ID (czy to w ogóle jest poprawne ID MongoDB)
-        if (!mongoose.Types.ObjectId.isValid(userID)) {
+        const currentUserID = req.user._id;
+
+        if (!mongoose.Types.ObjectId.isValid(userID))
             return res.status(400).json({ message: "Nieprawidłowe ID użytkownika." });
+
+        if (userID !== currentUserID.toString()) {
+            return res.status(403).json({
+                message: "Brak uprawnień. Możesz przeglądać tylko własną listę znajomych."
+            });
         }
 
         const user = await User.findById(userID)
@@ -35,34 +40,30 @@ router.get('/:userID', async (req, res) => {
     }
 });
 
-// --- 2. WYSYŁANIE ZAPROSZENIA ---
-// POST /api/friends/request/:recipientId
-router.post("/request/:recipientId", authenticateToken, async (req, res) => {
-    const { recipientId } = req.params;
-    const requesterId = req.user._id;
+// POST /api/friends/request/:recipientName
+router.post("/request/:recipientName", authenticateToken, async (req, res) => {
+    const { recipientName } = req.params;
+    const requesterID = req.user._id;
 
     try {
-        if (!mongoose.Types.ObjectId.isValid(recipientId))
-            return res.status(400).json({ message: "Nieprawidłowe ID odbiorcy." });
-
-        if (requesterId.toString() === recipientId)
-            return res.status(400).json({ message: "Nie możesz dodać samego siebie." });
-
-        const targetUser = await User.findById(recipientId);
+        const targetUser = await User.findOne({ username: recipientName } );
 
         if (!targetUser)
             return res.status(404).json({ message: "Użytkownik docelowy nie istnieje." });
 
-        // Sprawdzamy czy ID już są w tablicach (konwersja na string dla pewności)
-        const alreadyFriends = targetUser.friends.some(id => id.toString() === requesterId.toString());
-        const alreadyRequested = targetUser.friendRequests.some(id => id.toString() === requesterId.toString());
+        const recipientID = targetUser._id;
+
+        if (requesterID.toString() === recipientID.toString())
+            return res.status(400).json({ message: "Nie możesz dodać samego siebie." });
+
+        const alreadyFriends = targetUser.friends.some(id => id.toString() === requesterID.toString());
+        const alreadyRequested = targetUser.friendRequests.some(id => id.toString() === requesterID.toString());
 
         if (alreadyFriends) return res.status(400).json({ message: "Jesteście już znajomymi." });
         if (alreadyRequested) return res.status(400).json({ message: "Zaproszenie zostało już wysłane." });
 
-        // Dodajemy ID wysyłającego do requestów odbiorcy
-        await User.findByIdAndUpdate(recipientId, {
-            $addToSet: { friendRequests: requesterId }
+        await User.findByIdAndUpdate(recipientID, {
+            $addToSet: { friendRequests: requesterID }
         });
 
         res.status(200).json({ message: "Zaproszenie wysłane pomyślnie." });
@@ -73,38 +74,34 @@ router.post("/request/:recipientId", authenticateToken, async (req, res) => {
     }
 })
 
-// --- 3. AKCEPTACJA ZAPROSZENIA ---
-// POST /api/friends/accept/:requesterId (ID osoby, która nas zaprosiła)
-router.post("/accept/:requesterId", authenticateToken, async (req, res) => {
-    const { requesterId } = req.params;
-    const currentUserId = req.user._id;
+// POST /api/friends/accept/:requesterName
+router.post("/accept/:requesterName", authenticateToken, async (req, res) => {
+    const { requesterName } = req.params;
+    const currentUserID = req.user._id;
 
     try {
-        if (!mongoose.Types.ObjectId.isValid(requesterId))
-            return res.status(400).json({ message: "Nieprawidłowe ID." });
+        const requesterUser = await User.findOne({ username: requesterName });
 
-        const currentUser = await User.findById(currentUserId);
+        if (!requesterUser)
+            return res.status(404).json({ message: "Użytkownik (wnioskodawca) nie istnieje." });
 
-        // Sprawdzamy czy w ogóle mamy takie zaproszenie
+        const requesterID = requesterUser._id;
+        const currentUser = await User.findById(currentUserID);
+
         const hasRequest = currentUser.friendRequests.some(
-            id => id.toString() === requesterId
+            id => id.toString() === requesterID.toString()
         );
 
-        if (!hasRequest) {
-            return res.status(400).json({ message: "Brak zaproszenia od tego użytkownika." });
-        }
+        if (!hasRequest)
+            return res.status(400).json({ message: `Brak zaproszenia od użytkownika ${requesterID}` });
 
-        // Transakcja: Aktualizujemy obie strony
-
-        // A. My: dodajemy znajomego, usuwamy request
-        await User.findByIdAndUpdate(currentUserId, {
-            $push: { friends: requesterId },
-            $pull: { friendRequests: requesterId }
+        await User.findByIdAndUpdate(currentUserID, {
+            $push: { friends: requesterID },
+            $pull: { friendRequests: requesterID }
         });
 
-        // B. On: dodaje nas do znajomych
-        await User.findByIdAndUpdate(requesterId, {
-            $push: { friends: currentUserId }
+        await User.findByIdAndUpdate(requesterID, {
+            $push: { friends: currentUserID }
         });
 
         res.status(200).json({ message: "Zaproszenie zaakceptowane." });
@@ -114,19 +111,21 @@ router.post("/accept/:requesterId", authenticateToken, async (req, res) => {
     }
 })
 
-// --- 4. ODRZUCENIE ZAPROSZENIA ---
-// POST /api/friends/reject/:requesterId
-router.post('/reject/:requesterId', authenticateToken, async (req, res) => {
-    const { requesterId } = req.params;
-    const currentUserId = req.user._id;
+// POST /api/friends/reject/:requesterName
+router.post('/reject/:requesterName', authenticateToken, async (req, res) => {
+    const { requesterName } = req.params;
+    const currentUserID = req.user._id;
 
     try {
-        if (!mongoose.Types.ObjectId.isValid(requesterId))
-            return res.status(400).json({ message: "Nieprawidłowe ID." });
+        const requesterUser = await User.findOne({ username: requesterName });
 
-        // Usuwamy tylko request u nas
-        await User.findByIdAndUpdate(currentUserId, {
-            $pull: { friendRequests: requesterId }
+        if (!requesterUser)
+            return res.status(404).json({ message: "Użytkownik nie istnieje." });
+
+        const requesterID = requesterUser._id;
+
+        await User.findByIdAndUpdate(currentUserID, {
+            $pull: { friendRequests: requesterID }
         });
 
         res.status(200).json({ message: "Zaproszenie odrzucone." });
@@ -135,19 +134,23 @@ router.post('/reject/:requesterId', authenticateToken, async (req, res) => {
     }
 });
 
-// --- 5. USUWANIE ZNAJOMEGO (OPCJONALNE) ---
-// DELETE /api/friends/:friendId
-router.delete('/:friendId', authenticateToken, async (req, res) => {
-    const { friendId } = req.params;
-    const currentUserId = req.user._id;
+// DELETE /api/friends/:friendName
+router.delete('/:friendName', authenticateToken, async (req, res) => {
+    const { friendName } = req.params;
+    const currentUserID = req.user._id;
 
     try {
-        // Usuwamy u nas
-        await User.findByIdAndUpdate(currentUserId, { $pull: { friends: friendId } });
-        // Usuwamy u niego
-        await User.findByIdAndUpdate(friendId, { $pull: { friends: currentUserId } });
+        const friendUser = await User.findOne({ username: friendName });
 
-        res.status(200).json({ message: "Znajomy usunięty." });
+        if (!friendUser)
+            return res.status(400).json({ message: "Użytkownik o podanym nicku nie istnieje." });
+
+        const friendID = friendUser._id;
+
+        await User.findByIdAndUpdate(currentUserID, { $pull: { friends: friendID } });
+        await User.findOneAndUpdate(friendID, { $pull: { friends: currentUserID } });
+
+        res.status(200).json({ message: `Użytkownik ${friendName} został usunięty ze znajomych.` });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
