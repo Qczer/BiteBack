@@ -1,4 +1,5 @@
 import { getFridge } from "@/api/endpoints/fridge";
+import { getFriends } from "@/api/endpoints/friends";
 import { auth, getUser } from "@/api/endpoints/user";
 import { getToken, removeItem, removeToken } from "@/services/Storage";
 import Food from "@/types/Food";
@@ -11,20 +12,20 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import {getFriends} from "@/api/endpoints/friends";
 
 interface FriendInterface {
-  "_id": string,
-  "username": string,
-  "email": string,
-  "avatar": string
+  _id: string;
+  username: string;
+  email: string;
+  avatar: string;
+  bitescore: number;
 }
 
 interface UserFriendsInterface {
-  "userID": string;
-  "username": string;
-  "friends": FriendInterface[],
-  "requests": any[]
+  userID: string;
+  username: string;
+  friends: FriendInterface[];
+  requests: any[];
 }
 
 interface UserContextType {
@@ -35,7 +36,9 @@ interface UserContextType {
   userFood: Food[];
   userFriends: UserFriendsInterface | null;
   setUserFood: React.Dispatch<React.SetStateAction<Food[]>>;
-  setUserFriends: React.Dispatch<React.SetStateAction<UserFriendsInterface | null>>;
+  setUserFriends: React.Dispatch<
+    React.SetStateAction<UserFriendsInterface | null>
+  >;
   getNotifications: () => Promise<number>;
   clearUser: () => void;
 }
@@ -47,7 +50,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string>("");
   const [userID, setuserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
-  const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
+  const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -70,15 +75,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
           const friendsRes = await getFriends(authRes.data.userID);
 
-          if (userRes.success)
-            setUser(userRes.data);
-          if (friendsRes.data)
-            setUserFriends(friendsRes.data);
+          if (userRes.success) setUser(userRes.data);
+          if (friendsRes.data) setUserFriends(friendsRes.data);
 
           const fetchData = async () => {
             const fridgeRes = await getFridge(authRes.data.userID);
-            if (fridgeRes?.data)
-              setUserFood(fridgeRes.data.fridge);
+            if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
           };
 
           fetchData();

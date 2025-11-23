@@ -1,19 +1,34 @@
+import { getUser } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
-import HeaderBar from "@/components/HeaderBar";
-import { Text, View, Image, ScrollView, StyleSheet } from "react-native";
+import translate from "@/locales/i18n";
+import User from "@/types/User";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function PublicProfileScreen() {
+  const tURL = "screens.profile.";
+  const t = (key: string) => translate(tURL + key);
+  const { userID } = useLocalSearchParams();
   // przykładowe dane – w realnej wersji pobierasz z API
+  const [friend, setFriend] = useState<User | null>(null);
   const nickname = "OtherUser";
   const accountDate = "2024-01-15";
   const currencyValue = 250;
 
   const friends: string[] = ["Alice", "Bob", "Charlie"];
-  const leaderboard = [1, 2, 3, 4, 5];
+
+  useEffect(() => {
+    const getFriend = async () => {
+      const friend = await getUser(userID as string);
+      setFriend(friend.data);
+    };
+    getFriend();
+  }, [userID]);
 
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
-      <HeaderBar />
+      {/* <HeaderBar /> */}
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.backgroundHigher}></View>
 
@@ -24,25 +39,53 @@ export default function PublicProfileScreen() {
             style={styles.avatar}
           />
           <View style={styles.cardInfo}>
-            <Text style={styles.nickname}>{nickname}</Text>
-            <Text style={styles.infoText}>Joined: {accountDate}</Text>
-            <Text style={styles.infoText}>BiteScore: {currencyValue}</Text>
+            <Text style={styles.nickname}>{friend?.username}</Text>
+            <Text style={styles.infoText}>
+              Joined: {new Date(friend?.createDate as any).toLocaleDateString()}
+            </Text>
+            <Text style={styles.infoText}>BiteScore: {friend?.bitescore}</Text>
           </View>
         </View>
 
         {/* Pasek znajomych */}
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>Friends</Text>
+          <Text style={styles.panelTitle}>{translate("common.friends")}</Text>
           <View style={styles.friendsList}>
-            {friends.length > 0 ? (
-              friends.map((f, i) => (
-                <Text key={i} style={styles.friend}>
-                  👤 {f}
-                </Text>
+            {/* {friend. && userFriends.friends?.length > 0 ? (
+              userFriends.friends.map((f, i) => (
+                <TouchableOpacity
+                  key={f._id}
+                  style={styles.friendCard}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/(more)/PublicProfileScreen",
+                      params: { userID: f._id },
+                    });
+                  }}
+                >
+                  <Image
+                    style={styles.friendAvatar}
+                    resizeMode="cover"
+                    source={require("@/assets/images/background.png")}
+                  />
+                  <Text style={styles.friendName}>{f.username}</Text>
+                </TouchableOpacity>
               ))
             ) : (
-              <Text style={styles.infoText}>No friends yet</Text>
-            )}
+              <View>
+                <Image
+                  source={require("@/assets/images/people/noFriends.png")}
+                  style={{
+                    alignSelf: "center",
+                    marginBottom: 10,
+                  }}
+                  height={100}
+                  width={100}
+                  resizeMode="contain"
+                ></Image>
+                <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
+              </View>
+            )} */}
           </View>
         </View>
       </ScrollView>

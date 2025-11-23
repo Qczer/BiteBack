@@ -8,6 +8,7 @@ import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Image,
@@ -35,7 +36,7 @@ export default function ProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  const leaderboard = [1, 2, 3, 5, 7, 9, 10];
+  // const leaderboard = [1, 2, 3, 5, 7, 9, 10];
   const newInvitationsCount = 3;
 
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -123,7 +124,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Ikony pod kartą */}
-        <View style={styles.iconRow}>
+        <View style={[styles.iconRow, styles.shadow]}>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
@@ -142,9 +143,11 @@ export default function ProfileScreen() {
           >
             <Ionicons name="mail" size={32} color={GreenVar} />
             <Text style={styles.iconLabel}>{t("invitations")}</Text>
-            { userFriends && userFriends.requests.length > 0 && (
+            {userFriends && userFriends.requests.length > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{userFriends.requests.length}</Text>
+                <Text style={styles.badgeText}>
+                  {userFriends.requests.length}
+                </Text>
               </View>
             )}
           </TouchableOpacity>
@@ -156,9 +159,23 @@ export default function ProfileScreen() {
           <View style={styles.friendsList}>
             {userFriends && userFriends.friends?.length > 0 ? (
               userFriends.friends.map((f, i) => (
-                <Text key={i} style={styles.friend}>
-                  👤 {f.username}
-                </Text>
+                <TouchableOpacity
+                  key={f._id}
+                  style={styles.friendCard}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/(more)/PublicProfileScreen",
+                      params: { userID: f._id },
+                    });
+                  }}
+                >
+                  <Image
+                    style={styles.friendAvatar}
+                    resizeMode="cover"
+                    source={require("@/assets/images/background.png")}
+                  />
+                  <Text style={styles.friendName}>{f.username}</Text>
+                </TouchableOpacity>
               ))
             ) : (
               <View>
@@ -182,12 +199,28 @@ export default function ProfileScreen() {
         {userFriends && userFriends.friends.length > 0 && (
           <View style={styles.panel}>
             <Text style={styles.panelTitle}>Leaderboard</Text>
-            <View style={styles.leaderboard}>
-              {leaderboard.map((l, i) => (
-                <Text key={i} style={styles.leader}>
-                  {l}
-                </Text>
-              ))}
+            <View style={styles.podium}>
+              {userFriends.friends
+                .slice()
+                .sort((a, b) => b.bitescore - a.bitescore)
+                .slice(0, 3)
+                .map((f, i) => {
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
+                  const podiumStyle =
+                    i === 0
+                      ? styles.goldBox
+                      : i === 1
+                      ? styles.silverBox
+                      : styles.bronzeBox;
+
+                  return (
+                    <View key={i} style={[styles.podiumSlot, podiumStyle]}>
+                      <Text style={styles.medal}>{medal}</Text>
+                      <Text style={styles.username}>{f.username}</Text>
+                      <Text style={styles.score}>{f.bitescore} pts</Text>
+                    </View>
+                  );
+                })}
             </View>
           </View>
         )}
@@ -304,6 +337,8 @@ const styles = StyleSheet.create({
     backgroundColor: "snow",
   },
   leader: {
+    justifyContent: "center",
+    alignItems: "center",
     fontSize: 14,
     color: "#333",
   },
@@ -316,11 +351,14 @@ const styles = StyleSheet.create({
   },
   iconRow: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-around",
     width: "90%",
     marginTop: 50,
     marginVertical: 40,
-    backgroundColor: WhiteVar,
+    paddingVertical: 20,
+    borderRadius: 10,
+    backgroundColor: "snow",
   },
   iconButton: {
     alignItems: "center",
@@ -365,5 +403,77 @@ const styles = StyleSheet.create({
     backgroundColor: GreenVar,
     borderRadius: 16,
     padding: 8,
+  },
+  friendCard: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  friendName: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#333",
+    padding: 7,
+  },
+  friendAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  shadow: {
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  // panel: {
+  //   marginTop: 20,
+  //   padding: 10,
+  //   backgroundColor: "#f9f9f9",
+  //   borderRadius: 8,
+  // },
+  // panelTitle: {
+  //   fontSize: 18,
+  //   fontWeight: "700",
+  //   marginBottom: 12,
+  //   textAlign: "center",
+  // },
+  podium: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+  },
+  podiumSlot: {
+    flex: 1,
+    marginHorizontal: 6,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: 8,
+  },
+  goldBox: {
+    backgroundColor: "#FFD700",
+    height: 120, // najwyższe
+  },
+  silverBox: {
+    backgroundColor: "#C0C0C0",
+    height: 90,
+  },
+  bronzeBox: {
+    backgroundColor: "#CD7F32",
+    height: 70,
+  },
+  medal: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  username: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+  },
+  score: {
+    fontSize: 12,
+    color: "#555",
   },
 });
