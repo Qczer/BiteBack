@@ -6,7 +6,7 @@ const foodSchema = mongoose.Schema({
     amount: {type: Number, default: 1, required: true},
     unit: {type: String, enum: ["g", "kg", "ml", "l", "pcs"]},
     category: {type: String, enum: ["meat", "dairy", "fruit", "vegetable", "junk", "snack", "other"], required: true},
-    iconUrl: {type: String, default: "no-photo.png"},
+    iconUrl: {type: String },
     expDate: {type: Date, required: true}
 })
 

@@ -10,20 +10,25 @@ const router = express.Router();
 
 // Routes
 router.get("/:userID", async (req, res) => {
-    User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
-        if (user == null) {
-            res.status(404).json({
-                error: {
-                    message: `No user found with given ID: ${req.params.userID}` 
-                }
+    try {
+        User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
+            if (user == null) {
+                res.status(404).json({
+                    error: {
+                        message: `No user found with given ID: ${req.params.userID}`
+                    }
+                })
+                return
+            }
+            res.status(200).json({
+                fridgeItemsCount: user.fridge.length,
+                fridge: user.fridge
             })
-            return
-        }
-        res.status(200).json({
-            fridgeItemsCount: user.fridge.length, 
-            fridge: user.fridge
         })
-    }).catch(err => serverError(err, res))
+    }
+    catch (err) {
+        serverError(err, res)
+    }
 })
 
 router.post("/:userID", async (req, res) => {

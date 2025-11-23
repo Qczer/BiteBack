@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // MIDDLEWARE DO AUTORYZACJI
-const authenticateToken = (req, res, next) => {
+export const authenticateToken = (req, res, next) => {
     try {
         if (!req.headers.authorization) {
             throw new Error("Missing Authorization header");
@@ -188,6 +188,5 @@ router.patch("/lang/:userID", authenticateToken, (req, res) => {
         });
     }).catch(err => serverError(err, res));
 })
-
 
 export default router

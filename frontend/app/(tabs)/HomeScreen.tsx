@@ -50,7 +50,6 @@ export default function HomeScreen() {
 
   const fridgeToPieData = () => {
     let categories: Record<string, number> = {};
-    console.log("userFood in fridgeToPieData:", userFood);
     userFood.forEach((food) => {
       if (food.category)
         categories[food.category] = (categories[food.category] || 0) + 1;
@@ -67,23 +66,21 @@ export default function HomeScreen() {
     });
 
     setPieData(pieData);
-    console.log(pieData)
   };
 
   useEffect(() => {
-    const loadNickname = async () => {
-      const nickname = await getItem("userNickname");
-      setNickname(nickname);
-    };
-    loadNickname();
-    fridgeToPieData();
-  }, [userFood]);
+      const loadNickname = async () => {
+        const nickname = await getItem("userNickname");
+        setNickname(nickname);
+      };
+      loadNickname();
+      fridgeToPieData();
+    }, [userFood]);
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Refreshing HomeScreen data on focus");
       fridgeToPieData();
-    }, [userFood])
+    }, [])
   );
 
   const todayStr = new Date().toDateString();

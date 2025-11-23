@@ -52,9 +52,7 @@ export const editFood = async (userID: string, foodId: string, params: editFoodP
     return;
 
   try {
-    const res = await axiosClient.patch(`/fridge/${userID}`, params);
-    console.log(res);
-    return res;
+    return await axiosClient.patch(`/fridge/${userID}`, params);
   }
   catch(e: any) {
     console.error("Patch food error: ", e.message);
