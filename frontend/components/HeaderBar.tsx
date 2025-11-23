@@ -1,17 +1,22 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
-import {
-  getNotificationsCount,
-} from "@/services/Storage";
+
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Text, View, Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function HeaderBar() {
-  const { user } = useUser()
+  const { user, getNotifications, userFood } = useUser();
 
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
   const [notifications, setNotifications] = useState<number>(0);
@@ -19,16 +24,14 @@ export default function HeaderBar() {
   // Ładowanie danych i cykliczne odświeżanie
   useEffect(() => {
     const fetchData = async () => {
-      const notif = await getNotificationsCount();
-      setNotifications(notif);
+      const notifRes = await getNotifications();
+
+      console.log("Notifications count:", notifRes);
+      setNotifications(notifRes);
     };
 
     fetchData();
-
-    // odświeżaj co 30 sekund
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [userFood]);
 
   if (!fontsLoaded) return null;
 
@@ -51,7 +54,10 @@ export default function HeaderBar() {
           <TouchableOpacity style={{ marginRight: 16 }}>
             <View style={styles.currencyBox}>
               {/* <Ionicons name="cash-outline" size={26} color={GreenVar} /> */}
-              <Image source={require("@/assets/images/BiteScore.png")} style={{ width: 35, height: 35 }}/>
+              <Image
+                source={require("@/assets/images/BiteScore.png")}
+                style={{ width: 35, height: 35 }}
+              />
               <Text style={styles.currencyText}>{user?.bitescore ?? 0}</Text>
             </View>
           </TouchableOpacity>

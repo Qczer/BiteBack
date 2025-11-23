@@ -3,7 +3,6 @@ import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
 import LogoutModal from "@/components/LogoutModal";
-import ShareCode from "@/components/ShareCodeModal";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
@@ -18,7 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {useSafeAreaInsets} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -38,7 +37,6 @@ export default function ProfileScreen() {
   const newInvitationsCount = 3;
 
   const [showAddFriend, setShowAddFriend] = useState(false);
-  const [showShareCode, setShowShareCode] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
 
   const pickImage = async () => {
@@ -59,7 +57,13 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: WhiteVar,
+        paddingBottom: 60 + insets.bottom,
+      }}
+    >
       <LogoutModal
         showConfirm={showConfirm}
         cancelOnPress={() => setShowConfirm(false)}
@@ -74,10 +78,6 @@ export default function ProfileScreen() {
       <AddFriendModal
         visible={showAddFriend}
         onClose={() => setShowAddFriend(false)}
-      />
-      <ShareCode
-        visible={showShareCode}
-        onClose={() => setShowShareCode(false)}
       />
       <Invitations
         visible={showInvitations}
@@ -130,16 +130,6 @@ export default function ProfileScreen() {
           >
             <Ionicons name="person-add" size={32} color={GreenVar} />
             <Text style={styles.iconLabel}>{t("addFriend")}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => {
-              setShowShareCode(true);
-            }}
-          >
-            <Ionicons name="share-social" size={32} color={GreenVar} />
-            <Text style={styles.iconLabel}>{t("shareCode")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -230,7 +220,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 100,
     alignItems: "center",
-    backgroundColor: WhiteVar
+    backgroundColor: WhiteVar,
   },
   backgroundHigher: {
     backgroundColor: GreenVar,

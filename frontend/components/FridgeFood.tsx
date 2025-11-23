@@ -12,6 +12,8 @@ interface FridgeFoodProps {
 
 export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
   const [modalVisible, setModalVisible] = useState(false);
+  const expiryDate = new Date(food.expDate!);
+  const dateDiff = expiryDate.getTime() - Date.now();
 
   return (
     <View style={{ width: "17.5%", backgroundColor: "transparent" }}>
@@ -19,7 +21,9 @@ export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
         <View style={{ height: "100%", margin: 0 }}>
           <Ionicons
             name={food?.iconUrl ?? ("cube-outline" as any)}
-            color={"gray"}
+            color={
+              dateDiff <= 0 ? "red" : dateDiff <= 86400000 ? "orange" : "green"
+            }
             size={50}
           ></Ionicons>
           <Text

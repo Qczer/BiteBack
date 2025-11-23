@@ -44,7 +44,7 @@ export default function AddPointScreen() {
       return;
     }
 
-    console.log({ name, description, zip, street, number, city, location });
+    //console.log({ name, description, zip, street, number, city, location });
   };
 
   return (

@@ -84,6 +84,10 @@
       "langaugeInfo": "Wybierz preferowany język interfejsu aplikacji.",
       "logout": "Wyloguj się",
       "logoutInfo": "Wyloguj się ze swojego konta."
+    },
+    "feedback":{
+      "title": "Dziękujemy za Twoją opinię!",
+      "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!"
     }
   },
   "cards": {

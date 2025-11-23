@@ -84,7 +84,11 @@
       "langaugeInfo": "Select your preferred language for the app interface.",
       "logout": "Logout",
       "logoutInfo": "Sign out of your account."
-    }
+    },
+    "feedback":{
+      "title": "Thanks for Your opinion!",
+      "subtitle": "It'll help us improve our app and make it even better!"
+    } 
   },
   "cards": {
     "maps": {
