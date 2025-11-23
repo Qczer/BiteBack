@@ -18,8 +18,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
+
   const { clearUser } = useUser();
 
   const [showConfirm, setShowConfirm] = useState(false);
@@ -56,7 +59,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+    <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom }}>
       <LogoutModal
         showConfirm={showConfirm}
         cancelOnPress={() => setShowConfirm(false)}
@@ -227,8 +230,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 100,
     alignItems: "center",
-    backgroundColor: WhiteVar,
-    paddingBottom: 60,
+    backgroundColor: WhiteVar
   },
   backgroundHigher: {
     backgroundColor: GreenVar,

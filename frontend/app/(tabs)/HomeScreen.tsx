@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 interface Category {
   name: string;
@@ -25,8 +26,11 @@ interface Category {
   legendFontSize: number;
 }
 
+
 const screenWidth = Dimensions.get("window").width;
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+
   const tURL = "screens.home.";
   const t = (key: string) => translate(tURL + key);
 
@@ -63,6 +67,7 @@ export default function HomeScreen() {
     });
 
     setPieData(pieData);
+    console.log(pieData)
   };
 
   useEffect(() => {
@@ -73,18 +78,18 @@ export default function HomeScreen() {
     loadNickname();
 
     fridgeToPieData();
-  }, []);
+  }, [userFood]);
 
   useFocusEffect(
     useCallback(() => {
       fridgeToPieData();
-    }, [])
+    }, [userFood])
   );
 
   const todayStr = new Date().toDateString();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 70 + insets.bottom }]}>
       <HeaderBar />
 
       {/* LOGO + POWITANIE */}
@@ -265,7 +270,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: WhiteVar,
     alignItems: "center",
-    paddingBottom: 60,
   },
   headerBlock: {
     alignItems: "center",

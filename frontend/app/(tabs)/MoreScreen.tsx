@@ -16,10 +16,13 @@ import {
 // Twoje kolory
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 const screenWidth = Math.round(Dimensions.get("window").width);
 
 const MoreScreen = () => {
+  const insets = useSafeAreaInsets();
+
   const { t } = useLanguage();
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
 
@@ -57,7 +60,7 @@ const MoreScreen = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: 60 + insets.bottom }]}>
       <View style={styles.header}>
         <Image
           source={require("@/assets/images/logo.png")}
@@ -112,7 +115,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: WhiteVar, // jasne tło
-    paddingBottom: 60,
   },
   header: {
     height: "30%",

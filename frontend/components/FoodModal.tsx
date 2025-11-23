@@ -1,7 +1,7 @@
 import { deleteFood, editFood, editFoodProperty } from "@/api/endpoints/fridge";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
-import Food from "@/types/Food";
+import Food, {FoodCategory} from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
@@ -15,13 +15,13 @@ interface FoodModalProps {
 }
 
 const categoryItems = [
-  { label: "Meat 🍖", value: "meat" },
-  { label: "Dairy 🥛", value: "dairy" },
-  { label: "Fruit 🍎", value: "fruit" },
-  { label: "Vegetable 🥦", value: "vegetable" },
-  { label: "Snacks 🍪", value: "snacks" },
-  { label: "Fastfood 🍔", value: "fastfood" },
-  { label: "Other ❓", value: "other" },
+  { label: "Meat 🍖", value: FoodCategory.Meat },
+  { label: "Dairy 🥛", value: FoodCategory.Dairy },
+  { label: "Fruit 🍎", value: FoodCategory.Fruit },
+  { label: "Vegetable 🥦", value: FoodCategory.Vegetable },
+  { label: "Snacks 🍪", value: FoodCategory.Snack },
+  { label: "Fastfood 🍔", value: FoodCategory.Junk },
+  { label: "Other ❓", value: FoodCategory.Other },
 ];
 const unitItems = [
   { label: "Kilogram (kg)", value: "kg" },
