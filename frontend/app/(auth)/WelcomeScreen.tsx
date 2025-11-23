@@ -29,21 +29,20 @@ export default function WelcomeScreen() {
         {/* Header 40% */}
         <View style={styles.header}>
           <Text style={styles.sloganText}>
-            Fight Waste, <Text style={styles.brand}>BiteBack</Text>.
+            Turn leftovers into possibilities with{" "}
+            <Text style={styles.brand}>BiteBack</Text>.
           </Text>
         </View>
 
         {/* Button 30% */}
         <RealButton
           text="GET STARTED"
-          onPress={() => router.push("./LoginScreen")}
+          onPress={() => router.replace("./LoginScreen")}
         />
 
         {/* Footer 30% */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            HELP BUILD A WORLD WITH LESS WASTE.{"\n"}EVERY MEAL MATTERS.
-          </Text>
+          <Text style={styles.footerText}>Fight waste. BiteBack. </Text>
         </View>
       </View>
     </View>

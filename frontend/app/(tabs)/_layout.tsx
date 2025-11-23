@@ -1,20 +1,33 @@
+import t from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
-import { View, Platform, Text } from "react-native";
-import { useLanguage } from "@/contexts/LanguageContext";
-import t from "@/locales/i18n";
+import { Platform, View } from "react-native";
 
 // Zdefiniujmy kolory w jednym miejscu
 const COLORS = {
   primary: "#547067", // Twój zielony
   active: "#547067",
   inactive: "#999999",
-  background: "#ffffff",
+  background: "snow",
 };
 
-const TabIcon = ({ focused, name, size }: { focused: boolean; name: any; size?: number; }) => (
-  <View style={{ alignItems: "center", justifyContent: "center", top: Platform.OS === "ios" ? 5 : 0 }}>
+const TabIcon = ({
+  focused,
+  name,
+  size,
+}: {
+  focused: boolean;
+  name: any;
+  size?: number;
+}) => (
+  <View
+    style={{
+      alignItems: "center",
+      justifyContent: "center",
+      top: Platform.OS === "ios" ? 5 : 0,
+    }}
+  >
     <Ionicons
       name={focused ? name : `${name}-outline`}
       size={size ?? 28}
@@ -30,7 +43,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: COLORS.active,
         tabBarInactiveTintColor: COLORS.inactive,
-        tabBarShowLabel: false, 
+        tabBarShowLabel: false,
         tabBarStyle: {
           elevation: 5,
           backgroundColor: COLORS.background,
@@ -47,7 +60,7 @@ export default function TabLayout() {
           shadowOpacity: 0.25,
           shadowRadius: 3.5,
           paddingBottom: 0,
-          paddingTop: 10
+          paddingTop: 10,
         },
       }}
     >
@@ -56,10 +69,7 @@ export default function TabLayout() {
         options={{
           title: t("screens.home.title"),
           tabBarIcon: ({ focused }) => (
-            <TabIcon 
-              focused={focused} 
-              name="home"
-            />
+            <TabIcon focused={focused} name="home" />
           ),
         }}
       />
@@ -68,10 +78,7 @@ export default function TabLayout() {
         options={{
           title: t("screens.fridge.title"),
           tabBarIcon: ({ focused }) => (
-            <TabIcon 
-              focused={focused} 
-              name="snow"
-            />
+            <TabIcon focused={focused} name="snow" />
           ),
         }}
       />
@@ -108,10 +115,7 @@ export default function TabLayout() {
         options={{
           title: t("screens.profile.title"),
           tabBarIcon: ({ focused }) => (
-            <TabIcon 
-              focused={focused} 
-              name="person"
-            />
+            <TabIcon focused={focused} name="person" />
           ),
         }}
       />
@@ -120,10 +124,7 @@ export default function TabLayout() {
         options={{
           title: t("screens.more.title"),
           tabBarIcon: ({ focused }) => (
-            <TabIcon 
-              focused={focused} 
-              name="settings"
-            />
+            <TabIcon focused={focused} name="settings" />
           ),
         }}
       />

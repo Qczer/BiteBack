@@ -1,32 +1,33 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { useUser } from "@/contexts/UserContext";
+import translate from "@/locales/i18n";
 import { getItem } from "@/services/Storage";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Text,
-  View,
   Dimensions,
+  Image,
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
-import translate from "@/locales/i18n"
 
 interface Category {
   name: string;
   population: number;
-  color: string,
-  legendFontColor: string,
-  legendFontSize: number,
+  color: string;
+  legendFontColor: string;
+  legendFontSize: number;
 }
 
 const screenWidth = Dimensions.get("window").width;
 export default function HomeScreen() {
-  const tURL = "screens.home."
+  const tURL = "screens.home.";
   const t = (key: string) => translate(tURL + key);
 
   const [nickname, setNickname] = useState<string | null>(null);
@@ -42,16 +43,16 @@ export default function HomeScreen() {
     fastfood: "#ff8c00",
     other: "#808080",
   };
-  
+
   const fridgeToPieData = () => {
     let categories: Record<string, number> = {};
 
-    userFood.forEach(food => {
-      if(food.category)
+    userFood.forEach((food) => {
+      if (food.category)
         categories[food.category] = (categories[food.category] || 0) + 1;
-    })
+    });
 
-    const pieData = Object.keys(categories).map(key => {
+    const pieData = Object.keys(categories).map((key) => {
       return {
         name: translate("filters." + key),
         population: categories[key],
@@ -62,7 +63,7 @@ export default function HomeScreen() {
     });
 
     setPieData(pieData);
-  }
+  };
 
   useEffect(() => {
     const loadNickname = async () => {
@@ -71,7 +72,7 @@ export default function HomeScreen() {
     };
     loadNickname();
 
-    fridgeToPieData()
+    fridgeToPieData();
   }, []);
 
   const todayStr = new Date().toDateString();
@@ -82,7 +83,9 @@ export default function HomeScreen() {
 
       {/* LOGO + POWITANIE */}
       <View style={styles.headerBlock}>
-        <Text style={styles.welcomeText}>{t("hello")} {nickname} 👋</Text>
+        <Text style={styles.welcomeText}>
+          {t("hello")} {nickname} 👋
+        </Text>
         <Text style={styles.subText}>{t("helloSub")}</Text>
       </View>
 
@@ -91,22 +94,35 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>{t("fridgeOverview")}</Text>
         <View style={styles.summaryRow}>
           <Feather name="box" size={20} color={GreenVar} />
-          <Text style={styles.summaryText}>{userFood.length} {t("itemsStored")}</Text>
+          <Text style={styles.summaryText}>
+            {userFood.length} {t("itemsStored")}
+          </Text>
         </View>
         <View style={styles.summaryRow}>
           <Feather name="alert-circle" size={20} color="orange" />
-          <Text style={styles.summaryText}>{userFood.filter(food => new Date(food.expDate ?? '').toDateString() == todayStr).length} {t("expiringToday")}</Text>
+          <Text style={styles.summaryText}>
+            {
+              userFood.filter(
+                (food) =>
+                  new Date(food.expDate ?? "").toDateString() == todayStr
+              ).length
+            }{" "}
+            {t("expiringToday")}
+          </Text>
         </View>
         <View style={styles.summaryRow}>
           <Feather name="alert-circle" size={20} color="red" />
           <Text style={styles.summaryText}>
-            {userFood.filter(food => {
-              const expDate = new Date(food.expDate ?? '');
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
+            {
+              userFood.filter((food) => {
+                const expDate = new Date(food.expDate ?? "");
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-              return expDate < today;
-            }).length} {t("expired")}
+                return expDate < today;
+              }).length
+            }{" "}
+            {t("expired")}
           </Text>
         </View>
       </View>
@@ -116,52 +132,70 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>{t("nutritionOverview")}</Text>
 
         {/* Wyśrodkowany wykres */}
-        {
-          userFood.length > 1 && pieData ?
-          (
-            <View style={styles.chartWrapper}>
-              <PieChart
-                data={pieData}
-                width={screenWidth * 0.8}
-                height={220}
-                chartConfig={{
-                  backgroundColor: WhiteVar,
-                  backgroundGradientFrom: WhiteVar,
-                  backgroundGradientTo: WhiteVar,
-                  color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-                  labelColor: () => "#333",
-                }}
-                accessor={"population"}
-                backgroundColor={"transparent"}
-                paddingLeft={"15"}
-                hasLegend={true}
-              />
-            </View>
-          ) : (
-              <Text>{t("yourFridgeIsEmpty")}</Text>
-          )
-        }
+        {userFood.length > 1 && pieData ? (
+          <View style={styles.chartWrapper}>
+            <PieChart
+              data={pieData}
+              width={screenWidth * 0.8}
+              height={220}
+              chartConfig={{
+                backgroundColor: WhiteVar,
+                backgroundGradientFrom: WhiteVar,
+                backgroundGradientTo: WhiteVar,
+                color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+                labelColor: () => "#333",
+              }}
+              accessor={"population"}
+              backgroundColor={"transparent"}
+              paddingLeft={"15"}
+              hasLegend={true}
+            />
+          </View>
+        ) : (
+          <View>
+            <Image
+              source={require("@/assets/images/people/emptyFridge.png")}
+              style={{
+                alignSelf: "center",
+                marginBottom: 10,
+              }}
+              height={160}
+              width={160}
+              resizeMode="cover"
+            ></Image>
+            <Text style={{ textAlign: "center" }}>
+              {t("yourFridgeIsEmpty")}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* RECENTLY ADDED */}
-      <View style={[styles.recentBlock, styles.shadow]}>
-        <Text style={styles.sectionTitle}>Recently Added</Text>
-        { userFood.length > 1 ? (
-            userFood.slice(-3).reverse().map((item, index) => (
-              <View key={index+1} style={styles.recentItem}>
-                <Text style={styles.recentName}>{item.name}</Text>
-                <Text style={styles.recentMeta}>{item.amount + (item.unit ?? '')} • {item.expDate ? new Date(item.expDate).toLocaleDateString() : ''} </Text>
-              </View>
-            ))
-          ) : (
-            <Text>{t("yourFridgeIsEmpty")}</Text>
-          )
-        }
-      </View>
+      {userFood.length > 1 && (
+        <View style={[styles.recentBlock, styles.shadow]}>
+          <Text style={styles.sectionTitle}>Recently Added</Text>
+        </View>
+      )}
+
+      {userFood.length > 1 &&
+        userFood
+          .slice(-3)
+          .reverse()
+          .map((item, index) => (
+            <View key={index + 1} style={styles.recentItem}>
+              <Text style={styles.recentName}>{item.name}</Text>
+              <Text style={styles.recentMeta}>
+                {item.amount + (item.unit ?? "")} •{" "}
+                {item.expDate
+                  ? new Date(item.expDate).toLocaleDateString()
+                  : ""}{" "}
+              </Text>
+            </View>
+          ))}
 
       {/* SZYBKIE AKCJE */}
       <View style={styles.quickActions}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButton}
           onPress={() => router.push("/(tabs)/ScanScreen")}
         >
@@ -169,16 +203,9 @@ export default function HomeScreen() {
           <Text style={styles.actionText}>{t("scanReceipt")}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => {}}
-        >
+        <TouchableOpacity style={styles.actionButton} onPress={() => {}}>
           {/* TODO */}
-          <Feather
-            name="book-open"
-            size={20}
-            color={WhiteVar}
-          />
+          <Feather name="book-open" size={20} color={WhiteVar} />
           <Text style={styles.actionText}>Recipes</Text>
         </TouchableOpacity>
 
@@ -200,21 +227,27 @@ export default function HomeScreen() {
             onPress={() => router.push("/(more)/SettingsScreen")}
           >
             <Feather name="settings" size={18} color={GreenVar} />
-            <Text style={styles.linkText}>{translate("screens.settings.title")}</Text>
+            <Text style={styles.linkText}>
+              {translate("screens.settings.title")}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => router.push("/(more)/FeedbackScreen")}
           >
             <Feather name="message-square" size={18} color={GreenVar} />
-            <Text style={styles.linkText}>{translate("cards.feedback.title")}</Text>
+            <Text style={styles.linkText}>
+              {translate("cards.feedback.title")}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => router.push("/(more)/ReportBugScreen")}
           >
             <Feather name="alert-triangle" size={18} color={GreenVar} />
-            <Text style={styles.linkText}>{translate("cards.reportABug.title")}</Text>
+            <Text style={styles.linkText}>
+              {translate("cards.reportABug.title")}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -258,6 +291,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
+    width: "100%",
+    textAlign: "left",
     fontSize: 18,
     fontWeight: "600",
     color: GreenVar,
@@ -319,7 +354,7 @@ const styles = StyleSheet.create({
     color: WhiteVar,
     fontSize: 14,
     fontWeight: "500",
-    textAlign: "center"
+    textAlign: "center",
   },
   quickLinks: {
     width: "85%",

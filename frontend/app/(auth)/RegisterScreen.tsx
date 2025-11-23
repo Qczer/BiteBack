@@ -163,7 +163,10 @@ export default function RegisterScreen() {
                   disabled={loading}
                   style={[
                     styles.loginButton,
-                    { backgroundColor: allFilled ? GreenVar : "gray" },
+                    {
+                      backgroundColor:
+                        allFilled && !loading ? GreenVar : "gray",
+                    },
                   ]}
                 >
                   {loading ? (

@@ -37,7 +37,17 @@ export default function ScanScreen() {
       <View style={{ flex: 1, backgroundColor: WhiteVar }}>
         <HeaderBar />
         <View style={styles.center}>
-          <Ionicons name="camera-outline" size={64} color={GreenVar} />
+          <Image
+            source={require("@/assets/images/people/cameraPerms.png")}
+            style={{
+              alignSelf: "center",
+              marginBottom: 10,
+            }}
+            height={260}
+            width={260}
+            resizeMode="contain"
+          ></Image>
+
           <Text style={styles.title}>{t("permissionTitle")}</Text>
           <Text style={styles.description}>{t("permissionDesc")}</Text>
           <TouchableOpacity style={styles.button} onPress={requestPermission}>
