@@ -10,9 +10,21 @@ GET {{baseURL}}user/{{userId}}
 
 ###
 # group: user
-# @name user/auth
-GET {{baseURL}}user/auth
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTIyOGFiOTQ0OTJjNzRmNGJiZDUwZDIiLCJpYXQiOjE3NjM4NzE0NTEsImV4cCI6MTc2NDQ3NjI1MX0.4BehLb55pGAwUsKLuc6xNs5bWRAfjescH1a_BKmn7y0
+# @name user/register
+POST {{baseURL}}user/register
+Content-Type: application/json
+
+{
+  "username": "User",
+  "email": "user@mail.com",
+  "password": "Password123#"
+}
+
+> {%
+    client.test("Should return 409 Conflict", () => {
+        client.assert(response.status === 409)
+    })
+%}
 
 ###
 # group: user
@@ -25,17 +37,18 @@ Content-Type: application/json
   "password": "Password123#"
 }
 
+> {%
+    const token = response.body
+
+    client.global.set("token", token)
+%}
+
 ###
 # group: user
-# @name user/register
-POST {{baseURL}}user/register
-Content-Type: application/json
-
-{
-  "username": "User",
-  "email": "user@mail.com",
-  "password": "Password123#"
-}
+# @name user/auth
+# @test name=Auth
+GET {{baseURL}}user/auth
+Authorization: Bearer {{token}}
 
 ###
 # group: fridge
