@@ -8,7 +8,6 @@ import { router } from "expo-router";
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
   StyleSheet,
   Text,
@@ -16,7 +15,6 @@ import {
   View,
 } from "react-native";
 
-const screenHeight = Math.round(Dimensions.get("window").height);
 export default function ScanScreen() {
   const tURL = "screens.scan.";
   const t = (key: string) => translate(tURL + key);
