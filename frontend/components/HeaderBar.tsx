@@ -1,17 +1,18 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
-import { Text, View } from "@/components/Themed";
+import { useUser } from "@/contexts/UserContext";
 import {
-  getCurrencyCount,
   getNotificationsCount,
 } from "@/services/Storage";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function HeaderBar() {
+  const { user } = useUser()
+
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
   const [notifications, setNotifications] = useState<number>(0);
   const [currency, setCurrency] = useState<number>(0);
@@ -20,9 +21,8 @@ export default function HeaderBar() {
   useEffect(() => {
     const fetchData = async () => {
       const notif = await getNotificationsCount();
-      const curr = await getCurrencyCount();
       setNotifications(notif);
-      setCurrency(curr);
+      setCurrency(user?.bitescore ?? 0);
     };
 
     fetchData();

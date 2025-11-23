@@ -1,7 +1,6 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
-import { Text, View } from "@/components/Themed";
-import { Image, ScrollView, StyleSheet } from "react-native";
+import { Text, View, Image, ScrollView, StyleSheet } from "react-native";
 
 export default function PublicProfileScreen() {
   // przykładowe dane – w realnej wersji pobierasz z API

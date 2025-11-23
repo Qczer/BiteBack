@@ -8,7 +8,7 @@ export interface UserProps {
   salt: string;
   avatar: string;
   lang: string;
-  biteScore: number;
+  bitescore: number;
   fridge: Food[];
 }
 
@@ -20,7 +20,7 @@ export default class User {
   salt: string;
   avatar: string;
   lang: string;
-  biteScore: number;
+  bitescore: number;
   fridge: Food[];
 
   constructor(props: UserProps) {
@@ -31,7 +31,7 @@ export default class User {
     this.salt  = props.salt;
     this.avatar = props.avatar;
     this.lang  = props.lang;
-    this.biteScore = props.biteScore;
+    this.bitescore = props.bitescore;
     this.fridge = props.fridge;
   }
 }

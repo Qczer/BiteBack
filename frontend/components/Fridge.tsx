@@ -3,16 +3,17 @@ import FridgeFood from "./FridgeFood";
 import FoodFilter from "@/types/FoodFilter";
 import Food from "@/types/Food";
 
-const SHELF_SIZE = 5;
+const SHELF_SIZE = 4;
 const MIN_SHELVES = 5;
 
 interface FridgeProps {
   food: Food[];
   addStyles?: StyleProp<ViewStyle>;
   filters?: FoodFilter[];
+  refresh?: () => void;
 }
 
-export default function Fridge({ food, addStyles, filters }: FridgeProps) {
+export default function Fridge({ food, addStyles, filters, refresh }: FridgeProps) {
   const filteredFood = filters?.length && filters.some(f => f.active)
     ? food.filter(f => filters.some(fl => fl.active && fl.FoodCategory === f.category))
     : food;
@@ -28,7 +29,7 @@ export default function Fridge({ food, addStyles, filters }: FridgeProps) {
         {shelves.map((shelf, shelfIndex) => (
           <View key={shelfIndex} style={styles.shelf}>
             {shelf.map((food, idx) => (
-              <FridgeFood key={idx + 1} food={food} />
+              <FridgeFood key={idx + 1} food={food} refresh={refresh} />
             ))}
           </View>
         ))}

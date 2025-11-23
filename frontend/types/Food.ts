@@ -9,6 +9,7 @@ export enum FoodCategory {
 }
 
 export interface FoodProps {
+  _id?: string;
   name: string;
   amount: number;
   unit?: string;
@@ -18,6 +19,8 @@ export interface FoodProps {
 }
 
 export default class Food {
+  _id?: string;
+
   name: string;
   amount: number;
   unit?: string;
@@ -26,6 +29,7 @@ export default class Food {
   expDate?: Date | null;
 
   constructor(props: FoodProps) {
+    this._id = props._id;
     this.name = props.name;
     this.amount = props.amount;
     this.unit = props.unit;

@@ -4,14 +4,13 @@ import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
 import LogoutModal from "@/components/LogoutModal";
 import ShareCode from "@/components/ShareCodeModal";
-import { Text, View } from "@/components/Themed";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function ProfileScreen() {
   const { clearUser } = useUser();

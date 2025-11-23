@@ -7,10 +7,12 @@ import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  FlatList, // ZMIANA: Import FlatList
   Pressable,
   StyleSheet,
   Text,
   View,
+  ListRenderItemInfo // ZMIANA: Typ dla renderItem
 } from "react-native";
 import Toast from "react-native-toast-message";
 import FoodEditor from "./FoodEditor";
@@ -73,6 +75,7 @@ export default function ShoppingList({
       setEditingIndices((prev) => prev.filter((i) => i !== index));
     }
   };
+
   const handleAddListToFridge = async () => {
     setIsSubmitting(true);
     try {
@@ -91,108 +94,115 @@ export default function ShoppingList({
     }
   };
 
+  // Funkcja renderująca pojedynczy element listy
+  const renderItem = ({ item: food, index: foodIndex }: ListRenderItemInfo<Food>) => {
+    const editing = editingIndices.includes(foodIndex);
+    return (
+      <View style={styles.foodContainer}>
+        {editing ? (
+          <FoodEditor
+            initialFood={food}
+            onChange={(food: Food | null) => {
+              if (food)
+                setTempFood((prev) => ({ ...prev, [foodIndex]: food }));
+            }}
+          />
+        ) : (
+          <>
+            <Text style={styles.itemName}>{food.name}</Text>
+            <Text style={styles.itemAmount}>
+              {food.amount} {food.unit}
+            </Text>
+          </>
+        )}
+        <View style={styles.buttons}>
+          <Pressable onPress={() => handleEditClick(foodIndex)}>
+            <Feather
+              name={editing ? "check-square" : "edit"}
+              color={editing ? "green" : "blue"}
+            />
+          </Pressable>
+          <Pressable onPress={() => onRemove(food)}>
+            <Feather name="x" color="red" size={20} />
+          </Pressable>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/* FOOD EDITOR */}
-      <View style={styles.editorBlock}>
-        <FoodEditor onChange={setNewFood} reset={reset} />
-        <Pressable
-          style={styles.addToListButton}
-          onPress={() => {
-            addFood();
-            setReset(true);
-            setTimeout(() => setReset(false), 0);
-          }}
-        >
-          <Feather name="plus-circle" color="#fff" size={18} />
-          <Text style={styles.addToListText}>
-            {t("cards.shoppingLists.addToList")}
-          </Text>
-        </Pressable>
-      </View>
+      <FlatList
+        data={list}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={renderItem}
+        // Dodajemy odstęp między elementami listy (zamiast gap w kontenerze)
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+        
+        // Nagłówek listy (Formularz dodawania)
+        ListHeaderComponent={
+          <View style={styles.headerWrapper}>
+            <View style={styles.editorBlock}>
+              <FoodEditor onChange={setNewFood} reset={reset} />
+              <Pressable
+                style={styles.addToListButton}
+                onPress={() => {
+                  addFood();
+                  setReset(true);
+                  setTimeout(() => setReset(false), 0);
+                }}
+              >
+                <Feather name="plus-circle" color="#fff" size={18} />
+                <Text style={styles.addToListText}>
+                  {t("cards.shoppingLists.addToList")}
+                </Text>
+              </Pressable>
+            </View>
+            <View style={styles.separator} />
+          </View>
+        }
 
-      {/* SEPARATOR */}
-      <View style={styles.separator} />
-
-      {/* LISTA ZAKUPÓW */}
-      <View style={styles.listBlock}>
-        {list?.map((food, foodIndex) => {
-          const editing = editingIndices.includes(foodIndex);
-          return (
-            <View key={foodIndex + 1} style={styles.foodContainer}>
-              {editing ? (
-                <FoodEditor
-                  initialFood={food}
-                  onChange={(food: Food | null) => {
-                    if (food)
-                      setTempFood((prev) => ({ ...prev, [foodIndex]: food }));
-                  }}
-                />
+        // Stopka listy (Przycisk dodawania do lodówki)
+        ListFooterComponent={
+          <Pressable
+            style={[styles.addButton, isSubmitting && { opacity: 0.5 }]}
+            onPress={handleAddListToFridge}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.addButtonText}>
+              {isSubmitting ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color={GreenVar} />
+                </View>
               ) : (
-                <>
-                  <Text style={styles.itemName}>{food.name}</Text>
-                  <Text style={styles.itemAmount}>
-                    {food.amount} {food.unit}
-                  </Text>
-                </>
+                <Text style={styles.addButtonText}>Add to virtual fridge</Text>
               )}
-              <View style={styles.buttons}>
-                <Pressable onPress={() => handleEditClick(foodIndex)}>
-                  <Feather
-                    name={editing ? "check-square" : "edit"}
-                    color={editing ? "green" : "blue"}
-                  />
-                </Pressable>
-                <Pressable onPress={() => onRemove(food)}>
-                  <Feather name="x" color="red" size={20} />
-                </Pressable>
-              </View>
-            </View>
-          );
-        })}
-      </View>
-
-      {/* GUZIK DODAJ DO LODÓWKI */}
-      <Pressable
-        style={[styles.addButton, isSubmitting && { opacity: 0.5 }]}
-        onPress={handleAddListToFridge}
-        disabled={isSubmitting}
-      >
-        <Text style={styles.addButtonText}>
-          {isSubmitting ? (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              <ActivityIndicator size="small" color={GreenVar} />
-            </View>
-          ) : (
-            <Text style={styles.addButtonText}>Add to virtual fridge</Text>
-          )}
-        </Text>
-      </Pressable>
+            </Text>
+          </Pressable>
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 16,
+    // Usunięto ScrollView style props, przeniesiono do View
+    flex: 1, // Ważne, aby lista zajmowała dostępną przestrzeń
     padding: 16,
-    width: "100%",
+    width: "90%",
     backgroundColor: "#fff",
     borderRadius: 12,
-    elevation: 3,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
+  },
+  headerWrapper: {
+    marginBottom: 10,
+    gap: 10
   },
   editorBlock: {
     width: "100%",
@@ -216,16 +226,14 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 1,
     backgroundColor: "#ddd",
-    marginVertical: 10,
+    marginVertical: 5, // Zmniejszono, bo FlatList Header ma swoje odstępy
   },
-  listBlock: {
-    width: "100%",
-    gap: 10,
-  },
+  // listBlock usunięty - FlatList zarządza układem
   foodContainer: {
     flexDirection: "row",
     width: "100%",
     gap: 10,
+    alignItems: "center", // Poprawa wyrównania
   },
   itemName: {
     fontSize: 16,
@@ -248,15 +256,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addButton: {
-    width: "60%",
+    width: "100%", // Zmieniono na 100% względem kontenera lub dopasuj według uznania
+    alignSelf: 'center',
     borderRadius: 15,
     borderWidth: 1,
     borderColor: "black",
-    marginTop: 10,
+    marginTop: 20, // Odstęp od listy
+    marginBottom: 10,
+    zIndex: -1
   },
   addButtonText: {
     fontSize: 18,
     textAlign: "center",
     paddingVertical: 7.5,
   },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  }
 });

@@ -85,7 +85,9 @@ export default function LoginScreen() {
         await saveTokenToStorage(res.data);
         setToken(res.data);
         router.replace("/(tabs)/HomeScreen");
-      } else showToast(`Error ${res.status}: ${res.message}`);
+      }
+      else
+        showToast(`Error ${res.status}: ${res.message}`);
     } catch (error) {
       showToast("An unexpected error occurred. Please try again.");
     } finally {

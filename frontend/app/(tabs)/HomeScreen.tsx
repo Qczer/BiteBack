@@ -1,18 +1,20 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
-import { Text, View } from "@/components/Themed";
 import { useUser } from "@/contexts/UserContext";
 import { getItem } from "@/services/Storage";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Text,
+  View,
   Dimensions,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
+import translate from "@/locales/i18n"
 
 interface Category {
   name: string;
@@ -24,6 +26,9 @@ interface Category {
 
 const screenWidth = Dimensions.get("window").width;
 export default function HomeScreen() {
+  const tURL = "screens.home."
+  const t = (key: string) => translate(tURL + key);
+
   const [nickname, setNickname] = useState<string | null>(null);
   const { userFood } = useUser();
   const [pieData, setPieData] = useState<Category[]>();
@@ -31,7 +36,7 @@ export default function HomeScreen() {
   const categoryColors: Record<string, string> = {
     meat: "#b22222",
     dairy: "#87ceeb",
-    fruit: "#228b22",
+    fruit: "#e84393",
     vegetable: "#228b22",
     snacks: "#ffd700",
     fastfood: "#ff8c00",
@@ -92,6 +97,18 @@ export default function HomeScreen() {
           <Feather name="alert-circle" size={20} color="orange" />
           <Text style={styles.summaryText}>{userFood.filter(food => new Date(food.expDate ?? '').toDateString() == todayStr).length} expiring today</Text>
         </View>
+        <View style={styles.summaryRow}>
+          <Feather name="alert-circle" size={20} color="red" />
+          <Text style={styles.summaryText}>
+            {userFood.filter(food => {
+              const expDate = new Date(food.expDate ?? '');
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+
+              return expDate < today;
+            }).length} expired
+          </Text>
+        </View>
       </View>
 
       {/* Nutrition Overview */}
@@ -117,32 +134,21 @@ export default function HomeScreen() {
             hasLegend={true}
           />
         </View>
-
-        {/* Własna legenda pod wykresem
-        <View style={styles.legendContainer}>
-          {pieData.map((item, index) => (
-            <View key={index} style={styles.legendRow}>
-              <View
-                style={[styles.legendColor, { backgroundColor: item.color }]}
-              />
-              <Text style={styles.legendText}>
-                {item.name} - {item.population}
-              </Text>
-            </View>
-          ))}
-        </View> */}
       </View>
 
       {/* RECENTLY ADDED */}
       <View style={[styles.recentBlock, styles.shadow]}>
         <Text style={styles.sectionTitle}>Recently Added</Text>
-        {
+        { userFood &&
           userFood.slice(-3).reverse().map((item, index) => (
             <View key={index+1} style={styles.recentItem}>
               <Text style={styles.recentName}>{item.name}</Text>
               <Text style={styles.recentMeta}>{item.amount + (item.unit ?? '')} • {item.expDate ? new Date(item.expDate).toLocaleDateString() : ''} </Text>
             </View>
           ))
+        }
+        { !userFood &&
+          <Text style={styles.recentName}>{t("")}</Text>
         }
       </View>
 

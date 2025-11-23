@@ -7,9 +7,10 @@ import FoodModal from "./FoodModal";
 
 interface FridgeFoodProps {
   food: Food;
+  refresh?: () => void;
 }
 
-export default function FridgeFood({ food }: FridgeFoodProps) {
+export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
   const [modalVisible, setModalVisible] = useState(false);
   const isLocalImage = typeof food.iconUrl === "number"; // require return a number
   const isRemoteImage =
@@ -28,8 +29,8 @@ export default function FridgeFood({ food }: FridgeFoodProps) {
                 : { uri: food.iconUrl as any }
             }
             style={{
-              width: 100,
-              height: 100,
+              width: 90,
+              height: 90,
               resizeMode: "contain",
             }}
           />
@@ -37,7 +38,7 @@ export default function FridgeFood({ food }: FridgeFoodProps) {
           // defaultowa ikonka
           <View style={{ height: "100%", margin: 0 }}>
             <Ionicons name="cube-outline" color={"gray"} size={50}></Ionicons>
-            <Text style={{ fontSize: 14, textAlign: "center" }}>
+            <Text style={{ fontSize: 12, textAlign: "center" }} ellipsizeMode="tail" numberOfLines={1}>
               {food.name}
             </Text>
           </View>
@@ -46,7 +47,7 @@ export default function FridgeFood({ food }: FridgeFoodProps) {
       </TouchableOpacity>
       <FoodModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() => { setModalVisible(false); refresh?.(); }}
         food={food}
       />
     </View>

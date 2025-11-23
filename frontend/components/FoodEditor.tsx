@@ -2,7 +2,7 @@ import translate from "@/locales/i18n";
 import Food from "@/types/Food";
 import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
+import { Dropdown } from 'react-native-element-dropdown';
 
 interface FoodEditorProps {
   initialFood?: Food;
@@ -24,7 +24,6 @@ export default function FoodEditor({
   );
 
   // Unit dropdown
-  const [unitOpen, setUnitOpen] = useState(false);
   const [unitValue, setUnitValue] = useState(initialFood?.unit ?? null);
   const [unitItems, setUnitItems] = useState([
     { label: "Gram (g)", value: "g" },
@@ -34,14 +33,13 @@ export default function FoodEditor({
   ]);
 
   // Category dropdown
-  const [catOpen, setCatOpen] = useState(false);
   const [catValue, setCatValue] = useState(initialFood?.category ?? null);
   const [catItems, setCatItems] = useState([
     { label: "Meat 🍖", value: "meat" },
     { label: "Dairy 🥛", value: "dairy" },
     { label: "Fruit 🍎", value: "fruit" },
     { label: "Vegetable 🥦", value: "vegetable" },
-    { label: "Snacks 🍪", value: "snacks" },
+    { label: "Snacks 🍪", value: "snack" },
     { label: "Fastfood 🍔", value: "fastfood" },
     { label: "Other ❓", value: "other" },
   ]);
@@ -54,6 +52,7 @@ export default function FoodEditor({
         amount: parseFloat(amount.replace(",", ".")) || 0,
         unit: unitValue,
         category: catValue,
+        expDate: new Date()
       });
     }
   }, [name, amount, unitValue, catValue]);
@@ -91,36 +90,37 @@ export default function FoodEditor({
 
         <View style={{ flex: 1.2 }}>
           {/* TODO: przeslanie tego do bazy */}
-          <DropDownPicker
-            open={unitOpen}
-            value={unitValue}
-            items={unitItems}
-            setOpen={setUnitOpen}
-            setValue={setUnitValue}
-            setItems={setUnitItems}
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            inputSearchStyle={styles.inputSearchStyle}
+            data={unitItems}
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
             placeholder={t("unit")}
-            style={{ borderColor: "black" }}
-            dropDownContainerStyle={{ borderColor: "#ddd" }}
-            zIndex={2000}
-            zIndexInverse={3000}
+            value={unitValue}
+            onChange={item => {
+              setUnitValue(item.value);
+            }}
           />
         </View>
       </View>
 
       {/* CATEGORY */}
       <View style={{ marginTop: 10 }}>
-        <DropDownPicker
-          open={catOpen}
-          value={catValue}
-          items={catItems}
-          setOpen={setCatOpen}
-          setValue={setCatValue}
-          setItems={setCatItems}
+        <Dropdown 
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
           placeholder={t("category")}
-          style={{ borderColor: "black" }}
-          dropDownContainerStyle={{ borderColor: "#ddd" }}
-          zIndex={1000}
-          zIndexInverse={4000}
+          data={catItems}
+          labelField="label"
+          valueField="value"
+          value={catValue}
+          onChange={(item: any) => {
+            setCatValue(item.value);
+          }}
         />
       </View>
     </View>
@@ -147,5 +147,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 8,
     gap: 8,
+  },
+  dropdown: {
+    height: 50,
+    borderColor: 'black',
+    borderWidth: 1, // Zamiast borderBottomWidth, dropdowny lepiej wyglądają z pełną ramką lub dostosuj do 0, 0, 1, 0
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    backgroundColor: 'white',
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#999',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: 'black',
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 });
