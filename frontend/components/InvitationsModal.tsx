@@ -1,6 +1,8 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {acceptFriendRequest, rejectFriendRequest} from "@/api/endpoints/friends";
+import {useUser} from "@/contexts/UserContext";
 
 interface InvitationsProps {
   visible: boolean;
@@ -13,6 +15,19 @@ export default function Invitations({
   onClose,
   invitations = [],
 }: InvitationsProps) {
+  const { token } = useUser();
+
+  const handleAccept = async (index: number) => {
+    console.log("Accept", index);
+    await acceptFriendRequest(invitations[index], token);
+    invitations = invitations.splice(index, 1);
+  }
+  const handleReject = async (index: number) => {
+    console.log("Reject", index);
+    await rejectFriendRequest(invitations[index], token);
+    invitations = invitations.splice(index, 1);
+  }
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
@@ -24,11 +39,11 @@ export default function Invitations({
               <View key={i} style={styles.inviteRow}>
                 <Text style={styles.inviteText}>{inv}</Text>
                 <View style={styles.actions}>
-                  <TouchableOpacity style={styles.accept}>
+                  <TouchableOpacity style={styles.accept} onPress={() => handleAccept(i)}>
                     <Ionicons name="checkmark" size={18} color={WhiteVar} />
                     <Text style={styles.actionText}>Accept</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.reject}>
+                  <TouchableOpacity style={styles.reject} onPress={() => handleReject(i)}>
                     <Ionicons name="close" size={18} color={WhiteVar} />
                     <Text style={styles.actionText}>Reject</Text>
                   </TouchableOpacity>

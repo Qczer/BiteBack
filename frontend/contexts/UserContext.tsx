@@ -21,11 +21,17 @@ interface FriendInterface {
   bitescore: number;
 }
 
+interface RequestInterface {
+  _id: string;
+  username: string;
+  avatar: string;
+}
+
 interface UserFriendsInterface {
   userID: string;
   username: string;
   friends: FriendInterface[];
-  requests: any[];
+  requests: RequestInterface[];
 }
 
 interface UserContextType {

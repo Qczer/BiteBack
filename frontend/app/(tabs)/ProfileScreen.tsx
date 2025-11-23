@@ -24,11 +24,6 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
   const { user, userFriends, clearUser } = useUser();
-  console.log("=========================");
-  console.log("UserID: " + userFriends?.userID);
-  console.log("Username: ", userFriends?.username);
-  console.log("Friends: ", userFriends?.friends);
-  console.log("Requests: ", userFriends?.requests);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
@@ -85,7 +80,7 @@ export default function ProfileScreen() {
       <Invitations
         visible={showInvitations}
         onClose={() => setShowInvitations(false)}
-        invitations={[]}
+        invitations={userFriends?.requests.map(r => r.username) ?? []}
       />
 
       <HeaderBar />
