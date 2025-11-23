@@ -1,0 +1,145 @@
+import express from "express"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
+import path from "path"
+import multer from "multer";
+
+import User from "../model/User.js"
+import {serverError} from "../utils.js";
+
+
+const router = express.Router();
+
+const JWT_EXPIRATION_TIME = "7d"
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, "./storage/avatars"); // folder na pliki
+    },
+    filename: function(req, file, cb) {
+        const date = Date.now();
+        cb(null, date + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
+
+
+// Routes
+// potencjalnie email do uzytkownika
+router.post("/register", upload.single("avatar"), (req, res) => {
+    
+    bcrypt.hash(req.body.password, 15).then(hashed => {
+        const newUser = new User({
+            username: req.body.username,
+            password: hashed,
+            email: req.body.email,
+            lang: req.body.lang || "pl",
+            fridge: [],
+            bitescore: 0,
+            avatar: req.file ? req.file.filename : "nopfp.png"
+        })
+        newUser.save().then(result => {
+            res.status(201).json({
+                message: "Registered user with username" + result.username + " successfully!",
+                id: result._id
+            })
+        }).catch(err => {
+            console.log(err)
+            if (err.errorResponse.code == 11000) {
+                res.status(409).json({
+                    message: "This username is taken"
+                })
+                return
+            }
+            res.status(500).json({
+                error: err
+            })
+        })
+    }).catch(err => {
+        console.log(1)
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    })
+})
+
+router.post("/login", (req, res) => {
+    User.findOne({email: req.body.email}).then(user => {
+        // brak autoryzacji (nie ma takiego uzytkownika)
+        if (user == null) {
+            return res.status(401).json({
+                error: {
+                    message: "Unauthorized."
+                }
+            })
+        }
+        bcrypt.compare(req.body.password, user.password, (err, result) => {
+            // Błąd po stronie servera (bcrypt)
+            if (err) {
+                return res.status(500).json({
+                    error: err
+                })
+            }
+            // sukces
+            if (result) {
+                const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: JWT_EXPIRATION_TIME});
+                res.status(200).json(token)
+            } else {
+                // brak autoryzacji (niepoprawne hasło)
+                return res.status(401).json({
+                    error: {
+                        message: "Unauthorized."
+                    }
+                })
+            }
+        })
+    }).catch(err => {
+        return res.status(500).json({
+            error: err
+        })
+    })
+})
+
+// powinna byc jako middleware funkcja a nie endpoint?
+router.get("/auth", (req, res) => {
+    try {
+        // req.headers.authorization[0] = "Bearer"
+        const token = req.headers.authorization.split(" ")[1] 
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        res.status(200).json({
+            message: "Authorized",
+            userId: decoded._id
+        })
+    } catch(err) {
+        console.log(err)
+        res.status(401).json({
+            error: {
+                message: "Invalid or expired token!"
+            }
+        })
+    }
+})
+
+// zamiennik za oczekiwane /profile 
+router.get("/:userID", (req, res) => {
+    User.findOne({_id: req.params.userID}).then(user => {
+        if (user == null) {
+            res.status(404).json({
+                error: {
+                    code: 0, // brak takiego uzytkownika
+                    message: `No user found with given ID: ${req.params.userID}` 
+                }
+            })
+            return;
+        }
+        const userCopy = { ...user._doc }
+        delete userCopy.password
+        userCopy.avatar = `${req.protocol}://${req.get('host')}/storage/avatars/${user.avatar}`;
+        res.status(200).json(userCopy)
+    }).catch(err => serverError(err, res))
+})
+
+
+export default router
