@@ -4,8 +4,8 @@ import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { getItem } from "@/services/Storage";
 import { Feather } from "@expo/vector-icons";
-import {router, useFocusEffect} from "expo-router";
-import {useCallback, useEffect, useState} from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -46,7 +46,7 @@ export default function HomeScreen() {
 
   const fridgeToPieData = () => {
     let categories: Record<string, number> = {};
-
+    console.log("userFood in fridgeToPieData:", userFood);
     userFood.forEach((food) => {
       if (food.category)
         categories[food.category] = (categories[food.category] || 0) + 1;
@@ -71,14 +71,14 @@ export default function HomeScreen() {
       setNickname(nickname);
     };
     loadNickname();
-
     fridgeToPieData();
-  }, []);
+  }, [userFood]);
 
   useFocusEffect(
     useCallback(() => {
+      console.log("Refreshing HomeScreen data on focus");
       fridgeToPieData();
-    }, [])
+    }, [userFood])
   );
 
   const todayStr = new Date().toDateString();
@@ -138,7 +138,7 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>{t("nutritionOverview")}</Text>
 
         {/* Wyśrodkowany wykres */}
-        {userFood.length > 1 && pieData ? (
+        {userFood.length > 0 && pieData ? (
           <View style={styles.chartWrapper}>
             <PieChart
               data={pieData}
@@ -177,27 +177,25 @@ export default function HomeScreen() {
       </View>
 
       {/* RECENTLY ADDED */}
-      {userFood.length > 1 && (
+      {userFood.length > 0 && (
         <View style={[styles.recentBlock, styles.shadow]}>
           <Text style={styles.sectionTitle}>Recently Added</Text>
+          {userFood
+            .slice(-3)
+            .reverse()
+            .map((item, index) => (
+              <View key={index + 1} style={styles.recentItem}>
+                <Text style={styles.recentName}>{item.name}</Text>
+                <Text style={styles.recentMeta}>
+                  {item.amount + (item.unit ?? "")} •{" "}
+                  {item.expDate
+                    ? new Date(item.expDate).toLocaleDateString()
+                    : ""}{" "}
+                </Text>
+              </View>
+            ))}
         </View>
       )}
-
-      {userFood.length > 1 &&
-        userFood
-          .slice(-3)
-          .reverse()
-          .map((item, index) => (
-            <View key={index + 1} style={styles.recentItem}>
-              <Text style={styles.recentName}>{item.name}</Text>
-              <Text style={styles.recentMeta}>
-                {item.amount + (item.unit ?? "")} •{" "}
-                {item.expDate
-                  ? new Date(item.expDate).toLocaleDateString()
-                  : ""}{" "}
-              </Text>
-            </View>
-          ))}
 
       {/* SZYBKIE AKCJE */}
       <View style={styles.quickActions}>

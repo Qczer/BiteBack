@@ -2,7 +2,7 @@ import translate from "@/locales/i18n";
 import Food from "@/types/Food";
 import { useEffect, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { Dropdown } from 'react-native-element-dropdown';
+import { Dropdown } from "react-native-element-dropdown";
 
 interface FoodEditorProps {
   initialFood?: Food;
@@ -25,7 +25,7 @@ const unitItems = [
   { label: `${translate("units.ml")} (ml)`, value: "ml" },
   { label: `${translate("units.l")} (l)`, value: "l" },
   { label: `${translate("units.kg")} (kg)`, value: "kg" },
-  { label: `${translate("units.pcs")}`, value: "pcs" }
+  { label: `${translate("units.pcs")}`, value: "pcs" },
 ];
 
 export default function FoodEditor({
@@ -44,7 +44,6 @@ export default function FoodEditor({
   const [unitValue, setUnitValue] = useState(initialFood?.unit ?? null);
   const [catValue, setCatValue] = useState(initialFood?.category ?? null);
 
-
   useEffect(() => {
     if (name && amount && unitValue && catValue) {
       onChange({
@@ -53,7 +52,7 @@ export default function FoodEditor({
         amount: parseFloat(amount.replace(",", ".")) || 0,
         unit: unitValue,
         category: catValue,
-        expDate: new Date()
+        expDate: new Date(),
       });
     }
   }, [name, amount, unitValue, catValue]);
@@ -102,7 +101,7 @@ export default function FoodEditor({
             valueField="value"
             placeholder={t("unit")}
             value={unitValue}
-            onChange={item => {
+            onChange={(item) => {
               setUnitValue(item.value);
             }}
           />
@@ -111,7 +110,7 @@ export default function FoodEditor({
 
       {/* CATEGORY */}
       <View style={{ marginTop: 10 }}>
-        <Dropdown 
+        <Dropdown
           style={styles.dropdown}
           placeholderStyle={styles.placeholderStyle}
           placeholder={t("category")}
@@ -151,19 +150,19 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     height: 50,
-    borderColor: 'black',
+    borderColor: "black",
     borderWidth: 1, // Zamiast borderBottomWidth, dropdowny lepiej wyglądają z pełną ramką lub dostosuj do 0, 0, 1, 0
     borderRadius: 5,
     paddingHorizontal: 8,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   placeholderStyle: {
     fontSize: 16,
-    color: '#999',
+    color: "#999",
   },
   selectedTextStyle: {
     fontSize: 16,
-    color: 'black',
+    color: "black",
   },
   inputSearchStyle: {
     height: 40,
