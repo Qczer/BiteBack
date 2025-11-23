@@ -2,6 +2,8 @@
 
 @baseURL = https://biteback.pl/api/
 @userID = 69228ab94492c74f4bbd50d2
+@recipientID = 6922a0e346f1cd736916698c
+@requesterID = 69228ab94492c74f4bbd50d2
 
 ###
 # group: user
@@ -140,3 +142,20 @@ Content-Type: image/png
 
 < ./test.png
 --WebAppBoundary
+
+###
+# group: friends
+# @name friends/:userName
+GET {{baseURL}}friends/{{recipientID}}
+
+###
+# group: friends
+# @name friends/request/:recipientId
+POST {{baseURL}}friends/request/{{recipientID}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTIyYTBlMzQ2ZjFjZDczNjkxNjY5OGMiLCJpYXQiOjE3NjM5MTc2NDYsImV4cCI6MTc2NDUyMjQ0Nn0.CtiKuxX-LTi5wrXQe5TeKqN0BUHN10xPSXCneIzJDuw
+
+###
+# group: friends
+# @name friends/accept/:requesterId
+POST {{baseURL}}friends/accept/{{requesterID}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTIyOGFiOTQ0OTJjNzRmNGJiZDUwZDIiLCJpYXQiOjE3NjM5MjAwODEsImV4cCI6MTc2NDUyNDg4MX0.Y56P22iremldhGRJhWXG7j8yYKhQo37cTBDXoiuVazM

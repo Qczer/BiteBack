@@ -48,7 +48,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
     food.iconUrl ?? "cube-outline"
   );
 
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState( new Date(food.expDate as Date) ?? new Date());
   const [show, setShow] = useState(false);
 
   const [editedFood, setEditedFood] = useState<Food>(food);
