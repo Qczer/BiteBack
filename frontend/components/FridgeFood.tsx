@@ -12,22 +12,13 @@ interface FridgeFoodProps {
 
 export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const isLocalImage = typeof food.iconUrl === "number"; // require return a number
-  const isRemoteImage =
-    typeof food.iconUrl === "string" && food.iconUrl.startsWith("http");
-
-  const isImage = isLocalImage || isRemoteImage;
 
   return (
     <View style={{ width: "17.5%", backgroundColor: "transparent" }}>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
-        {isImage ? (
+        {(food.iconUrl && food.iconUrl != "no-photo.png") ? (
           <Image
-            source={
-              isLocalImage
-                ? (food.iconUrl as any)
-                : { uri: food.iconUrl as any }
-            }
+            source={{ uri: food.iconUrl }}
             style={{
               width: 90,
               height: 90,

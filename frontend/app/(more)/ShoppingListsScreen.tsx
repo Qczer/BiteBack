@@ -10,10 +10,14 @@ import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { showToast } from "../(auth)/LoginScreen";
+import translate from "@/locales/i18n";
 
 const SHOPPING_LIST_KEY = "shoppingLists";
 
 export default function ShoppingListsScreen() {
+  const tURL = "cards.shoppingLists.";
+  const t = (key: string) => translate(tURL + key);
+
   const { food, fromScan } = useLocalSearchParams();
   const [list, setList] = useState<Food[]>(
     food ? JSON.parse(food as string) : []
@@ -66,11 +70,10 @@ export default function ShoppingListsScreen() {
         <View style={styles.headerBlock}>
           <View style={styles.headerRow}>
             <Ionicons name="cart-outline" size={24} color={GreenVar} />
-            <Text style={styles.screenTitle}>Shopping List</Text>
+            <Text style={styles.screenTitle}>{t("title")}</Text>
           </View>
           <Text style={styles.screenSubtitle}>
-            Add product to your shopping list to remember what to buy! Then, you
-            can easily move them to your Virtual Fridge.
+            {t("desc")}
           </Text>
         </View>
 

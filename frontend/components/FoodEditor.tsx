@@ -10,6 +10,24 @@ interface FoodEditorProps {
   onChange: (food: Food | null) => void;
 }
 
+const catItems = [
+  { label: `${translate("filters.meat")} 🍖`, value: "meat" },
+  { label: `${translate("filters.dairy")} 🥛`, value: "dairy" },
+  { label: `${translate("filters.fruit")} 🍎`, value: `fruit` },
+  { label: `${translate("filters.vegetable")} 🥦`, value: "vegetable" },
+  { label: `${translate("filters.snack")} 🍪`, value: "snack" },
+  { label: `${translate("filters.junk")} 🍔`, value: "junk" },
+  { label: `${translate("filters.other")} ❓`, value: "other" },
+];
+
+const unitItems = [
+  { label: `${translate("units.g")} (g)`, value: "g" },
+  { label: `${translate("units.ml")} (ml)`, value: "ml" },
+  { label: `${translate("units.l")} (l)`, value: "l" },
+  { label: `${translate("units.kg")} (kg)`, value: "kg" },
+  { label: `${translate("units.pcs")}`, value: "pcs" }
+];
+
 export default function FoodEditor({
   initialFood,
   reset,
@@ -23,26 +41,9 @@ export default function FoodEditor({
     initialFood?.amount?.toString() ?? ""
   );
 
-  // Unit dropdown
   const [unitValue, setUnitValue] = useState(initialFood?.unit ?? null);
-  const [unitItems, setUnitItems] = useState([
-    { label: "Gram (g)", value: "g" },
-    { label: "Mililiter (ml)", value: "ml" },
-    { label: "Litr (l)", value: "l" },
-    { label: "Kilogram (kg)", value: "kg" },
-  ]);
-
-  // Category dropdown
   const [catValue, setCatValue] = useState(initialFood?.category ?? null);
-  const [catItems, setCatItems] = useState([
-    { label: "Meat 🍖", value: "meat" },
-    { label: "Dairy 🥛", value: "dairy" },
-    { label: "Fruit 🍎", value: "fruit" },
-    { label: "Vegetable 🥦", value: "vegetable" },
-    { label: "Snacks 🍪", value: "snack" },
-    { label: "Fastfood 🍔", value: "fastfood" },
-    { label: "Other ❓", value: "other" },
-  ]);
+
 
   useEffect(() => {
     if (name && amount && unitValue && catValue) {

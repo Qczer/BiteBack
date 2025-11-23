@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
-import { getItem, getToken, removeItem, removeToken } from '@/services/Storage'; 
+import { getToken, removeItem, removeToken } from '@/services/Storage';
 import { auth, getUser } from '@/api/endpoints/user';
 import User from '@/types/User';
 import Food from '@/types/Food';
@@ -7,7 +7,7 @@ import { getFridge } from '@/api/endpoints/fridge';
 
 interface UserContextType {
   user: User | null;
-  userId: string;
+  userID: string;
   token: string;
   setToken: React.Dispatch<React.SetStateAction<string>>;
   userFood: Food[];
@@ -20,7 +20,7 @@ const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
+  const [userID, setuserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,20 +34,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           const authRes = await auth(token);
   
           if (authRes.success)
-            setUserId(authRes.data.userId);
+            setuserID(authRes.data.userID);
           else {
-            removeItem("userId")
+            removeItem("userID")
             removeToken();
             return;
           }
 
-          const userRes = await getUser(authRes.data.userId);
+          const userRes = await getUser(authRes.data.userID);
 
           if (userRes.success)
             setUser(userRes.data)
 
           const fetchData = async () => {
-            const fridgeRes = await getFridge(authRes.data.userId);
+            const fridgeRes = await getFridge(authRes.data.userID);
             if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
           };
     
@@ -66,21 +66,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [token])
 
   const clearUser = () => {
-    setUserId("");
+    setuserID("");
     setUser(null);
   }
 
   const value = useMemo(() => {
     return {
       user,
-      userId,
+      userID,
       token,
       setToken,
       userFood,
       setUserFood,
       clearUser
     };
-  }, [user, userId, userFood]);
+  }, [user, userID, token, setToken, userFood, setUserFood, clearUser]);
 
   if (isLoading)
     return null; 

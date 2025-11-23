@@ -10,6 +10,8 @@
     "login": {
       "title": "Sign In",
       "welcomeBack": "Welcome Back!",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "emailLabel": "Email address",
       "emailPlaceholder": "johndoe@mail.com",
       "passwordLabel": "Password",
@@ -33,7 +35,17 @@
       "pleaseFillAllFields": "Please fill in all fields correctly"
     },
     "home": {
-      "title": "Home"
+      "title": "Home",
+      "hello": "Hello",
+      "helloSub": "Ready to manage your fridge?",
+      "fridgeOverview": "Fridge Overview",
+      "itemsStored": "items stored",
+      "expiringToday": "expiring today",
+      "expired": "expired",
+      "nutritionOverview": "Nutrition Overview",
+      "yourFridgeIsEmpty": "Your Fridge Is Empty",
+      "scanReceipt": "Scan Receipt",
+      "shortcuts": "Shortcuts"
     },
     "fridge": {
       "title": "Fridge",
@@ -99,8 +111,11 @@
     "shoppingLists": {
       "title": "Shopping List",
       "subtitle": "Create shopping lists and add items to Fridge",
+      "desc": "Add product to your shopping list to remember what to buy! Then, you\n            can easily move them to your Virtual Fridge.",
       "headerTitle": "Shopping List",
-      "addBtn": "Add to Fridge"
+      "addBtn": "Add to Fridge",
+      "addToList": "Add to shopping list",
+      "addToFridge": "Add to virtual fridge"
     },
     "feedback": {
       "title": "Feedback",
@@ -131,6 +146,13 @@
     "frozen": "Frozen",
     "other": "Other"
   },
+  "units": {
+    "g": "Gram",
+    "kg": "Kilogram",
+    "l": "Liter",
+    "ml": "Milliliter",
+    "pcs": "Pieces"
+  },
   "common": {
     "friends": "Friends",
     "comingSoon": "Coming Soon",
@@ -141,12 +163,14 @@
     "number": "Number",
     "city": "City",
     "coordinates": "Coordinates",
-    "or": "Or"
+    "or": "Or",
+    "searchFood": "Search Food"
   },
   "foodEditor": {
     "foodName": "Food Name",
     "amount": "Amount",
-    "unit": "Unit"
+    "unit": "Unit",
+    "category": "Category"
   },
   "logoutModal": {
     "title": "Confirm Logout",

@@ -57,7 +57,6 @@ router.post("/register", upload.single("avatar"), (req, res) => {
             })
         })
     }).catch(err => {
-        console.log(1)
         console.log(err)
         res.status(500).json({
             error: err
@@ -110,7 +109,7 @@ router.get("/auth", (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         res.status(200).json({
             message: "Authorized",
-            userId: decoded._id
+            userID: decoded._id
         })
     } catch(err) {
         console.log(err)

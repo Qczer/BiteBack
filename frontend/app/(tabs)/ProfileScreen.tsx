@@ -23,11 +23,7 @@ export default function ProfileScreen() {
 
   const { user }  = useUser();
 
-  const accountDate = "2023-05-12";
-  const currencyValue = 125.5;
-
-  const friends: string[] = [];
-  const leaderboard = [1, 2, 3, , 7, 9, 10];
+  const leaderboard = [1, 2, 3, 5, 7, 9, 10];
   const newInvitationsCount = 3;
 
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -95,9 +91,9 @@ export default function ProfileScreen() {
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{user?.username ?? "Guest"}</Text>
             <Text style={styles.infoText}>
-              {t("joined")}: {accountDate}
+              {t("joined")}: {new Date(user?.createDate ?? "").toLocaleDateString()}
             </Text>
-            <Text style={styles.infoText}>BiteScore: {currencyValue}</Text>
+            <Text style={styles.infoText}>BiteScore: {user?.bitescore ?? 0}</Text>
           </View>
         </View>
 

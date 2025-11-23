@@ -11,9 +11,9 @@
       "title": "Zarejestruj się",
       "welcomeBack": "Witamy ponownie!",
       "usernameLabel": "Nazwa użytkownika",
+      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "emailLabel": "Adres e-mail",
       "emailPlaceholder": "jankowalski@gmail.com",
-      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "passwordLabel": "Hasło",
       "passwordPlaceholder": "Twoje hasło",
       "signIn": "Zaloguj się",
@@ -35,7 +35,17 @@
       "pleaseFillAllFields": "Wypełnij poprawnie wszystkie pola"
     },
     "home": {
-      "title": "Strona główna"
+      "title": "Strona główna",
+      "hello": "Witaj",
+      "helloSub": "Gotowy zarządzać swoją lodówką?",
+      "fridgeOverview": "Przegląd Lodówki",
+      "itemsStored": "przechowywane",
+      "expiringToday": "traci ważność dzisiaj",
+      "expired": "przeterminowane",
+      "nutritionOverview": "Przegląd Żywienia",
+      "yourFridgeIsEmpty": "Twoja Lodówka Jest Pusta",
+      "scanReceipt": "Skanuj Paragon",
+      "shortcuts": "Skróty"
     },
     "fridge": {
       "title": "Lodówka",
@@ -43,14 +53,15 @@
     },
     "scan": {
       "title": "Skanuj",
-      "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
-      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników.",
       "permissionTitle": "Potrzebujemy twojej zgody",
       "permissionDesc": "Proszę zezwolić na dostęp do kamery, aby kontynuować.",
       "grantPermission": "Zezwól na dostęp",
+
       "camera": "Kamera",
       "cameraDesc": "Otwórz kamerę, aby zrobić zdjęcie",
-      "openCamera": "Otwórz Kamerę"
+      "openCamera": "Otwórz Kamerę",
+      "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
+      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników."
 
     },
     "profile": {
@@ -68,6 +79,7 @@
     },
     "settings": {
       "title": "Ustawienia",
+      "headerTitle": "Zmień Ustawienia",
       "language": "Język",
       "langaugeInfo": "Wybierz preferowany język interfejsu aplikacji.",
       "logout": "Wyloguj się",
@@ -99,9 +111,11 @@
     "shoppingLists": {
       "title": "Lista zakupów",
       "subtitle": "Stwórz i zarządzaj swoją listą zakupów",
+      "desc": "Dodaj produkt do listy zakupów, aby pamiętać, co kupić! Następnie możesz\nłatwo przenieść je do swojej Wirtualnej Lodówki.",
       "headerTitle": "Lista Zakupów",
       "addBtn": "Dodaj do Lodówki",
-      "addToList": "Dodaj do listy zakupów"
+      "addToList": "Dodaj do listy zakupów",
+      "addToFridge": "Dodaj do wirtualnej lodówki"
     },
     "feedback": {
       "title": "Informacje zwrotne",
@@ -132,6 +146,13 @@
     "frozen": "Mrożonki",
     "other": "Inne"
   },
+  "units": {
+    "g": "Gram",
+    "kg": "Kilogram",
+    "l": "Litr",
+    "ml": "Mililitr",
+    "pcs": "Sztuki"
+  },
   "common": {
     "friends": "Znajomi",
     "comingSoon": "Już Wkrótce",
@@ -142,7 +163,8 @@
     "number": "Numer",
     "city": "Miasto",
     "coordinates": "Koordynaty",
-    "or": "Albo"
+    "or": "Albo",
+    "searchFood": "Szukaj Jedzenia"
   },
   "foodEditor": {
     "foodName": "Nazwa Jedzenia",

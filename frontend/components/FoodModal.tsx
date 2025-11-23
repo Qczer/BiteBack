@@ -5,15 +5,7 @@ import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import {
-  Image,
-  Modal,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, Modal,  StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
 interface FoodModalProps {
@@ -41,7 +33,7 @@ const unitItems = [
 export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   if (!food) return null;
 
-  const { userId } = useUser();
+  const { userID } = useUser();
 
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
@@ -49,11 +41,6 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   const [editedFood, setEditedFood] = useState<Food>(food);
   const [unitValue, setUnitValue] = useState(editedFood.unit || null);
   const [categoryValue, setCategoryValue] = useState(editedFood.category);
-  
-  const isLocalImage = typeof food.iconUrl === "number";
-  const isRemoteImage =
-    typeof food.iconUrl === "string" && food.iconUrl.startsWith("http");
-  const isImage = isLocalImage || isRemoteImage;
 
   const handleChange = (key: keyof Food, value: string) => {
     setEditedFood({ ...editedFood, [key]: value });
@@ -68,9 +55,9 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
         .filter(([key, value]) => key !== '_id' && key !== '__v' && value !== undefined && value !== null)
         .map(([key, value]) => ({
           name: key,
-          value: (key === 'expDate' && value instanceof Date) ? value.toISOString() : value
-        }));;
-    await editFood(userId, food._id, { id: food._id, params: newParams});
+          value: (key === 'expDate') ? date.toISOString() : value
+        }));
+    await editFood(userID, food._id, { id: food._id, params: newParams});
     onClose();
   }
 
@@ -78,7 +65,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
     if (!food._id)
       return;
 
-    await deleteFood(userId, food._id);
+    await deleteFood(userID, food._id);
     onClose();
   }
 
@@ -101,13 +88,9 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
 
           {/* IMAGE + EDIT ICON */}
           <View style={styles.imageRow}>
-            {isImage ? (
+            {(food.iconUrl && food.iconUrl != "no-photo.png") ? (
               <Image
-                source={
-                  isLocalImage
-                    ? (food.iconUrl as any)
-                    : { uri: food.iconUrl as any }
-                }
+                source={{ uri: food.iconUrl }}
                 style={styles.image}
               />
             ) : (

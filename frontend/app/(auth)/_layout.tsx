@@ -5,13 +5,13 @@ import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 
 export default function AuthLayout() {
-  const { userId } = useUser();
+  const { userID } = useUser();
   const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   useEffect(() => {
     const loadState = async () => {
       const hasSeen = await getItem("hasSeenWelcomeScreen");
-      if (userId) {
+      if (userID) {
         router.replace("/(tabs)/HomeScreen");
         return;
       }

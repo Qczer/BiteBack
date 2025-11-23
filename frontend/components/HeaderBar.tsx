@@ -15,14 +15,12 @@ export default function HeaderBar() {
 
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
   const [notifications, setNotifications] = useState<number>(0);
-  const [currency, setCurrency] = useState<number>(0);
 
   // Ładowanie danych i cykliczne odświeżanie
   useEffect(() => {
     const fetchData = async () => {
       const notif = await getNotificationsCount();
       setNotifications(notif);
-      setCurrency(user?.bitescore ?? 0);
     };
 
     fetchData();
@@ -54,7 +52,7 @@ export default function HeaderBar() {
             <View style={styles.currencyBox}>
               {/* <Ionicons name="cash-outline" size={26} color={GreenVar} /> */}
               <Image source={require("@/assets/images/BiteScore.png")} style={{ width: 35, height: 35 }}/>
-              <Text style={styles.currencyText}>{currency.toFixed(2)}</Text>
+              <Text style={styles.currencyText}>{user?.bitescore ?? 0}</Text>
             </View>
           </TouchableOpacity>
 

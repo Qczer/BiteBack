@@ -1,21 +1,21 @@
 import { addFoodToFridge } from "@/api/endpoints/fridge";
 import { GreenVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
-import t from "@/locales/i18n";
 import Food from "@/types/Food";
 import { Feather } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  FlatList, // ZMIANA: Import FlatList
+  FlatList,
   Pressable,
   StyleSheet,
   Text,
   View,
-  ListRenderItemInfo // ZMIANA: Typ dla renderItem
+  ListRenderItemInfo
 } from "react-native";
 import Toast from "react-native-toast-message";
 import FoodEditor from "./FoodEditor";
+import translate from "@/locales/i18n"
 
 interface ShoppingListProps {
   list: Food[];
@@ -34,7 +34,10 @@ export default function ShoppingList({
   clearList,
   showToast,
 }: ShoppingListProps) {
-  const { userId } = useUser();
+  const { userID } = useUser();
+
+  const tURL = "cards.shoppingLists.";
+  const t = (key: string) => translate(tURL + key)
 
   const showSuccessToast = (message: string) => {
     Toast.show({
@@ -84,11 +87,12 @@ export default function ShoppingList({
         setIsSubmitting(false);
         return;
       }
-      await addFoodToFridge(userId, list);
+
+      await addFoodToFridge(userID, list);
       clearList();
       showSuccessToast("Successfully added!");
     } catch (error) {
-      showToast("Failed to add items.");
+      showToast("Error: " + error);
     } finally {
       setIsSubmitting(false);
     }
@@ -156,7 +160,7 @@ export default function ShoppingList({
               >
                 <Feather name="plus-circle" color="#fff" size={18} />
                 <Text style={styles.addToListText}>
-                  {t("cards.shoppingLists.addToList")}
+                  {t("addToList")}
                 </Text>
               </Pressable>
             </View>
@@ -177,7 +181,7 @@ export default function ShoppingList({
                   <ActivityIndicator size="small" color={GreenVar} />
                 </View>
               ) : (
-                <Text style={styles.addButtonText}>Add to virtual fridge</Text>
+                <Text style={styles.addButtonText}>{t("addToFridge")}</Text>
               )}
             </Text>
           </Pressable>
@@ -214,7 +218,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: GreenVar,
     borderRadius: 8,
-    paddingVertical: 8,
+    paddingVertical: 12,
     gap: 6,
   },
   addToListText: {

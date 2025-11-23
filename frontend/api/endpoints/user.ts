@@ -1,4 +1,3 @@
-import User from '@/types/User';
 import { axiosClient } from '../axiosClient';
 import { AxiosError } from 'axios';
 
@@ -8,16 +7,16 @@ type LoginResult =
 
 interface AuthResponse {
   message: string;
-  userId: string;
+  userID: string;
 }
 
 type AuthResult =
 | { success: true; data: AuthResponse }
 | { success: false; status: number | null; message?: string };
 
-export const getUser = async (userId: string) => {
+export const getUser = async (userID: string) => {
   try {
-    const { data } = await axiosClient.get(`/user/${userId}`);
+    const { data } = await axiosClient.get(`/user/${userID}`);
     return { success: true, data }
   }
   catch (error) {

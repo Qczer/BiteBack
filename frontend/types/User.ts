@@ -2,36 +2,36 @@ import Food from "./Food";
 
 export interface UserProps {
   _id?: string;
-  username: string;
-  email: string;
-  hash: string;
-  salt: string;
+  __v?: number;
   avatar: string;
-  lang: string;
   bitescore: number;
+  createDate: Date;
+  email: string;
   fridge: Food[];
+  lang: string;
+  username: string;
 }
 
 export default class User {
   _id?: string;
-  username: string;
-  email: string;
-  hash: string;
-  salt: string;
+  __v?: number;
   avatar: string;
-  lang: string;
   bitescore: number;
+  createDate: Date;
+  email: string;
   fridge: Food[];
+  lang: string;
+  username: string;
 
   constructor(props: UserProps) {
     this._id = props._id;
-    this.username = props.username;
-    this.email = props.email;
-    this.hash  = props.hash;
-    this.salt  = props.salt;
+    this.__v = props.__v;
     this.avatar = props.avatar;
-    this.lang  = props.lang;
     this.bitescore = props.bitescore;
+    this.createDate = props.createDate;
+    this.email = props.email;
     this.fridge = props.fridge;
+    this.lang  = props.lang;
+    this.username = props.username;
   }
 }

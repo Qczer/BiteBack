@@ -53,7 +53,7 @@ export default function HomeScreen() {
 
     const pieData = Object.keys(categories).map(key => {
       return {
-        name: key.charAt(0).toUpperCase() + key.slice(1),
+        name: translate("filters." + key),
         population: categories[key],
         color: categoryColors[key] || "#ccc",
         legendFontColor: "#333",
@@ -82,20 +82,20 @@ export default function HomeScreen() {
 
       {/* LOGO + POWITANIE */}
       <View style={styles.headerBlock}>
-        <Text style={styles.welcomeText}>Hello {nickname} 👋</Text>
-        <Text style={styles.subText}>Ready to manage your fridge?</Text>
+        <Text style={styles.welcomeText}>{t("hello")} {nickname} 👋</Text>
+        <Text style={styles.subText}>{t("helloSub")}</Text>
       </View>
 
       {/* FRIDGE SUMMARY */}
       <View style={[styles.fridgeSummary, styles.shadow]}>
-        <Text style={styles.sectionTitle}>Fridge Overview</Text>
+        <Text style={styles.sectionTitle}>{t("fridgeOverview")}</Text>
         <View style={styles.summaryRow}>
           <Feather name="box" size={20} color={GreenVar} />
-          <Text style={styles.summaryText}>{userFood.length} items stored</Text>
+          <Text style={styles.summaryText}>{userFood.length} {t("itemsStored")}</Text>
         </View>
         <View style={styles.summaryRow}>
           <Feather name="alert-circle" size={20} color="orange" />
-          <Text style={styles.summaryText}>{userFood.filter(food => new Date(food.expDate ?? '').toDateString() == todayStr).length} expiring today</Text>
+          <Text style={styles.summaryText}>{userFood.filter(food => new Date(food.expDate ?? '').toDateString() == todayStr).length} {t("expiringToday")}</Text>
         </View>
         <View style={styles.summaryRow}>
           <Feather name="alert-circle" size={20} color="red" />
@@ -106,49 +106,56 @@ export default function HomeScreen() {
               today.setHours(0, 0, 0, 0);
 
               return expDate < today;
-            }).length} expired
+            }).length} {t("expired")}
           </Text>
         </View>
       </View>
 
       {/* Nutrition Overview */}
       <View style={[styles.nutritionBlock, styles.shadow]}>
-        <Text style={styles.sectionTitle}>Nutrition Overview</Text>
+        <Text style={styles.sectionTitle}>{t("nutritionOverview")}</Text>
 
         {/* Wyśrodkowany wykres */}
-        <View style={styles.chartWrapper}>
-          <PieChart
-            data={pieData ?? []}
-            width={screenWidth * 0.8}
-            height={220}
-            chartConfig={{
-              backgroundColor: WhiteVar,
-              backgroundGradientFrom: WhiteVar,
-              backgroundGradientTo: WhiteVar,
-              color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-              labelColor: () => "#333",
-            }}
-            accessor={"population"}
-            backgroundColor={"transparent"}
-            paddingLeft={"15"}
-            hasLegend={true}
-          />
-        </View>
+        {
+          userFood.length > 1 && pieData ?
+          (
+            <View style={styles.chartWrapper}>
+              <PieChart
+                data={pieData}
+                width={screenWidth * 0.8}
+                height={220}
+                chartConfig={{
+                  backgroundColor: WhiteVar,
+                  backgroundGradientFrom: WhiteVar,
+                  backgroundGradientTo: WhiteVar,
+                  color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+                  labelColor: () => "#333",
+                }}
+                accessor={"population"}
+                backgroundColor={"transparent"}
+                paddingLeft={"15"}
+                hasLegend={true}
+              />
+            </View>
+          ) : (
+              <Text>{t("yourFridgeIsEmpty")}</Text>
+          )
+        }
       </View>
 
       {/* RECENTLY ADDED */}
       <View style={[styles.recentBlock, styles.shadow]}>
         <Text style={styles.sectionTitle}>Recently Added</Text>
-        { userFood &&
-          userFood.slice(-3).reverse().map((item, index) => (
-            <View key={index+1} style={styles.recentItem}>
-              <Text style={styles.recentName}>{item.name}</Text>
-              <Text style={styles.recentMeta}>{item.amount + (item.unit ?? '')} • {item.expDate ? new Date(item.expDate).toLocaleDateString() : ''} </Text>
-            </View>
-          ))
-        }
-        { !userFood &&
-          <Text style={styles.recentName}>{t("")}</Text>
+        { userFood.length > 1 ? (
+            userFood.slice(-3).reverse().map((item, index) => (
+              <View key={index+1} style={styles.recentItem}>
+                <Text style={styles.recentName}>{item.name}</Text>
+                <Text style={styles.recentMeta}>{item.amount + (item.unit ?? '')} • {item.expDate ? new Date(item.expDate).toLocaleDateString() : ''} </Text>
+              </View>
+            ))
+          ) : (
+            <Text>{t("yourFridgeIsEmpty")}</Text>
+          )
         }
       </View>
 
@@ -159,7 +166,7 @@ export default function HomeScreen() {
           onPress={() => router.push("/(tabs)/ScanScreen")}
         >
           <Feather name="plus-circle" size={20} color={WhiteVar} />
-          <Text style={styles.actionText}>Scan Food</Text>
+          <Text style={styles.actionText}>{t("scanReceipt")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -186,28 +193,28 @@ export default function HomeScreen() {
 
       {/* QUICK LINKS */}
       <View style={[styles.quickLinks, styles.shadow]}>
-        <Text style={styles.sectionTitle}>Quick Links</Text>
+        <Text style={styles.sectionTitle}>{t("shortcuts")}</Text>
         <View style={styles.linkRow}>
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => router.push("/(more)/SettingsScreen")}
           >
             <Feather name="settings" size={18} color={GreenVar} />
-            <Text style={styles.linkText}>Settings</Text>
+            <Text style={styles.linkText}>{translate("screens.settings.title")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => router.push("/(more)/FeedbackScreen")}
           >
             <Feather name="message-square" size={18} color={GreenVar} />
-            <Text style={styles.linkText}>Feedback</Text>
+            <Text style={styles.linkText}>{translate("cards.feedback.title")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => router.push("/(more)/ReportBugScreen")}
           >
             <Feather name="alert-triangle" size={18} color={GreenVar} />
-            <Text style={styles.linkText}>Report Bug</Text>
+            <Text style={styles.linkText}>{translate("cards.reportABug.title")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -297,21 +304,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "85%",
     marginVertical: 20,
-    gap: 15,
+    gap: 7.5,
   },
   actionButton: {
     flex: 1,
     backgroundColor: GreenVar,
-    paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    gap: 6
+    gap: 6,
+    paddingVertical: 12,
   },
   actionText: {
     color: WhiteVar,
     fontSize: 14,
     fontWeight: "500",
+    textAlign: "center"
   },
   quickLinks: {
     width: "85%",

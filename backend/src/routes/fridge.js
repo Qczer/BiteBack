@@ -26,7 +26,7 @@ router.get("/:userID", async (req, res) => {
     }).catch(err => serverError(err, res))
 })
 
-router.post("/:userId", async (req, res) => {
+router.post("/:userID", async (req, res) => {
     try {
         const user = await User.findOne({_id: req.params.userID});
         if (!user) {
@@ -34,8 +34,6 @@ router.post("/:userId", async (req, res) => {
                 error: { message: `No user found with given ID: ${req.params.userID}` }
             });
         }
-
-        console.log("Log: " + req.body[0]);
 
         const foodItems = req.body.map(item => ({
             ...item,
@@ -56,11 +54,11 @@ router.post("/:userId", async (req, res) => {
     }
 });
 
-router.put("/:userId", (req, res) => {
+router.put("/:userID", (req, res) => {
 
 })
 
-router.patch("/:userId", (req, res) => {
+router.patch("/:userID", (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({

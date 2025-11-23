@@ -1,12 +1,12 @@
 # BiteBack
 
 @baseURL = https://biteback.pl/api/
-@userId = 69228ab94492c74f4bbd50d2
+@userID = 69228ab94492c74f4bbd50d2
 
 ###
 # group: user
-# @name user/:userId
-GET {{baseURL}}user/{{userId}}
+# @name user/:userID
+GET {{baseURL}}user/{{userID}}
 
 ###
 # group: user
@@ -52,13 +52,13 @@ Authorization: Bearer {{token}}
 
 ###
 # group: fridge
-# @name fridge/:userId
-GET {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+GET {{baseURL}}fridge/{{userID}}
 
 ###
 # group: fridge
-# @name fridge/:userId
-POST {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+POST {{baseURL}}fridge/{{userID}}
 Content-Type: application/json
 
 [
@@ -74,8 +74,8 @@ Content-Type: application/json
 
 ###
 # group: fridge
-# @name fridge/:userId
-PATCH {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+PATCH {{baseURL}}fridge/{{userID}}
 Content-Type: application/json
 
 {
@@ -110,8 +110,8 @@ Content-Type: application/json
 
 ###
 # group: fridge
-# @name fridge/:userId
-DELETE {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+DELETE {{baseURL}}fridge/{{userID}}
 
 ###
 # group: ai

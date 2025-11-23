@@ -2,6 +2,7 @@ import { GrayVar, GreenVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRef } from "react";
 import { Pressable, StyleProp, StyleSheet, TextInput, View, ViewStyle } from "react-native";
+import t from "@/locales/i18n"
 
 interface SearchInputProps {
     onInput?: (text: string) => void;
@@ -21,7 +22,7 @@ export default function SearchInput({ onInput, addStyle }: SearchInputProps) {
                 <TextInput
                     ref={inputRef}
                     style={styles.searchInput}
-                    placeholder='Search food'
+                    placeholder={t("common.searchFood")}
                     onChangeText={(text) => onInput?.(text)}
                 />
                 <Ionicons name="search" size={22} color={GreenVar} style={styles.searchButton} />

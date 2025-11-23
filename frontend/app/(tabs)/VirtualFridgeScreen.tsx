@@ -22,7 +22,7 @@ const allFoodCategorys = Object.keys(FoodCategory).filter((key) =>
 ) as (keyof typeof FoodCategory)[];
 
 export default function VirtualFridgeScreen() {
-  const { userId, userFood, setUserFood } = useUser();
+  const { userID, userFood, setUserFood } = useUser();
   const [refresh, setRefresh] = useState(false);
 
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
@@ -36,22 +36,18 @@ export default function VirtualFridgeScreen() {
     useCallback(() => {
       // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
-        const res = await getFridge(userId);
+        const res = await getFridge(userID);
         if (res?.data)
           setUserFood(res.data.fridge);
       };
 
       fetchData();
-
-      return () => {
-        // Opcjonalnie: gdy WYJDZIESZ z ekranu (stracisz focus)
-      };
-    }, [])
+    }, [userID, setUserFood])
   );
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getFridge(userId);
+      const res = await getFridge(userID);
       if (res?.data)
         setUserFood(res.data.fridge);
     };
