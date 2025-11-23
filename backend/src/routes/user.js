@@ -156,6 +156,22 @@ router.get("/:userID", (req, res) => {
     }).catch(err => serverError(err, res))
 })
 
+// zamiennik za oczekiwane /profile
+router.get("/id/:username", (req, res) => {
+    User.findOne({ username: req.params.username}).then(user => {
+        if (user == null) {
+            res.status(404).json({
+                error: {
+                    code: 0,
+                    message: `No user found with given username: ${req.params.username}`
+                }
+            })
+            return;
+        }
+        res.status(200).json(user._id);
+    }).catch(err => serverError(err, res))
+})
+
 const ALLOWED_LANGS = ["pl", "en"];
 router.patch("/lang/:userID", authenticateToken, (req, res) => {
     if (req.user._id !== req.params.userID) {

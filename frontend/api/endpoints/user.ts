@@ -30,6 +30,22 @@ export const getUser = async (userID: string) => {
   }
 };
 
+export const getUserID = async (username: string) => {
+  try {
+    const { data } = await axiosClient.get(`/user/id/${username}`);
+    return { success: true, data }
+  }
+  catch (error) {
+    const err = error as AxiosError<any>;
+
+    return {
+      success: false,
+      status: err.response?.status ?? null,
+      message: err.response?.data?.message
+    }
+  }
+};
+
 export const auth = async (token: string): Promise<AuthResult> => {
   try {
     const { data } = await axiosClient.get('/user/auth', { headers: { Authorization: `Bearer ${token}` }});

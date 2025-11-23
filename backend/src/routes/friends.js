@@ -17,7 +17,7 @@ router.get('/:userID', async (req, res) => {
         }
 
         const user = await User.findById(userID)
-            .populate('friends', 'username email avatar')
+            .populate('friends', 'username email avatar bitescore')
             .populate('friendRequests', 'username avatar');
 
         if (!user) {
@@ -28,7 +28,7 @@ router.get('/:userID', async (req, res) => {
             userID: user._id,
             username: user.username,
             friends: user.friends,
-            requests: user.friendRequests
+            requests: user.friendRequests,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

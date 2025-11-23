@@ -26,8 +26,10 @@ export default function AddFriendModal({
   const [status, setStatus] = useState<"success" | "error" | null>(null);
 
   const handleSubmit = async () => {
-    const token = name;
-    await sendFriendRequest(token, token);
+    const res = await sendFriendRequest(name, token);
+    if (res?.success) {
+      console.log("Sent friend request");
+    }
   };
 
   return (
