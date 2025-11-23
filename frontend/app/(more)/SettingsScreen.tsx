@@ -37,7 +37,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionDescription}>{t("logoutInfo")}</Text>
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => setShowConfirm(true)} // zamiast handleLogout od razu
+          onPress={() => setShowConfirm(true)}
         >
           <Ionicons name="exit-outline" size={20} color={WhiteVar} />
           <Text style={styles.logoutText}>{t("logout")}</Text>

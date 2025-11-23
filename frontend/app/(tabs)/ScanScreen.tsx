@@ -14,10 +14,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function ScanScreen() {
   const tURL = "screens.scan.";
   const t = (key: string) => translate(tURL + key);
+
+  const isFocused = useIsFocused();
 
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
@@ -32,7 +35,7 @@ export default function ScanScreen() {
   // 1️⃣ Brak zgody na kamerę
   if (!permission.granted) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 }}>
         <HeaderBar />
         <View style={styles.center}>
           <Image
@@ -59,7 +62,7 @@ export default function ScanScreen() {
   // 2️⃣ Podgląd zdjęcia (jeśli zrobione)
   if (uri && !showCamera) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 }}>
         <HeaderBar />
         <View style={styles.center}>
           <Image source={{ uri }} style={styles.preview} />
@@ -79,7 +82,7 @@ export default function ScanScreen() {
   }
 
   // 3️⃣ Kamera
-  if (showCamera) {
+  if (showCamera && isFocused) {
     const takePicture = async () => {
       if (!ref.current) return;
 
@@ -151,6 +154,7 @@ export default function ScanScreen() {
           mode="picture"
           animateShutter={true}
           enableTorch={flashlightOn}
+          active={isFocused}
         />
         {snapshotUri && (
           <Image
@@ -196,7 +200,7 @@ export default function ScanScreen() {
 
   // 4️⃣ Ekran startowy (przycisk otwarcia kamery)
   return (
-    <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+    <View style={{ flex: 1, paddingBottom: 60, backgroundColor: WhiteVar }}>
       <HeaderBar />
       <View style={styles.center}>
         <Ionicons name="camera-outline" size={64} color={GreenVar} />
@@ -251,13 +255,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "black",
+    paddingBottom: 60
   },
   camera: {
     ...StyleSheet.absoluteFillObject,
+    paddingBottom: 60
   },
   controls: {
     position: "absolute",
-    bottom: 60,
+    bottom: 150,
     alignSelf: "center",
     display: "flex",
     flexDirection: "row",

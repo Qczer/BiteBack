@@ -83,3 +83,14 @@ export const register = async (email: string, username: string, password: string
     }
   }
 };
+
+export const changeLanguage = async (userId: string, token: string, newLanguage: string) => {
+  try {
+    const res = await axiosClient.patch(`/user/lang/${userId}`, { lang: newLanguage }, { headers: { Authorization: `Bearer ${token}` }});
+    return res.data;
+  }
+  catch (error) {
+    const e = error as AxiosError;
+    console.error("Błąd zmiany języka:", e.response?.data || e.message);
+  }
+};

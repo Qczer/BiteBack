@@ -24,6 +24,34 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// MIDDLEWARE DO AUTORYZACJI
+const authenticateToken = (req, res, next) => {
+    try {
+        if (!req.headers.authorization) {
+            throw new Error("Missing Authorization header");
+        }
+
+        const token = req.headers.authorization.split(" ")[1];
+
+        if (!token) {
+            throw new Error("Missing token in Bearer string");
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        req.user = decoded;
+        next();
+
+    } catch(err) {
+        console.log("Auth Error:", err.message);
+        res.status(401).json({
+            error: {
+                message: "Invalid or expired token!"
+            }
+        });
+    }
+};
+
 
 // Routes
 // potencjalnie email do uzytkownika
@@ -102,23 +130,11 @@ router.post("/login", (req, res) => {
 })
 
 // powinna byc jako middleware funkcja a nie endpoint?
-router.get("/auth", (req, res) => {
-    try {
-        // req.headers.authorization[0] = "Bearer"
-        const token = req.headers.authorization.split(" ")[1] 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        res.status(200).json({
-            message: "Authorized",
-            userID: decoded._id
-        })
-    } catch(err) {
-        console.log(err)
-        res.status(401).json({
-            error: {
-                message: "Invalid or expired token!"
-            }
-        })
-    }
+router.get("/auth", authenticateToken, (req, res) => {
+    res.status(200).json({
+        message: "Authorized",
+        userID: req.user._id
+    })
 })
 
 // zamiennik za oczekiwane /profile 
@@ -138,6 +154,39 @@ router.get("/:userID", (req, res) => {
         userCopy.avatar = `${req.protocol}://${req.get('host')}/storage/avatars/${user.avatar}`;
         res.status(200).json(userCopy)
     }).catch(err => serverError(err, res))
+})
+
+const ALLOWED_LANGS = ["pl", "en"];
+router.patch("/lang/:userID", authenticateToken, (req, res) => {
+    if (req.user._id !== req.params.userID) {
+        return res.status(403).json({
+            message: "Forbidden: You can only update your own account."
+        });
+    }
+
+    const newLang = req.body.lang;
+
+    if (!newLang || !ALLOWED_LANGS.includes(newLang)) {
+        return res.status(400).json({
+            message: `Invalid language. Allowed: ${ALLOWED_LANGS.join(", ")}`
+        });
+    }
+
+    // 3. AKTUALIZACJA
+    User.findByIdAndUpdate(
+        req.params.userID,
+        { lang: newLang },
+        { new: true } // Zwraca zaktualizowany obiekt
+    ).then(updatedUser => {
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({
+            message: "Language updated successfully",
+            lang: updatedUser.lang
+        });
+    }).catch(err => serverError(err, res));
 })
 
 

@@ -228,6 +228,7 @@ const styles = StyleSheet.create({
     paddingTop: 100,
     alignItems: "center",
     backgroundColor: WhiteVar,
+    paddingBottom: 60,
   },
   backgroundHigher: {
     backgroundColor: GreenVar,

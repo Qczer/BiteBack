@@ -1,7 +1,7 @@
 import Food from "./Food";
 
 export interface UserProps {
-  _id?: string;
+  _id: string;
   __v?: number;
   avatar: string;
   bitescore: number;
@@ -13,7 +13,7 @@ export interface UserProps {
 }
 
 export default class User {
-  _id?: string;
+  _id: string;
   __v?: number;
   avatar: string;
   bitescore: number;

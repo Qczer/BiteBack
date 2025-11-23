@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: WhiteVar, // jasne tło
+    paddingBottom: 60,
   },
   header: {
     height: "30%",

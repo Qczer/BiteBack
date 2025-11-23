@@ -4,8 +4,8 @@ import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { getItem } from "@/services/Storage";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import {router, useFocusEffect} from "expo-router";
+import {useCallback, useEffect, useState} from "react";
 import {
   Dimensions,
   Image,
@@ -74,6 +74,12 @@ export default function HomeScreen() {
 
     fridgeToPieData();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fridgeToPieData();
+    }, [])
+  );
 
   const todayStr = new Date().toDateString();
 
@@ -259,7 +265,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: WhiteVar,
     alignItems: "center",
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   headerBlock: {
     alignItems: "center",
