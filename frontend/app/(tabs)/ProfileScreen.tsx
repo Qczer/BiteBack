@@ -10,7 +10,14 @@ import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
-import { Text, View, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function ProfileScreen() {
   const { clearUser } = useUser();
@@ -21,7 +28,7 @@ export default function ProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  const { user }  = useUser();
+  const { user } = useUser();
 
   const friends: string[] = [];
   const leaderboard = [1, 2, 3, 5, 7, 9, 10];
@@ -50,8 +57,15 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
-  
-      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); clearUser(); await handleLogout(); }} />
+      <LogoutModal
+        showConfirm={showConfirm}
+        cancelOnPress={() => setShowConfirm(false)}
+        acceptOnPress={async () => {
+          setShowConfirm(false);
+          clearUser();
+          await handleLogout();
+        }}
+      />
 
       {/* Modals */}
       <AddFriendModal
@@ -74,7 +88,9 @@ export default function ProfileScreen() {
 
         {/* Karta profilu */}
         <View style={styles.card}>
-          <View style={{ position: "relative", backgroundColor: 'transparent' }}>
+          <View
+            style={{ position: "relative", backgroundColor: "transparent" }}
+          >
             <Image
               source={
                 avatarUri
@@ -92,9 +108,12 @@ export default function ProfileScreen() {
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{user?.username ?? "Guest"}</Text>
             <Text style={styles.infoText}>
-              {t("joined")}: {new Date(user?.createDate ?? "").toLocaleDateString()}
+              {t("joined")}:{" "}
+              {new Date(user?.createDate ?? "").toLocaleDateString()}
             </Text>
-            <Text style={styles.infoText}>BiteScore: {user?.bitescore ?? 0}</Text>
+            <Text style={styles.infoText}>
+              BiteScore: {user?.bitescore ?? 0}
+            </Text>
           </View>
         </View>
 
@@ -147,7 +166,19 @@ export default function ProfileScreen() {
                 </Text>
               ))
             ) : (
-              <Text style={styles.infoText}>{t("noFriends")}</Text>
+              <View>
+                <Image
+                  source={require("@/assets/images/people/noFriends.png")}
+                  style={{
+                    alignSelf: "center",
+                    marginBottom: 10,
+                  }}
+                  height={100}
+                  width={100}
+                  resizeMode="contain"
+                ></Image>
+                <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
+              </View>
             )}
           </View>
         </View>
@@ -228,7 +259,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 40,
     marginRight: 16,
-    backgroundColor: 'transparent'
+    backgroundColor: "transparent",
   },
   cardInfo: {
     flexDirection: "column",

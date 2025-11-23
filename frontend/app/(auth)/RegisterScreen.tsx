@@ -10,13 +10,12 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
-  KeyboardAvoidingView,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
@@ -36,8 +35,6 @@ export default function RegisterScreen() {
 
   const [allFilled, setAllFilled] = useState(false);
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
-  // const [isPasswordPopoverVisible, setIsPasswordPopoverVisible] = useState(false);
-  // const [nickname, setNickname] = useState("");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -51,7 +48,7 @@ export default function RegisterScreen() {
     useState("");
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/; // 7+ znakow, jeden specjalny, jedna wielka litera
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{7,}$/;
 
   useEffect(() => {
     validateForm();
@@ -66,7 +63,6 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       const res = await register(email, username, password);
-      // TODO: autolog
       if (res.success) router.replace("/LoginScreen");
       else {
         showToast(`Error ${res.status}: ${res.message}`);
@@ -86,7 +82,6 @@ export default function RegisterScreen() {
     let passwordValid = passwordRegex.test(password);
 
     setEmailAlertText(emailValid ? "" : "Enter a valid email address.");
-
     setPasswordAlertText(
       passwordValid ? "" : "Password doesn't meet our requirements."
     );
@@ -103,99 +98,97 @@ export default function RegisterScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-      <KeyboardAvoidingView style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={styles.container}>
-            {/* HEADER */}
-            <View style={styles.headerBlock}>
-              <Image
-                source={require("@/assets/images/logo.png")}
-                style={{ width: 100, height: 100, marginRight: 10 }}
-              />
-              <Text style={styles.headerText}>BiteBack</Text>
-              <Text style={styles.welcomeBackText}>{t("goodToSeeYou")}</Text>
-            </View>
-
-            {/* FORM */}
-            <View style={styles.formBlock}>
-              <View style={styles.formBox}>
-                <FormInput
-                  placeholder={t("emailPlaceholder")}
-                  leftIcon="mail-outline"
-                  label={t("emailLabel")}
-                  alertText={emailAlertText}
-                  setVal={setEmail}
-                  // onValueChange={validateForm}
-                />
-                <FormInput
-                  placeholder={t("usernamePlaceholder")}
-                  leftIcon="person-outline"
-                  label={t("usernameLabel")}
-                  alertText={usernameAlertText}
-                  setVal={setUsername}
-                  // onValueChange={validateForm}
-                />
-
-                <FormInput
-                  placeholder={t("passwordPlaceholder")}
-                  leftIcon="lock-closed-outline"
-                  rightIcon="eye-outline"
-                  secure={true}
-                  label={t("passwordLabel")}
-                  alertText={passwordAlertText}
-                  showHelp={showPasswordHelp}
-                  // onValueChange={validateForm}
-                  setVal={setPassword}
-                />
-                <FormInput
-                  placeholder={t("passwordPlaceholder")}
-                  leftIcon="lock-closed-outline"
-                  rightIcon="eye-outline"
-                  secure={true}
-                  label={t("confirmPasswordLabel")}
-                  alertText={repeatedPasswordAlertText}
-                  showHelp={showPasswordHelp}
-                  // onValueChange={validateForm}
-                  setVal={setRepeatedPassword}
-                />
-                <Pressable
-                  onPress={handleRegister}
-                  disabled={loading}
-                  style={[
-                    styles.loginButton,
-                    {
-                      backgroundColor:
-                        allFilled && !loading ? GreenVar : "gray",
-                    },
-                  ]}
-                >
-                  {loading ? (
-                    <ActivityIndicator color={WhiteVar}></ActivityIndicator>
-                  ) : (
-                    <Text style={styles.buttonText}>{t("createAccount")}</Text>
-                  )}
-                </Pressable>
-
-                <View style={styles.dividerContainer}>
-                  <View style={styles.line} />
-                  <Text style={styles.dividerText}>
-                    {translate("common.or").toUpperCase()}
-                  </Text>
-                  <View style={styles.line} />
-                </View>
-                <RealButton
-                  text={t("signIn")}
-                  onPress={() => router.push("/(auth)/LoginScreen")}
-                />
-              </View>
-            </View>
-
-            {/* FOOTER */}
-            <View style={styles.otherBlock}></View>
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        enableOnAndroid={true}
+        extraScrollHeight={120}
+        keyboardOpeningTime={0}
+      >
+        <View style={styles.container}>
+          {/* HEADER */}
+          <View style={styles.headerBlock}>
+            <Image
+              source={require("@/assets/images/logo.png")}
+              style={{ width: 100, height: 100, marginRight: 10 }}
+            />
+            <Text style={styles.headerText}>BiteBack</Text>
+            <Text style={styles.welcomeBackText}>{t("goodToSeeYou")}</Text>
           </View>
-        </ScrollView>
+
+          {/* FORM */}
+          <View style={styles.formBlock}>
+            <View style={styles.formBox}>
+              <FormInput
+                placeholder={t("emailPlaceholder")}
+                leftIcon="mail-outline"
+                label={t("emailLabel")}
+                alertText={emailAlertText}
+                setVal={setEmail}
+              />
+              <FormInput
+                placeholder={t("usernamePlaceholder")}
+                leftIcon="person-outline"
+                label={t("usernameLabel")}
+                alertText={usernameAlertText}
+                setVal={setUsername}
+              />
+              <FormInput
+                placeholder={t("passwordPlaceholder")}
+                leftIcon="lock-closed-outline"
+                rightIcon="eye-outline"
+                secure={true}
+                label={t("passwordLabel")}
+                alertText={passwordAlertText}
+                showHelp={showPasswordHelp}
+                setVal={setPassword}
+              />
+              <FormInput
+                placeholder={t("passwordPlaceholder")}
+                leftIcon="lock-closed-outline"
+                rightIcon="eye-outline"
+                secure={true}
+                label={t("confirmPasswordLabel")}
+                alertText={repeatedPasswordAlertText}
+                showHelp={showPasswordHelp}
+                setVal={setRepeatedPassword}
+              />
+              <Pressable
+                onPress={handleRegister}
+                disabled={loading}
+                style={[
+                  styles.loginButton,
+                  {
+                    backgroundColor: allFilled && !loading ? GreenVar : "gray",
+                  },
+                ]}
+              >
+                {loading ? (
+                  <ActivityIndicator color={WhiteVar} />
+                ) : (
+                  <Text style={styles.buttonText}>{t("createAccount")}</Text>
+                )}
+              </Pressable>
+
+              <View style={styles.dividerContainer}>
+                <View style={styles.line} />
+                <Text style={styles.dividerText}>
+                  {translate("common.or").toUpperCase()}
+                </Text>
+                <View style={styles.line} />
+              </View>
+              <RealButton
+                text={t("signIn")}
+                onPress={() => router.push("/(auth)/LoginScreen")}
+              />
+            </View>
+          </View>
+
+          {/* FOOTER */}
+          <View style={styles.otherBlock}></View>
+        </View>
         <Toast config={toastConfig} />
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -228,9 +221,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderRadius: 20,
     padding: "5%",
-    // cross-platform shadow
-    elevation: 5, // Android
-    shadowColor: "#000", // iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -243,8 +235,6 @@ const styles = StyleSheet.create({
     zIndex: 0,
     backgroundColor: GreenVar,
     width: "100%",
-    // borderTopLeftRadius: 20,
-    // borderTopRightRadius: 20,
   },
   headerText: {
     fontFamily: "Courgette_400Regular",
@@ -268,7 +258,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     borderRadius: 25,
-    // shadow
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

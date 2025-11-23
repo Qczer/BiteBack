@@ -51,6 +51,12 @@ export default function Layout() {
           title: "User profile",
         }}
       />
+      <Stack.Screen
+        name="RecipesScreen"
+        options={{
+          title: "Recipe",
+        }}
+      />
     </Stack>
   );
 }
