@@ -1,0 +1,114 @@
+# BiteBack
+
+@baseURL = https://biteback.pl/api/
+@userId = 69228ab94492c74f4bbd50d2
+
+###
+# group: user
+# @name user/:userId
+GET {{baseURL}}user/{{userId}}
+
+###
+# group: user
+# @name user/auth
+GET {{baseURL}}user/auth
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTIyOGFiOTQ0OTJjNzRmNGJiZDUwZDIiLCJpYXQiOjE3NjM4NzE0NTEsImV4cCI6MTc2NDQ3NjI1MX0.4BehLb55pGAwUsKLuc6xNs5bWRAfjescH1a_BKmn7y0
+
+###
+# group: user
+# @name user/login
+POST {{baseURL}}user/login
+Content-Type: application/json
+
+{
+  "email": "user@mail.com",
+  "password": "Password123#"
+}
+
+###
+# group: user
+# @name user/register
+POST {{baseURL}}user/register
+Content-Type: application/json
+
+{
+  "username": "User",
+  "email": "user@mail.com",
+  "password": "Password123#"
+}
+
+###
+# group: fridge
+# @name fridge/:userId
+GET {{baseURL}}fridge/{{userId}}
+
+###
+# group: fridge
+# @name fridge/:userId
+POST {{baseURL}}fridge/{{userId}}
+Content-Type: application/json
+
+[
+  {
+    "name": "KAJZERKA 2,34C",
+    "amount": 50,
+    "unit": "g",
+    "category": "other",
+    "iconUrl": "",
+    "expDate": "2025-11-22T07:17:49.839Z"
+  }
+]
+
+###
+# group: fridge
+# @name fridge/:userId
+PATCH {{baseURL}}fridge/{{userId}}
+Content-Type: application/json
+
+{
+  "id": "69221307a872116e873de371",
+  "params": [
+    {
+      "name": "name",
+      "value": "KAJZERKA"
+    },
+    {
+      "name": "amount",
+      "value": 50
+    },
+    {
+      "name": "unit",
+      "value": "g"
+    },
+    {
+      "name": "category",
+      "value": "other"
+    },
+    {
+      "name": "iconUrl",
+      "value": ""
+    },
+    {
+      "name": "expDate",
+      "value": "2025-11-22T07:17:49.839Z"
+    }
+  ]
+}
+
+###
+# group: fridge
+# @name fridge/:userId
+DELETE {{baseURL}}fridge/{{userId}}
+
+###
+# group: ai
+# @name ai/scan
+POST {{baseURL}}ai/scan
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="image"; filename="test.png"
+Content-Type: image/png
+
+< ./test.png
+--WebAppBoundary
