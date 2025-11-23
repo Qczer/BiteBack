@@ -15,8 +15,11 @@ import {
   View,
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 export default function ScanScreen() {
+  const insets = useSafeAreaInsets();
+
   const tURL = "screens.scan.";
   const t = (key: string) => translate(tURL + key);
 
@@ -35,7 +38,7 @@ export default function ScanScreen() {
   // 1️⃣ Brak zgody na kamerę
   if (!permission.granted) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 }}>
+      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom}}>
         <HeaderBar />
         <View style={styles.center}>
           <Image
@@ -62,7 +65,7 @@ export default function ScanScreen() {
   // 2️⃣ Podgląd zdjęcia (jeśli zrobione)
   if (uri && !showCamera) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 }}>
+      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom }}>
         <HeaderBar />
         <View style={styles.center}>
           <Image source={{ uri }} style={styles.preview} />
@@ -129,7 +132,7 @@ export default function ScanScreen() {
     };
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingBottom: 60 + insets.bottom }]}>
         {loading && (
           <ActivityIndicator
             size="large"
@@ -200,7 +203,7 @@ export default function ScanScreen() {
 
   // 4️⃣ Ekran startowy (przycisk otwarcia kamery)
   return (
-    <View style={{ flex: 1, paddingBottom: 60, backgroundColor: WhiteVar }}>
+    <View style={{ flex: 1, paddingBottom: 60 + insets.bottom, backgroundColor: WhiteVar }}>
       <HeaderBar />
       <View style={styles.center}>
         <Ionicons name="camera-outline" size={64} color={GreenVar} />
@@ -226,7 +229,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 20
   },
   title: {
     fontSize: 22,
@@ -254,12 +257,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "black",
-    paddingBottom: 60
+    backgroundColor: "black"
   },
   camera: {
     ...StyleSheet.absoluteFillObject,
-    paddingBottom: 60
   },
   controls: {
     position: "absolute",

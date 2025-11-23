@@ -16,12 +16,15 @@ import { FoodCategory } from "@/types/Food";
 import FoodFilter from "@/types/FoodFilter";
 import { useFocusEffect } from "expo-router";
 import Modal from "react-native-modal";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
 
 const allFoodCategorys = Object.keys(FoodCategory).filter((key) =>
   isNaN(Number(key))
 ) as (keyof typeof FoodCategory)[];
 
 export default function VirtualFridgeScreen() {
+  const insets = useSafeAreaInsets();
+
   const { userID, userFood, setUserFood } = useUser();
   const [refresh, setRefresh] = useState(false);
 
@@ -72,7 +75,7 @@ export default function VirtualFridgeScreen() {
     );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: 60 + insets.bottom }]}>
       <HeaderBar />
       {/* MODAL */}
       <Modal
@@ -122,7 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    backgroundColor: WhiteVar,
+    backgroundColor: WhiteVar
   },
   mainContainer: {
     display: "flex",
