@@ -15,6 +15,4 @@ export default function t(key: string): string {
   return i18n.t(key);
 }
 
-i18n.locale = getLocales()[0].languageCode || 'en';
-i18n.locale = 'pl';
 i18n.enableFallback = true;

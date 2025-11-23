@@ -24,3 +24,37 @@ export const getFridge = async (userId: string) => {
     console.error("Get fridge error: ", e.message);
   }
 };
+
+export interface editFoodProperty {
+  name: string;
+  value: string;
+}
+
+export interface editFoodParams {
+  id: string;
+  params: editFoodProperty[];
+}
+
+export const editFood = async (userId: string, foodId: string, params: editFoodParams) => {
+  if (!userId || !foodId)
+    return;
+
+  try {
+    return await axiosClient.patch(`/fridge/${userId}`, params);
+  }
+  catch(e: any) {
+    console.error("Patch food error: ", e.message);
+  }
+}
+
+export const deleteFood = async (userId: string, foodId: string) => {
+  if (!userId || !foodId)
+    return;
+
+  try {
+    return await axiosClient.delete(`/fridge/${userId}`, { data: { "id": foodId } });
+  }
+  catch(e: any) {
+    console.error("Patch food error: ", e.message);
+  }
+}

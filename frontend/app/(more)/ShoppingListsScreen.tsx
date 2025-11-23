@@ -6,7 +6,7 @@ import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { showToast } from "../(auth)/LoginScreen";
@@ -62,10 +62,6 @@ export default function ShoppingListsScreen() {
         },
       ]}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        nestedScrollEnabled
-      >
         {/* HEADER */}
         <View style={styles.headerBlock}>
           <View style={styles.headerRow}>
@@ -79,22 +75,19 @@ export default function ShoppingListsScreen() {
         </View>
 
         {/* LIST */}
-        <View style={styles.container}>
-          <ShoppingList
-            list={list}
-            onAdd={handleAddFoodToList}
-            onRemove={handleRemoveFoodFromList}
-            onUpdate={handleUpdateFood}
-            clearList={() => {
-              setList([]);
-              if (fromScan) {
-                router.replace("/(tabs)/VirtualFridgeScreen");
-              }
-            }}
-            showToast={(key: string) => showToast(key)}
-          />
-        </View>
-      </ScrollView>
+        <ShoppingList
+          list={list}
+          onAdd={handleAddFoodToList}
+          onRemove={handleRemoveFoodFromList}
+          onUpdate={handleUpdateFood}
+          clearList={() => {
+            setList([]);
+            if (fromScan) {
+              router.replace("/(tabs)/VirtualFridgeScreen");
+            }
+          }}
+          showToast={(key: string) => showToast(key)}
+        />
       <Toast config={toastConfig} />
     </View>
   );
@@ -104,10 +97,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: WhiteVar,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   headerBlock: {
     marginBottom: 20,
@@ -130,9 +122,5 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginBottom: 10,
-  },
-  container: {
-    flex: 1,
-    gap: 16,
-  },
+  }
 });

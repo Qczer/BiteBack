@@ -1,5 +1,4 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
-import ConfirmModal from "@/components/ConfirmModal"; // import modala
 import LanguageSelector from "@/components/LanguageSelector";
 import { handleLogout } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -47,7 +46,7 @@ export default function SettingsScreen() {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Stacked © 2025</Text>
+        <Text style={styles.footerText}>BiteBack © 2025</Text>
       </View>
 
       <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); clearUser(); await handleLogout(); }} />

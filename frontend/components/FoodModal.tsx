@@ -1,4 +1,6 @@
+import { deleteFood, editFood, editFoodProperty } from "@/api/endpoints/fridge";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import { useUser } from "@/contexts/UserContext";
 import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -12,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
+import { Dropdown } from "react-native-element-dropdown";
 
 interface FoodModalProps {
   visible: boolean;
@@ -20,34 +22,34 @@ interface FoodModalProps {
   food: Food | null;
 }
 
+const categoryItems = [
+  { label: "Meat 🍖", value: "meat" },
+  { label: "Dairy 🥛", value: "dairy" },
+  { label: "Fruit 🍎", value: "fruit" },
+  { label: "Vegetable 🥦", value: "vegetable" },
+  { label: "Snacks 🍪", value: "snacks" },
+  { label: "Fastfood 🍔", value: "fastfood" },
+  { label: "Other ❓", value: "other" },
+];
+const unitItems = [
+  { label: "Kilogram (kg)", value: "kg" },
+  { label: "Gram (g)", value: "g" },
+  { label: "Mililiter (ml)", value: "ml" },
+  { label: "Litr (l)", value: "l" },
+];
+
 export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   if (!food) return null;
+
+  const { userId } = useUser();
 
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
 
   const [editedFood, setEditedFood] = useState<Food>(food);
-  const [unitOpen, setUnitOpen] = useState(false);
   const [unitValue, setUnitValue] = useState(editedFood.unit || null);
-  const [unitItems, setUnitItems] = useState([
-    { label: "Kilogram (kg)", value: "kg" },
-    { label: "Gram (g)", value: "g" },
-    { label: "Mililiter (ml)", value: "ml" },
-    { label: "Litr (l)", value: "l" },
-  ]);
-
-  const [open, setOpen] = useState(false);
   const [categoryValue, setCategoryValue] = useState(editedFood.category);
-  const [items, setItems] = useState([
-    { label: "Meat 🍖", value: "meat" },
-    { label: "Dairy 🥛", value: "dairy" },
-    { label: "Fruit 🍎", value: "fruit" },
-    { label: "Vegetable 🥦", value: "vegetable" },
-    { label: "Snacks 🍪", value: "snacks" },
-    { label: "Fastfood 🍔", value: "fastfood" },
-    { label: "Other ❓", value: "other" },
-  ]);
-
+  
   const isLocalImage = typeof food.iconUrl === "number";
   const isRemoteImage =
     typeof food.iconUrl === "string" && food.iconUrl.startsWith("http");
@@ -56,6 +58,29 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   const handleChange = (key: keyof Food, value: string) => {
     setEditedFood({ ...editedFood, [key]: value });
   };
+
+  const handleSave = async () => {
+    if (!food._id)
+      return;
+
+    let newParams: editFoodProperty[] =
+      Object.entries(editedFood)
+        .filter(([key, value]) => key !== '_id' && key !== '__v' && value !== undefined && value !== null)
+        .map(([key, value]) => ({
+          name: key,
+          value: (key === 'expDate' && value instanceof Date) ? value.toISOString() : value
+        }));;
+    await editFood(userId, food._id, { id: food._id, params: newParams});
+    onClose();
+  }
+
+  const handleDelete = async () => {
+    if (!food._id)
+      return;
+
+    await deleteFood(userId, food._id);
+    onClose();
+  }
 
   return (
     <Modal
@@ -121,41 +146,32 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
 
             {/* UNIT */}
             <Text style={styles.label}>Unit</Text>
-            <DropDownPicker
-              open={unitOpen}
+            <Dropdown
               value={unitValue}
-              items={unitItems}
-              setOpen={setUnitOpen}
-              setValue={(callback) => {
-                const newValue = callback(unitValue);
-                setUnitValue(newValue);
-                handleChange("unit", newValue);
+              data={unitItems}
+              onChange={value => {
+                setUnitValue(value.value);
+                handleChange("unit", value.value);
               }}
-              setItems={setUnitItems}
               placeholder="Select unit"
               style={{ marginBottom: 10 }}
-              dropDownContainerStyle={{ borderColor: "#ddd" }}
-              zIndex={5}
-              // zIndexInverse={4000}
+              labelField="label"
+              valueField="value"
             />
 
             {/* CATEGORY */}
             <Text style={styles.label}>Category</Text>
-            <DropDownPicker
-              zIndex={3}
-              open={open}
+            <Dropdown
               value={categoryValue as string}
-              items={items}
-              setOpen={setOpen}
-              setValue={(callback) => {
-                const newValue = callback(categoryValue);
-                setCategoryValue(newValue);
-                handleChange("category", newValue);
+              data={categoryItems}
+              onChange={value => {
+                setCategoryValue(value.value);
+                handleChange("category", value.value);
               }}
-              setItems={setItems}
               placeholder="Select category"
               style={{ marginBottom: 10 }}
-              dropDownContainerStyle={{ borderColor: "#ddd" }}
+              labelField="label"
+              valueField="value"
             />
 
             {/* EXPIRY DATE */}
@@ -194,12 +210,12 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
 
           {/* ACTIONS */}
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity style={styles.actionButton} onPress={handleSave}>
               <Ionicons name="save-outline" size={18} color={WhiteVar} />
               <Text style={styles.actionText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: "red" }]}
+              style={[styles.actionButton, { backgroundColor: "red" }]} onPress={handleDelete}
             >
               <Ionicons name="trash-outline" size={18} color={WhiteVar} />
               <Text style={styles.actionText}>Delete</Text>

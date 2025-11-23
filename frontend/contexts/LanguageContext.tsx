@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
 import { i18n, translations } from '@/locales/i18n';
 import { setItem, getItem } from '@/services/Storage'; 
+import { useUser } from './UserContext';
 
 const LANGUAGE_STORAGE_KEY = 'user-language';
 
@@ -18,6 +19,7 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useUser()
   const [lang, setLang] = useState(i18n.locale as Lang);
   const [forceUpdateKey, setForceUpdateKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,11 +27,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadLang = async () => {
       try {
-        const storedLang = await getItem(LANGUAGE_STORAGE_KEY);
-
-        if(storedLang && availableLangs.includes(storedLang as Lang)) {
-          i18n.locale = storedLang;
-          setLang(storedLang as Lang);
+        if(user?.lang && availableLangs.includes(user.lang as Lang)) {
+          i18n.locale = user.lang;
+          setLang(user.lang as Lang);
         }
         else {
           const initialLang =  availableLangs[0];

@@ -1,8 +1,7 @@
-import { Dimensions, StyleSheet } from "react-native";
+import { Text, View, Dimensions, StyleSheet } from "react-native";
 
 import { WhiteVar } from "@/assets/colors/colors";
-import { Text, View } from "@/components/Themed";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { getFridge } from "@/api/endpoints/fridge";
 import ExpandButton from "@/components/ExpandButton";
@@ -24,6 +23,7 @@ const allFoodCategorys = Object.keys(FoodCategory).filter((key) =>
 
 export default function VirtualFridgeScreen() {
   const { userId, userFood, setUserFood } = useUser();
+  const [refresh, setRefresh] = useState(false);
 
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
     allFoodCategorys.map((typeName) => ({
@@ -37,7 +37,8 @@ export default function VirtualFridgeScreen() {
       // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
         const res = await getFridge(userId);
-        if (res?.data) setUserFood(res.data.fridge);
+        if (res?.data)
+          setUserFood(res.data.fridge);
       };
 
       fetchData();
@@ -47,6 +48,17 @@ export default function VirtualFridgeScreen() {
       };
     }, [])
   );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getFridge(userId);
+      if (res?.data)
+        setUserFood(res.data.fridge);
+    };
+
+    fetchData();
+    setRefresh(false);
+  }, [refresh])
 
   const { t } = useLanguage();
 
@@ -100,6 +112,7 @@ export default function VirtualFridgeScreen() {
           food={userFood}
           addStyles={{ height: height * 0.55 }}
           filters={foodFilters}
+          refresh={() => setRefresh(true) }
         />
       </View>
     </View>
