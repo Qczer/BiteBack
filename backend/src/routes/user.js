@@ -5,6 +5,7 @@ import path from "path"
 import multer from "multer";
 
 import User from "../model/User.js"
+import {serverError} from "../utils.js";
 
 
 const router = express.Router();
@@ -106,7 +107,7 @@ router.get("/auth", (req, res) => {
     try {
         // req.headers.authorization[0] = "Bearer"
         const token = req.headers.authorization.split(" ")[1] 
-        decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
         res.status(200).json({
             message: "Authorized",
             userId: decoded._id

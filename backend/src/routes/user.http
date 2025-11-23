@@ -1,0 +1,10 @@
+### register
+POST http://localhost:8000/user/register
+Content-Type: application/json
+
+{
+    "username": "Qczer",
+    "email": "mateuszkuczera3@gmail.com",
+    "password": "mamaija"
+}
+###

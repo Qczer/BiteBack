@@ -1,7 +1,5 @@
 import mongoose from 'mongoose'
 
-import Food from "./Food.js"
-
 
 const userSchema = mongoose.Schema({
     username: {type: String, required: true, unique: true},
@@ -17,4 +15,4 @@ const userSchema = mongoose.Schema({
 const User = mongoose.model("User", userSchema)
 
 
-export default Food
+export default User

@@ -2,18 +2,13 @@ import express from "express"
 
 import Food from "../model/Food.js"
 import User from "../model/User.js"
+import {serverError} from "../utils.js";
 
 
 const router = express.Router();
 
 
 // Routes
-const serverError = (err, res) => {
-    console.log(err)
-    res.status(500).json({
-        error: err
-    })
-}
 router.get("/:userID", async (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
