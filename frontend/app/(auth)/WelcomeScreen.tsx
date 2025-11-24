@@ -1,11 +1,11 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import RealButton from "@/components/RealButton";
+import t from "@/locales/i18n";
 import { setItem } from "@/services/Storage";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import t from "@/locales/i18n"
 
 export default function WelcomeScreen() {
   const [fontsLoaded] = useFonts({
@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/background.png")}
+        source={require("@/assets/images/background2.png")}
         style={styles.backgroundImage}
         resizeMode="cover"
       />

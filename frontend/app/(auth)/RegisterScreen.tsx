@@ -102,7 +102,7 @@ export default function RegisterScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1 }}
         enableOnAndroid={true}
-        extraScrollHeight={120}
+        extraScrollHeight={125}
         keyboardOpeningTime={0}
       >
         <View style={styles.container}>
