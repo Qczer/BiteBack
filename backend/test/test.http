@@ -2,6 +2,8 @@
 
 @baseURL = https://biteback.pl/api/
 @userID = 69228ab94492c74f4bbd50d2
+@recipientName = "User"
+@requesterName = "ODBYTNIK"
 
 ###
 # group: user
@@ -140,3 +142,57 @@ Content-Type: image/png
 
 < ./test.png
 --WebAppBoundary
+
+
+###
+# group: user
+# @name user/login
+POST {{baseURL}}user/login
+Content-Type: application/json
+
+{
+  "email": "user@mail.com",
+  "password": "Password123#"
+}
+
+> {%
+    const token = response.body
+
+    client.global.set("recipientToken", token)
+%}
+
+###
+# group: user
+# @name user/login
+POST {{baseURL}}user/login
+Content-Type: application/json
+
+{
+  "email": "odbyt@mail.com",
+  "password": "Password123#"
+}
+
+> {%
+    const token = response.body
+
+    client.global.set("requesterToken", token)
+%}
+
+
+###
+# group: friends
+# @name friends/:userName
+GET {{baseURL}}friends/{{recipientName}}
+Authorization: Bearer {{recipientToken}}
+
+###
+# group: friends
+# @name friends/request/:recipientId
+POST {{baseURL}}friends/request/{{recipientName}}
+Authorization: Bearer {{requesterToken}}
+
+###
+# group: friends
+# @name friends/accept/:requesterId
+POST {{baseURL}}friends/accept/{{requesterName}}
+Authorization: Bearer {{recipientToken}}

@@ -1,10 +1,21 @@
-import { StyleSheet, Text, View } from "react-native";
+import translate from "@/locales/i18n";
+import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function ReportBugScreen() {
+  const tURL = "screens.feedback.";
+
+  const t = (key: string) => translate(tURL + key);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Report Bug</Text>
-      <View style={styles.separator} />
+      <Image
+        source={require("@/assets/images/people/thanks.png")}
+        style={{ width: 250, height: 250 }}
+        width={300}
+        height={300}
+        resizeMode="contain"
+      />
+      <Text style={styles.title}>{t("title")}</Text>
+      <Text style={styles.subtitle}>{t("subtitle")}</Text>
     </View>
   );
 }
@@ -18,10 +29,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    padding: 10,
+    textAlign: "center",
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+  subtitle: {
+    fontSize: 16,
+    padding: 5,
+    textAlign: "center",
   },
 });

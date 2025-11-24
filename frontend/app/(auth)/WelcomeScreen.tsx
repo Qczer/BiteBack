@@ -5,6 +5,7 @@ import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import t from "@/locales/i18n"
 
 export default function WelcomeScreen() {
   const [fontsLoaded] = useFonts({
@@ -42,7 +43,7 @@ export default function WelcomeScreen() {
 
         {/* Footer 30% */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Fight waste. BiteBack. </Text>
+          <Text style={styles.footerText}>{t("common.slogan")}</Text>
         </View>
       </View>
     </View>
