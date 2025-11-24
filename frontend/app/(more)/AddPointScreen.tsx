@@ -4,15 +4,10 @@ import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
 import toastConfig from "@/components/ToastConfig";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import translate from "@/locales/i18n";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function AddPointScreen() {
   const tURL = "cards.addPoint.";
@@ -43,13 +38,18 @@ export default function AddPointScreen() {
       showToast("Please fill in all fields.");
       return;
     }
-
     //console.log({ name, description, zip, street, number, city, location });
   };
 
   return (
-    <>
-      <ScrollView contentContainerStyle={styles.container}>
+    <View style={{ flex: 1, padding: 25, backgroundColor: WhiteVar }}>
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        enableOnAndroid={true}
+        extraScrollHeight={250}
+        keyboardOpeningTime={0}
+      >
         {/* Intro banner */}
         <View style={styles.headerBox}>
           <Text style={styles.title}>{t("headerText")}</Text>
@@ -115,9 +115,9 @@ export default function AddPointScreen() {
 
         {/* Info note */}
         <Text style={styles.infoNote}>⚠️ {t("infoNote")}</Text>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <Toast config={toastConfig} />
-    </>
+    </View>
   );
 }
 
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   submitButtonDisabled: {
-    backgroundColor: "#ccc", // szary, gdy nie wszystkie pola wypełnione
+    backgroundColor: "#ccc",
   },
   submitText: {
     color: "white",
