@@ -42,8 +42,6 @@ router.get('/:userID', authenticateToken, async (req, res) => {
 
 // GET /api/friends/mutual/:userID
 router.get('/mutual/:recipientID', authenticateToken, async (req, res) => {
-    console.log("Mutual friends")
-
     try {
         const { recipientID } = req.params;
         const currentUserID = req.user._id.toString();

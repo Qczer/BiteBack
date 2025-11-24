@@ -170,7 +170,7 @@ function sendPointToAuth(point) {
         `To response click: localhost:5000/dotation-point/auth/${point._id}`
     };
 
-    const result = true
+    let result = true
     transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
             result = false
@@ -206,6 +206,5 @@ router.delete("/:dotationPointID", (req, res) => {
         })
     })
 })
-
 
 export default router
