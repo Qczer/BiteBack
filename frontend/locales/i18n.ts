@@ -14,4 +14,13 @@ export default function t(key: string): string {
   return i18n.t(key);
 }
 
+const localeMap: Record<string, string> = {
+  pl: 'pl-PL',
+  en: 'en-EN'
+};
+
+export function normalizeLocale(lang: string) {
+  return localeMap[lang.toLowerCase()] || lang;
+}
+
 i18n.enableFallback = true;

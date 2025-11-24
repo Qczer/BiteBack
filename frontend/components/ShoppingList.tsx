@@ -120,15 +120,18 @@ export default function ShoppingList({
           </>
         )}
         <View style={styles.buttons}>
-          <Pressable onPress={() => handleEditClick(foodIndex)}>
+          <Pressable style={styles.button} onPress={() => handleEditClick(foodIndex)}>
             <Feather
               name={editing ? "check-square" : "edit"}
               color={editing ? "green" : "blue"}
+              size={16}
             />
           </Pressable>
-          <Pressable onPress={() => onRemove(food)}>
-            <Feather name="x" color="red" size={20} />
-          </Pressable>
+          {!editing && (
+            <Pressable style={styles.button} onPress={() => onRemove(food)}>
+              <Feather name="x" color="red" size={22}/>
+            </Pressable>
+          )}
         </View>
       </View>
     );
@@ -255,9 +258,12 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
-    gap: 5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  button: {
+    padding: 8,
+    margin: 0
   },
   addButton: {
     width: "100%", // Zmieniono na 100% względem kontenera lub dopasuj według uznania

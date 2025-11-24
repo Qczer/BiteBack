@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import FoodIconPickerModal from "./IconModal";
+import translate from "@/locales/i18n"
 
 interface FoodModalProps {
   visible: boolean;
@@ -41,6 +42,9 @@ const unitItems = [
 export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   if (!food) return null;
 
+  const tURL = "foodEditor.";
+  const t = (key: string) => translate(tURL + key);
+
   const { userID } = useUser();
 
   const [iconModalVisible, setIconModalVisible] = useState(false);
@@ -48,7 +52,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
     food.iconUrl ?? "cube-outline"
   );
 
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(new Date(food?.expDate ?? Date.now() + 24 * 60 * 60 * 1000));
   const [show, setShow] = useState(false);
 
   const [editedFood, setEditedFood] = useState<Food>(food);
@@ -96,7 +100,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
         <View style={styles.modalBox}>
           {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}>Edit Product</Text>
+            <Text style={styles.title}>{t("editProduct")}</Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
@@ -117,7 +121,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
           {/* INFO (EDITABLE) */}
           <View style={styles.infoBlock}>
             {/* NAME */}
-            <Text style={styles.label}>Name</Text>
+            <Text style={styles.label}>{translate("common.name")}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
@@ -129,19 +133,19 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
             </View>
 
             {/* AMOUNT */}
-            <Text style={styles.label}>Amount</Text>
+            <Text style={styles.label}>{t("amount")}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
                 value={editedFood.amount?.toString() || ""}
                 onChangeText={(text) => handleChange("amount", text)}
-                placeholder="Amount"
+                placeholder={t("selectAmount")}
               />
               <Ionicons name="create-outline" size={20} color={GreenVar} />
             </View>
 
             {/* UNIT */}
-            <Text style={styles.label}>Unit</Text>
+            <Text style={styles.label}>{t("unit")}</Text>
             <Dropdown
               value={unitValue}
               data={unitItems}
@@ -149,14 +153,14 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
                 setUnitValue(value.value);
                 handleChange("unit", value.value);
               }}
-              placeholder="Select unit"
+              placeholder={t("selectUnit")}
               style={{ marginBottom: 10 }}
               labelField="label"
               valueField="value"
             />
 
             {/* CATEGORY */}
-            <Text style={styles.label}>Category</Text>
+            <Text style={styles.label}>{t("category")}</Text>
             <Dropdown
               value={categoryValue as string}
               data={categoryItems}
@@ -164,14 +168,14 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
                 setCategoryValue(value.value);
                 handleChange("category", value.value);
               }}
-              placeholder="Select category"
+              placeholder={t("selectCategory")}
               style={{ marginBottom: 10 }}
               labelField="label"
               valueField="value"
             />
 
             {/* EXPIRY DATE */}
-            <Text style={styles.label}>Expiry Date</Text>
+            <Text style={styles.label}>{t("expiryDate")}</Text>
             <View style={styles.inputRow}>
               {/* Podgląd aktualnej daty */}
               <Text style={styles.datePreview}>
@@ -183,7 +187,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
                 style={styles.dateButton}
                 onPress={() => setShow(true)}
               >
-                <Text style={styles.dateButtonText}>Pick date</Text>
+                <Text style={styles.dateButtonText}>{t("pickDate")}</Text>
               </TouchableOpacity>
 
               {/* Ikonka edycji */}
@@ -208,14 +212,14 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
           <View style={styles.actions}>
             <TouchableOpacity style={styles.actionButton} onPress={handleSave}>
               <Ionicons name="save-outline" size={18} color={WhiteVar} />
-              <Text style={styles.actionText}>Save</Text>
+              <Text style={styles.actionText}>{translate("common.save")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionButton, { backgroundColor: "red" }]}
               onPress={handleDelete}
             >
               <Ionicons name="trash-outline" size={18} color={WhiteVar} />
-              <Text style={styles.actionText}>Delete</Text>
+              <Text style={styles.actionText}>{translate("common.delete")}</Text>
             </TouchableOpacity>
           </View>
         </View>

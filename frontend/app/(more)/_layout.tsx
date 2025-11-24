@@ -49,6 +49,7 @@ export default function Layout() {
         name="PublicProfileScreen"
         options={{
           title: "User profile",
+          headerShown: true,
         }}
       />
       <Stack.Screen

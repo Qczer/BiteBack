@@ -1,8 +1,11 @@
 import translate from "@/locales/i18n";
 import Food from "@/types/Food";
 import { useEffect, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import {Ionicons} from "@expo/vector-icons";
+import {GreenVar, WhiteVar} from "@/assets/colors/colors";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface FoodEditorProps {
   initialFood?: Food;
@@ -43,6 +46,8 @@ export default function FoodEditor({
 
   const [unitValue, setUnitValue] = useState(initialFood?.unit ?? null);
   const [catValue, setCatValue] = useState(initialFood?.category ?? null);
+  const [date, setDate] = useState(new Date(initialFood?.expDate ?? Date.now() + 24 * 60 * 60 * 1000));
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     if (name && amount && unitValue && catValue) {
@@ -52,7 +57,7 @@ export default function FoodEditor({
         amount: parseFloat(amount.replace(",", ".")) || 0,
         unit: unitValue,
         category: catValue,
-        expDate: new Date(),
+        expDate: date,
       });
     }
   }, [name, amount, unitValue, catValue]);
@@ -123,6 +128,40 @@ export default function FoodEditor({
           }}
         />
       </View>
+
+      <View>
+        <Text style={styles.label}>{t("expiryDate")}</Text>
+        <View style={styles.inputRow}>
+          {/* Podgląd aktualnej daty */}
+          <Text style={styles.datePreview}>
+            {date ? date.toLocaleDateString() : "No date selected"}
+          </Text>
+
+          {/* Przycisk do wyboru daty */}
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShow(true)}
+          >
+            <Text style={styles.dateButtonText}>{t("pickDate")}</Text>
+          </TouchableOpacity>
+
+          {/* Ikonka edycji */}
+          <Ionicons name="create-outline" size={20} color={GreenVar} />
+
+          {/* Picker w modalu */}
+          {show && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShow(false);
+                if (selectedDate) setDate(selectedDate);
+              }}
+            />
+          )}
+        </View>
+      </View>
     </View>
   );
 }
@@ -167,5 +206,44 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#555",
+    marginBottom: 4,
+    marginTop: 8,
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    paddingVertical: 6,
+    color: "#333",
+  },
+  datePreview: {
+    flex: 1,
+    fontSize: 14,
+    color: "#333",
+  },
+
+  dateButton: {
+    margin: 5,
+    backgroundColor: GreenVar,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+
+  dateButtonText: {
+    color: WhiteVar,
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

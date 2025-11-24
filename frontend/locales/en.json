@@ -45,7 +45,10 @@
       "nutritionOverview": "Nutrition Overview",
       "yourFridgeIsEmpty": "Your Fridge Is Empty",
       "scanReceipt": "Scan Receipt",
-      "shortcuts": "Shortcuts"
+      "shortcuts": "Shortcuts",
+      "recentlyAdded":  "Recently Added",
+      "recipes": "Recipes",
+      "profile": "Profile"
     },
     "fridge": {
       "title": "Fridge",
@@ -61,18 +64,30 @@
       "cameraDesc": "Open the camera to take a picture",
       "openCamera": "Open Camera",
       "cameraWarning1": "The photo should be taken against a bright background and as level as possible.",
-      "cameraWarning2": "Currently, our AI model has been optimized for analyzing such shots, ensuring the highest quality and consistency of results."
-      
+      "cameraWarning2": "Currently, our AI model has been optimized for analyzing such shots, ensuring the highest quality and consistency of results.",
+
+      "addToShoppingList": "Add to Shopping List",
+
+      "hereIsYourPhoto": "Here is your photo",
+      "takeAnotherPicture": "Take another picture"
     },
     "profile": {
       "title": "Profile",
       "joined": "Joined",
       "addFriend": "Add Friend",
+      "removeFriend": "Remove Friend",
+      "askToRemoveFriend": "Remove friend?",
+      "successRemove": "Removed successfully",
       "shareCode": "Share Code",
       "invitations": "Invitations",
       "noFriends": "No friends yet",
       "biteScoreRewards": "BiteScore Rewards",
-      "logout": "Logout"
+      "logout": "Logout",
+      "leaderboard": "Leaderboard",
+      "mutualLeaderboard": "Mutual friends' leaderboard",
+
+      "enterFriendsName": "Enter friend's name",
+      "success": "Success! Friend invited."
     },
     "more": {
       "title": "More"
@@ -84,6 +99,14 @@
       "langaugeInfo": "Select your preferred language for the app interface.",
       "logout": "Logout",
       "logoutInfo": "Sign out of your account."
+    },
+    "feedback": {
+      "title": "Thanks for Your opinion!",
+      "subtitle": "It'll help us improve our app and make it even better!"
+    },
+    "notFound": {
+      "title": "This screen doesn't exist.",
+      "goToHomeScreen": "Go to home screen!"
     }
   },
   "cards": {
@@ -133,6 +156,18 @@
       "headerTitle": "Zmień Ustawienia"
     }
   },
+  "modals": {
+    "invitationsModal": {
+      "invitations": "Invitations",
+      "noInvitations": "No invitations"
+    },
+    "logoutModal": {
+      "title": "Confirm Logout",
+      "description": "Are you sure you want to logout? This will clear your saved data.",
+      "cancelLabel": "Cancel",
+      "acceptLabel": "Yes, Logout"
+    }
+  },
   "filters": {
     "all": "All",
     "junk": "Junk",
@@ -154,7 +189,9 @@
     "pcs": "Pieces"
   },
   "common": {
+    "slogan": "Fight waste. BiteBack.",
     "friends": "Friends",
+    "mutualFriends": "Mutual Friends",
     "comingSoon": "Coming Soon",
     "name": "Name",
     "description": "Description",
@@ -164,18 +201,30 @@
     "city": "City",
     "coordinates": "Coordinates",
     "or": "Or",
-    "searchFood": "Search Food"
+    "searchFood": "Search Food",
+    "cancel": "Cancel",
+    "close": "Close",
+    "open": "Open",
+    "submit": "Submit",
+    "save": "Save",
+    "delete": "Delete",
+    "accept": "Accept",
+    "reject": "Reject",
+    "confirm": "Confirm",
+    "confirmText": "Are you sure you want to delete",
+    "fromFriends": "from friends list?",
+    "fetchingYourInfo": "Fetching your information"
   },
   "foodEditor": {
     "foodName": "Food Name",
     "amount": "Amount",
+    "selectAmount": "Select amount",
     "unit": "Unit",
-    "category": "Category"
-  },
-  "logoutModal": {
-    "title": "Confirm Logout",
-    "description": "Are you sure you want to logout? This will clear your saved data.",
-    "cancelLabel": "Cancel",
-    "acceptLabel": "Yes, Logout"
+    "selectUnit": "Select unit",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "expiryDate": "Expiry Date",
+    "pickDate": "Pick date",
+    "editProduct": "Edit Product"
   }
 }

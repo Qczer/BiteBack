@@ -2,10 +2,8 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
-import { getItem } from "@/services/Storage";
 import { Feather } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { router } from "expo-router";
 import {
   Dimensions,
   Image,
@@ -16,7 +14,7 @@ import {
   View,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
-import {useSafeAreaInsets} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Category {
   name: string;
@@ -26,7 +24,6 @@ interface Category {
   legendFontSize: number;
 }
 
-
 const screenWidth = Dimensions.get("window").width;
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -34,9 +31,7 @@ export default function HomeScreen() {
   const tURL = "screens.home.";
   const t = (key: string) => translate(tURL + key);
 
-  const [nickname, setNickname] = useState<string | null>(null);
-  const { userFood } = useUser();
-  const [pieData, setPieData] = useState<Category[]>();
+  const { user, userFood } = useUser();
 
   const categoryColors: Record<string, string> = {
     meat: "#b22222",
@@ -48,15 +43,14 @@ export default function HomeScreen() {
     other: "#808080",
   };
 
-  const fridgeToPieData = () => {
+  const fridgeToPieData = (): Category[] => {
     let categories: Record<string, number> = {};
-    console.log("userFood in fridgeToPieData:", userFood);
     userFood.forEach((food) => {
       if (food.category)
         categories[food.category] = (categories[food.category] || 0) + 1;
     });
 
-    const pieData = Object.keys(categories).map((key) => {
+    return Object.keys(categories).map((key) => {
       return {
         name: translate("filters." + key),
         population: categories[key],
@@ -65,37 +59,25 @@ export default function HomeScreen() {
         legendFontSize: 11,
       };
     });
-
-    setPieData(pieData);
-    console.log(pieData)
   };
 
-  useEffect(() => {
-    const loadNickname = async () => {
-      const nickname = await getItem("userNickname");
-      setNickname(nickname);
-    };
-    loadNickname();
-    fridgeToPieData();
-  }, [userFood]);
-
-  useFocusEffect(
-    useCallback(() => {
-      console.log("Refreshing HomeScreen data on focus");
-      fridgeToPieData();
-    }, [userFood])
-  );
+  const pieData = fridgeToPieData();
 
   const todayStr = new Date().toDateString();
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { paddingBottom: 70 + insets.bottom }]}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { paddingBottom: 70 + insets.bottom },
+      ]}
+    >
       <HeaderBar />
 
       {/* LOGO + POWITANIE */}
       <View style={styles.headerBlock}>
         <Text style={styles.welcomeText}>
-          {t("hello")} {nickname} 👋
+          {t("hello")} {user?.username} 👋
         </Text>
         <Text style={styles.subText}>{t("helloSub")}</Text>
       </View>
@@ -104,14 +86,14 @@ export default function HomeScreen() {
       <View style={[styles.fridgeSummary, styles.shadow]}>
         <Text style={styles.sectionTitle}>{t("fridgeOverview")}</Text>
         <View style={styles.summaryRow}>
-          <Feather name="box" size={20} color={GreenVar} />
-          <Text style={styles.summaryText}>
+          <Feather name="box" size={24} color={GreenVar} />
+          <Text style={[styles.summaryText, { color: GreenVar }]}>
             {userFood.length} {t("itemsStored")}
           </Text>
         </View>
         <View style={styles.summaryRow}>
-          <Feather name="alert-circle" size={20} color="orange" />
-          <Text style={styles.summaryText}>
+          <Feather name="alert-circle" size={24} color="orange" />
+          <Text style={[styles.summaryText, { color: "orange" }]}>
             {
               userFood.filter(
                 (food) =>
@@ -122,8 +104,8 @@ export default function HomeScreen() {
           </Text>
         </View>
         <View style={styles.summaryRow}>
-          <Feather name="alert-circle" size={20} color="red" />
-          <Text style={styles.summaryText}>
+          <Feather name="alert-circle" size={24} color="red" />
+          <Text style={[styles.summaryText, { color: "red" }]}>
             {
               userFood.filter((food) => {
                 const expDate = new Date(food.expDate ?? "");
@@ -184,7 +166,7 @@ export default function HomeScreen() {
       {/* RECENTLY ADDED */}
       {userFood.length > 0 && (
         <View style={[styles.recentBlock, styles.shadow]}>
-          <Text style={styles.sectionTitle}>Recently Added</Text>
+          <Text style={styles.sectionTitle}>{t("recentlyAdded")}</Text>
           {userFood
             .slice(-3)
             .reverse()
@@ -215,7 +197,7 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.actionButton} onPress={() => {}}>
           {/* TODO */}
           <Feather name="book-open" size={20} color={WhiteVar} />
-          <Text style={styles.actionText}>Recipes</Text>
+          <Text style={styles.actionText}>{t("recipes")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -223,7 +205,7 @@ export default function HomeScreen() {
           onPress={() => router.push("/(tabs)/ProfileScreen")}
         >
           <Feather name="user" size={20} color={WhiteVar} />
-          <Text style={styles.actionText}>Profile</Text>
+          <Text style={styles.actionText}>{t("profile")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -316,7 +298,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   summaryText: {
-    fontSize: 15,
+    fontSize: 18,
     color: "#333",
   },
   recentBlock: {
