@@ -1,8 +1,8 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import { useUser } from "@/contexts/UserContext";
+import translate from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
-import {Modal, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {useUser} from "@/contexts/UserContext";
-import translate from "@/locales/i18n"
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface InvitationsProps {
   visible: boolean;
@@ -33,20 +33,35 @@ export default function Invitations({
             style={styles.refreshButton}
             onPress={async () => await refreshData()}
           >
-            <Ionicons name="refresh" size={24} color={GreenVar} />
+            <Ionicons
+              name="refresh"
+              size={24}
+              color={GreenVar}
+              style={{ padding: 20 }}
+            />
           </TouchableOpacity>
           {invitations.length > 0 ? (
             invitations.map((inv, i) => (
               <View key={i} style={styles.inviteRow}>
                 <Text style={styles.inviteText}>{inv}</Text>
                 <View style={styles.actions}>
-                  <TouchableOpacity style={styles.accept} onPress={() => onAccept(i)}>
+                  <TouchableOpacity
+                    style={styles.accept}
+                    onPress={() => onAccept(i)}
+                  >
                     <Ionicons name="checkmark" size={18} color={WhiteVar} />
-                    <Text style={styles.actionText}>{translate("common.accept")}</Text>
+                    <Text style={styles.actionText}>
+                      {translate("common.accept")}
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.reject} onPress={() => onReject(i)}>
+                  <TouchableOpacity
+                    style={styles.reject}
+                    onPress={() => onReject(i)}
+                  >
                     <Ionicons name="close" size={18} color={WhiteVar} />
-                    <Text style={styles.actionText}>{translate("common.reject")}</Text>
+                    <Text style={styles.actionText}>
+                      {translate("common.reject")}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -91,9 +106,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   refreshButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
-    padding: 4
+    padding: 4,
   },
   inviteRow: {
     flexDirection: "row",

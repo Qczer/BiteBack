@@ -85,9 +85,10 @@
       "logout": "Wyloguj się",
       "leaderboard": "Ranking",
       "mutualLeaderboard": "Ranking wspólnych znajomych",
-
+      "rewards": "Nagrody będą dostępne wkrótce!",
       "enterFriendsName": "Wprowadź imię znajomego",
-      "success": "Sukces! Zaproszono znajomego."
+      "success": "Sukces! Zaproszono znajomego.",
+      "emptyLeaderboard": "Gratulacje, jesteś najlepszy wśród swoich znajomych!"
     },
     "more": {
       "title": "Więcej"

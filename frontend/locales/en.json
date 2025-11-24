@@ -85,9 +85,10 @@
       "logout": "Logout",
       "leaderboard": "Leaderboard",
       "mutualLeaderboard": "Mutual friends' leaderboard",
-
+      "rewards": "Rewards coming soon!",
       "enterFriendsName": "Enter friend's name",
-      "success": "Success! Friend invited."
+      "success": "Success! Friend invited.",
+      "emptyLeaderboard": "Congratulations, You're the best among your friends!"
     },
     "more": {
       "title": "More"
