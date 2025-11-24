@@ -1,9 +1,11 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
+import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import React, { useRef } from "react";
 import {
   Dimensions,
   Image,
@@ -14,6 +16,7 @@ import {
   View,
 } from "react-native";
 import { PieChart } from "react-native-chart-kit";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface Category {
@@ -24,14 +27,59 @@ interface Category {
   legendFontSize: number;
 }
 
-const screenWidth = Dimensions.get("window").width;
-export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
+const CopilotView = walkthroughable(View);
+const CopilotText = walkthroughable(Text);
 
+const screenWidth = Dimensions.get("window").width;
+function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const tURL = "screens.home.";
   const t = (key: string) => translate(tURL + key);
+  const copilot = (key: string) => translate("copilot." + key);
 
   const { user, userFood } = useUser();
+  const { start } = useCopilot();
+  const hasStartedTutorial = useRef(false);
+  // NIE USUWAC TEGO TO PILNE
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const checkTutorialFlag = async () => {
+  //       try {
+  //         const hasSeen = await AsyncStorage.getItem("@hasSeenHomeTutorial");
+  //         if (!hasSeen && !hasStartedTutorial.current) {
+  //           // Odpalamy tutorial z opóźnieniem
+  //           const timer = setTimeout(() => {
+  //             hasStartedTutorial.current = true;
+  //             start();
+  //             AsyncStorage.setItem("@hasSeenHomeTutorial", "true");
+  //           }, 0);
+
+  //           return () => clearTimeout(timer);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error checking tutorial flag.", error);
+  //       }
+  //     };
+
+  //     // ma byc !dev jesli production ready
+  //     if (!__DEV__) {
+  //       checkTutorialFlag();
+  //     }
+  //   }, [start])
+  // );
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasStartedTutorial.current) {
+        const timer = setTimeout(() => {
+          hasStartedTutorial.current = true;
+          start();
+        }, 250);
+
+        return () => clearTimeout(timer);
+      }
+    }, [start])
+  );
 
   const categoryColors: Record<string, string> = {
     meat: "#b22222",
@@ -75,14 +123,17 @@ export default function HomeScreen() {
       <HeaderBar />
 
       {/* LOGO + POWITANIE */}
-      <View style={styles.headerBlock}>
-        <Text style={styles.welcomeText}>
-          {t("hello")} {user?.username} 👋
-        </Text>
-        <Text style={styles.subText}>{t("helloSub")}</Text>
-      </View>
+      <CopilotStep order={1} text={copilot("homeStep1")} name="thanks">
+        <CopilotView style={styles.headerBlock}>
+          <Text style={styles.welcomeText}>
+            {t("hello")} {user?.username} 👋
+          </Text>
+          <Text style={styles.subText}>{t("helloSub")}</Text>
+        </CopilotView>
+      </CopilotStep>
 
       {/* FRIDGE SUMMARY */}
+
       <View style={[styles.fridgeSummary, styles.shadow]}>
         <Text style={styles.sectionTitle}>{t("fridgeOverview")}</Text>
         <View style={styles.summaryRow}>
@@ -245,6 +296,8 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
+
+export default withCopilotProvider(HomeScreen);
 
 const styles = StyleSheet.create({
   container: {
