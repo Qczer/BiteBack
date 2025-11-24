@@ -8,6 +8,20 @@ export interface FriendInterface {
   "bitescore": number
 }
 
+export interface MutualFriendInterface {
+  "_id": string;
+  "avatar": string;
+  "username": string;
+  "bitescore": number;
+}
+
+export interface MutualFriendsInterface {
+  "mutualCount": number;
+  "mutualFriends": MutualFriendInterface[];
+  "userA": string;
+  "userB": string;
+}
+
 export interface RequestInterface {
   "_id": string,
   "username": string,
@@ -45,6 +59,8 @@ export default class User {
   fridge: Food[];
   lang: string;
   username: string;
+  friends: string[];
+  requests: string[];
 
   constructor(props: UserProps) {
     this._id = props._id;
@@ -56,5 +72,7 @@ export default class User {
     this.fridge = props.fridge;
     this.lang  = props.lang;
     this.username = props.username;
+    this.friends = props.friends;
+    this.requests = props.requests;
   }
 }

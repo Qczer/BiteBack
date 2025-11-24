@@ -1,4 +1,4 @@
-import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import { GreenVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
 
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
@@ -84,7 +84,7 @@ const HEADER_BAR_HEIGHT = 48;
 const styles = StyleSheet.create({
   header: {
     position: "relative",
-    backgroundColor: WhiteVar,
+    backgroundColor: "snow",
     width: "100%",
     height: HEADER_HEIGHT,
     borderBottomColor: "#ddd",
@@ -93,7 +93,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerBar: {
-    backgroundColor: WhiteVar,
     position: "absolute",
     left: 16,
     right: 16,
@@ -107,7 +106,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: WhiteVar,
   },
   logo: {
     width: screenWidth * 0.1,
@@ -122,7 +120,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   headerRight: {
-    backgroundColor: WhiteVar,
     flexDirection: "row",
     alignItems: "center",
     position: "relative",
@@ -145,7 +142,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   currencyBox: {
-    backgroundColor: WhiteVar,
     flexDirection: "row",
     alignItems: "center",
   },

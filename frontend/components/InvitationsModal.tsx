@@ -1,7 +1,8 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
-import {Modal, StyleSheet, Text, Touchable, TouchableOpacity, View} from "react-native";
+import {Modal, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useUser} from "@/contexts/UserContext";
+import translate from "@/locales/i18n"
 
 interface InvitationsProps {
   visible: boolean;
@@ -20,11 +21,14 @@ export default function Invitations({
 }: InvitationsProps) {
   const { refreshData } = useUser();
 
+  const tURL = "modals.invitationsModal.";
+  const t = (key: string) => translate(tURL + key);
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.panelTitle}>📩 Invitations</Text>
+          <Text style={styles.panelTitle}>📩 {t("invitations")}</Text>
           <TouchableOpacity
             style={styles.refreshButton}
             onPress={async () => await refreshData()}
@@ -38,21 +42,21 @@ export default function Invitations({
                 <View style={styles.actions}>
                   <TouchableOpacity style={styles.accept} onPress={() => onAccept(i)}>
                     <Ionicons name="checkmark" size={18} color={WhiteVar} />
-                    <Text style={styles.actionText}>Accept</Text>
+                    <Text style={styles.actionText}>{translate("common.accept")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.reject} onPress={() => onReject(i)}>
                     <Ionicons name="close" size={18} color={WhiteVar} />
-                    <Text style={styles.actionText}>Reject</Text>
+                    <Text style={styles.actionText}>{translate("common.reject")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ))
           ) : (
-            <Text style={styles.infoText}>No invitations</Text>
+            <Text style={styles.infoText}>{t("noInvitations")}</Text>
           )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>{translate("common.close")}</Text>
           </TouchableOpacity>
         </View>
       </View>

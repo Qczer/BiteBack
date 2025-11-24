@@ -154,22 +154,26 @@ router.get("/auth", authenticateToken, (req, res) => {
 })
 
 // zamiennik za oczekiwane /profile 
-router.get("/:userID", (req, res) => {
-    User.findOne({_id: req.params.userID}).then(user => {
-        if (user == null) {
-            res.status(404).json({
-                error: {
-                    code: 0, // brak takiego uzytkownika
-                    message: `No user found with given ID: ${req.params.userID}` 
-                }
-            })
-            return;
-        }
-        const userCopy = { ...user._doc }
+router.get("/:userID", async (req, res) => {
+    const user = await User.findOne({_id: req.params.userID})
+    if (user == null) {
+        res.status(404).json({
+            error: {
+                code: 0, // brak takiego uzytkownika
+                message: `No user found with given ID: ${req.params.userID}`
+            }
+        })
+        return;
+    }
+    try {
+        const userCopy = user.toObject()
         delete userCopy.password
         userCopy.avatar = `${req.protocol}://${req.get('host')}/storage/avatars/${user.avatar}`;
         res.status(200).json(userCopy)
-    }).catch(err => serverError(err, res))
+    }
+    catch(err) {
+        serverError(err, res);
+    }
 })
 
 const ALLOWED_LANGS = ["pl", "en"];

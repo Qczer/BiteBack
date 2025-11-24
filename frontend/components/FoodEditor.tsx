@@ -130,7 +130,7 @@ export default function FoodEditor({
       </View>
 
       <View>
-        <Text style={styles.label}>Expiry Date</Text>
+        <Text style={styles.label}>{t("expiryDate")}</Text>
         <View style={styles.inputRow}>
           {/* Podgląd aktualnej daty */}
           <Text style={styles.datePreview}>
@@ -142,7 +142,7 @@ export default function FoodEditor({
             style={styles.dateButton}
             onPress={() => setShow(true)}
           >
-            <Text style={styles.dateButtonText}>Pick date</Text>
+            <Text style={styles.dateButtonText}>{t("pickDate")}</Text>
           </TouchableOpacity>
 
           {/* Ikonka edycji */}

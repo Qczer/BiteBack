@@ -40,6 +40,40 @@ router.get('/:userID', authenticateToken, async (req, res) => {
     }
 });
 
+// GET /api/friends/mutual/:userID
+router.get('/mutual/:recipientID', authenticateToken, async (req, res) => {
+    console.log("Mutual friends")
+
+    try {
+        const { recipientID } = req.params;
+        const currentUserID = req.user._id.toString();
+
+        if (!mongoose.Types.ObjectId.isValid(recipientID))
+            return res.status(400).json({ message: "Nieprawidłowe ID użytkownika." });
+
+        const currentUser = await User.findById(currentUserID).populate('friends', '_id username avatar bitescore');
+        const otherUser = await User.findById(recipientID).populate('friends', '_id username avatar bitescore');
+
+        if (!currentUser || !otherUser)
+            return res.status(404).json({ message: "Nie znaleziono użytkownika." });
+
+        const currentFriends = currentUser.friends.map(f => f._id.toString());
+        const otherFriends = otherUser.friends.map(f => f._id.toString());
+
+        const mutualIDs = currentFriends.filter(id => otherFriends.includes(id));
+        const mutualFriends = currentUser.friends.filter(f => mutualIDs.includes(f._id.toString()));
+
+        res.status(200).json({
+            userA: currentUserID,
+            userB: recipientID,
+            mutualFriends,
+            mutualCount: mutualFriends.length
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // POST /api/friends/request/:recipientName
 router.post("/request/:recipientName", authenticateToken, async (req, res) => {
     const { recipientName } = req.params;

@@ -6,7 +6,7 @@ import LogoutModal from "@/components/LogoutModal";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
-import { Ionicons } from "@expo/vector-icons";
+import {Feather, Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {acceptFriendRequest, rejectFriendRequest} from "@/api/endpoints/friends";
+import RemoveFriendModal from "@/components/RemoveFriendModal";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -34,6 +35,8 @@ export default function ProfileScreen() {
 
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
+  const [showRemoveFriendModal, setShowRemoveFriendModal] = useState(false);
+  const [removeFriendName, setRemoveFriendName] = useState("");
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -68,6 +71,11 @@ export default function ProfileScreen() {
           clearUser();
           await handleLogout();
         }}
+      />
+      <RemoveFriendModal
+        name={removeFriendName}
+        visible={showRemoveFriendModal}
+        onClose={() => setShowRemoveFriendModal(false)}
       />
 
       {/* Modals */}
@@ -174,6 +182,13 @@ export default function ProfileScreen() {
                     });
                   }}
                 >
+                  <TouchableOpacity
+                    style={{position: 'absolute', top: 0, right: 0, zIndex: 10}}
+                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                    onPress={() => { setRemoveFriendName(f.username); setShowRemoveFriendModal(true); }}
+                  >
+                    <Feather name="x" color="red" size={22} />
+                  </TouchableOpacity>
                   <Image
                     style={styles.friendAvatar}
                     resizeMode="cover"
@@ -193,7 +208,7 @@ export default function ProfileScreen() {
                   height={100}
                   width={100}
                   resizeMode="contain"
-                ></Image>
+                />
                 <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
               </View>
             )}
@@ -203,7 +218,7 @@ export default function ProfileScreen() {
         {/* Leaderboard – tylko jeśli są znajomi */}
         {userFriends && userFriends.friends.length > 0 && (
           <View style={styles.panel}>
-            <Text style={styles.panelTitle}>Leaderboard</Text>
+            <Text style={styles.panelTitle}>{t("leaderboard")}</Text>
             <View style={styles.podium}>
               {userFriends.friends
                 .slice()
@@ -233,9 +248,7 @@ export default function ProfileScreen() {
         {/* Rewards */}
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{t("biteScoreRewards")}</Text>
-          <Text style={styles.infoText}>
-            {translate("common.comingSoon")}...
-          </Text>
+          <Text style={styles.infoText}>{translate("common.comingSoon")}...</Text>
         </View>
 
         {/* Logout */}
@@ -412,12 +425,16 @@ const styles = StyleSheet.create({
   friendCard: {
     alignItems: "center",
     justifyContent: "center",
+    position: 'relative',
+    width: 90,
+    height: 90,
+    borderWidth: 1,
+    borderColor: "blue"
   },
   friendName: {
     marginTop: 4,
     fontSize: 14,
     color: "#333",
-    padding: 7,
   },
   friendAvatar: {
     width: 50,

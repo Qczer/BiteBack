@@ -85,7 +85,7 @@ export default function ScanScreen() {
             />
           )}
           <Image source={{ uri }} style={styles.preview} />
-          <Text style={styles.description}>Here is your photo</Text>
+          <Text style={styles.description}>{t("hereIsYourPhoto")}</Text>
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
@@ -93,7 +93,7 @@ export default function ScanScreen() {
               setShowCamera(true);
             }}
           >
-            <Text style={styles.buttonText}>Take another picture</Text>
+            <Text style={styles.buttonText}>{t("takeAnotherPicture")}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -125,7 +125,7 @@ export default function ScanScreen() {
               }
             }}
           >
-            <Text style={styles.buttonText}>Add to Shopping List</Text>
+            <Text style={styles.buttonText}>{t("addToShoppingList")}</Text>
           </TouchableOpacity>
         </View>
       </View>
