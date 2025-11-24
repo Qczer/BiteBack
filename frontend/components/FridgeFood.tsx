@@ -17,7 +17,7 @@ export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
 
   const day = 24 * 60 * 60 * 1000;
 
-  const ratio = Math.max(0, Math.min(1, dateDiff / 86400000));
+  const ratio = Math.max(0, Math.min(1, dateDiff / day));
 
   const r = 85 + (33 - 85) * ratio;
   const g = 92 + (150 - 92) * ratio;
