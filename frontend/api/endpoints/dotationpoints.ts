@@ -2,7 +2,7 @@ import DotationPoint from '@/types/DotationPoint';
 import axios, { AxiosError } from 'axios';
 import { axiosClient } from '../axiosClient';
 
-export const TomTomApiKey = "APIKEY"
+export const TomTomApiKey = process.env.EXPO_PUBLIC_TOMTOM_API_KEY;
 
 export const getPoints = async (search: string, cords: [number, number], distance: number) => {
   try {
@@ -30,8 +30,7 @@ export const getPoints = async (search: string, cords: [number, number], distanc
 
 
 async function geocodeAddress(address: string) {
-  const apiKey = TomTomApiKey;
-  const url = `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(address)}.json?key=${apiKey}`;
+  const url = `https://api.tomtom.com/search/2/geocode/${encodeURIComponent(address)}.json?key=${TomTomApiKey}`;
 
   try {
     const res = await axios.get(url);
