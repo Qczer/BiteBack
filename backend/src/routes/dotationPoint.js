@@ -9,26 +9,17 @@ const router = express.Router();
 
 // Routes
 router.get("/", (req, res) => {
-    let query = {authorizied: true}
-    let projection = {}
-    let name = req.query.name ? req.query.name.replaceAll("-", " ") : null;
-    if (name) {
-        console.log(name)
-        query = {...query, $text: { $search: name } }
-        projection = { score: { $meta: "textScore" } }
-    }
-
-    DotationPoint.find(query, projection).sort(name ? { score: { $meta: "textScore" } } : {}).then(donationPoints => {
-        if (donationPoints.length <= 0) {
-            return res.status(404).json({
+    DotationPoint.find({authorized: true}).then(dotationPoints => {
+        if (dotationPoints.length <= 0) {
+            return res.status(204).json({
                 error: {
                     message: "No dotation points found"
                 }
             })
         }
         res.status(200).json({
-            count: donationPoints.length,
-            donationPoints: donationPoints.map(point => {
+            count: dotationPoints.length,
+            dotationPoints: dotationPoints.map(point => {
                 return {
                     ...point._doc,
                     
@@ -43,37 +34,69 @@ router.get("/", (req, res) => {
     })
 })
 
-router.get("/near", (req, res) => {
-  const { lng, lat, maxDistance } = req.body;
-    DotationPoint.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)]
-          },
-          $maxDistance: parseInt(maxDistance)
+router.get("/near", async (req, res) => {
+    try {
+        const { lng, lat, maxDistance, name } = req.query;
+
+        if (!lng || !lat || !maxDistance) {
+            return res.status(400).json({ error: { message: "Missing coordinates or maxDistance" }});
         }
-      },
-      authorizied: true
-    }).then(dotationPoints => {
-        if (dotationPoints.length <= 0) {
-            res.status(404).json({
-                error: {
-                    message: `No Dotation points found near you in distance of ${maxDistance}` 
+
+        const geoQuery = {
+            location: {
+                $near: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [parseFloat(lng), parseFloat(lat)]
+                    },
+                    $maxDistance: parseInt(maxDistance)
                 }
-            })
+            },
+            authorized: true
+        };
+
+        const geoResults = await DotationPoint.find(geoQuery).lean();
+
+        if (!name) {
+            if (geoResults.length === 0) {
+                return res.status(204).json({
+                    error: { message: `No Dotation points found near you in distance of ${maxDistance}` }
+                });
+            }
+
+            return res.status(200).json({
+                count: geoResults.length,
+                dotationPoints: geoResults
+            });
         }
-        res.status(200).json({
-            count: dotationPoints.length,
-            dotationPoints: [...dotationPoints]
+
+        const textResults = await DotationPoint.find(
+            { $text: { $search: name }, authorized: true },
+            { score: { $meta: "textScore" } }
+        ).sort(name ? { score: { $meta: "textScore" } } : {}).lean();
+
+
+        const textIds = new Set(textResults.map(p => p._id.toString()));
+
+        const finalResults = geoResults.filter(p =>
+            textIds.has(p._id.toString())
+        );
+
+        if (finalResults.length === 0) {
+            return res.status(204).json({
+                error: { message: `No Dotation points found matching "${name}" in this area` }
+            });
+        }
+
+        return res.status(200).json({
+            count: finalResults.length,
+            dotationPoints: finalResults
         });
-    }).catch(err => {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err });
+    }
 });
 
 router.get("/:dotationPointID", (req, res) => {
@@ -147,7 +170,7 @@ function sendPointToAuth(point) {
         `To response click: localhost:5000/dotation-point/auth/${point._id}`
     };
 
-    result = true
+    const result = true
     transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
             result = false
@@ -174,7 +197,14 @@ router.patch("/auth/:dotationPointID", (req, res) => {
 })
 
 router.delete("/:dotationPointID", (req, res) => {
-    res.status(200).send("DELETE DOTATION POINT" + req.params.dotationPointID)
+    DotationPoint.deleteOne({_id: req.params.dotationPointID}).then(result => {
+        res.status(204).json({result: result, message: "Dotation point deleted successfully!"})
+    }).catch(err => {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    })
 })
 
 
