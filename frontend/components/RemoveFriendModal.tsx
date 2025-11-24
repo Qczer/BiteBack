@@ -1,5 +1,8 @@
+import { removeFriend } from "@/api/endpoints/friends";
 import { WhiteVar } from "@/assets/colors/colors";
-import {Feather, Ionicons} from "@expo/vector-icons";
+import { useUser } from "@/contexts/UserContext";
+import translate from "@/locales/i18n";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -9,9 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { removeFriend } from "@/api/endpoints/friends";
-import { useUser } from "@/contexts/UserContext";
-import translate from "@/locales/i18n"
 
 interface RemoveFriendModalProps {
   name: string;
@@ -19,33 +19,36 @@ interface RemoveFriendModalProps {
   onClose: () => void;
 }
 
-export default function RemoveFriendModal({ name, visible, onClose }: RemoveFriendModalProps) {
-  const tURL = "screens.profile."
-  const t = (key: string) => translate(tURL + key)
+export default function RemoveFriendModal({
+  name,
+  visible,
+  onClose,
+}: RemoveFriendModalProps) {
+  const tURL = "screens.profile.";
+  const t = (key: string) => translate(tURL + key);
 
   const { token, refreshData } = useUser();
-  const [status, setStatus] = useState<"success" | "error" | "loading" | null>(null);
+  const [status, setStatus] = useState<"success" | "error" | "loading" | null>(
+    null
+  );
   const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
     try {
-
-    const res = await removeFriend(name, token);
+      const res = await removeFriend(name, token);
       if (res?.success) {
         setStatus("success");
         await refreshData();
         setTimeout(() => {
           onClose();
         }, 1500);
-      }
-      else {
+      } else {
         setStatus("error");
-        setMessage(res.message)
+        setMessage(res.message);
       }
-    }
-    catch (error) {
+    } catch (error) {
       setStatus("error");
-      setMessage("Error" + error );
+      setMessage("Error" + error);
     }
   };
 
@@ -60,62 +63,70 @@ export default function RemoveFriendModal({ name, visible, onClose }: RemoveFrie
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          {
-            status === "success" ? (
-              <View style={styles.centerContent}>
-                <View style={[styles.iconCircle, { backgroundColor: "#E8F5E9" }]}>
-                  <Ionicons name="checkmark" size={40} color="green" />
-                </View>
-                <Text style={styles.successTitle}>{t("successRemove")}</Text>
-                <Text style={styles.subText}>{name} nie jest już Twoim znajomym.</Text>
+          {status === "success" ? (
+            <View style={styles.centerContent}>
+              <View style={[styles.iconCircle, { backgroundColor: "#E8F5E9" }]}>
+                <Ionicons name="checkmark" size={40} color="green" />
               </View>
-            ) : (
-              <>
-                <View style={styles.centerContent}>
-                  <View style={[styles.iconCircle, { backgroundColor: "#FFEBEE" }]}>
-                    <Ionicons name="person-remove" size={32} color="#D32F2F" />
-                  </View>
+              <Text style={styles.successTitle}>{t("successRemove")}</Text>
+              <Text style={styles.subText}>
+                {name} nie jest już Twoim znajomym.
+              </Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.centerContent}>
+                <View
+                  style={[styles.iconCircle, { backgroundColor: "#FFEBEE" }]}
+                >
+                  <Ionicons name="person-remove" size={32} color="#D32F2F" />
+                </View>
 
-                  <Text style={styles.panelTitle}>{t("askToRemoveFriend")}</Text>
+                <Text style={styles.panelTitle}>{t("askToRemoveFriend")}</Text>
 
-                  <Text style={styles.description}>
-                    {translate("common.confirmText")} <Text style={{fontWeight: 'bold'}}>{name}</Text> {translate("common.fromFriends")}
+                <Text style={styles.description}>
+                  {translate("common.confirmText")}{" "}
+                  <Text style={{ fontWeight: "bold" }}>{name}</Text>{" "}
+                  {translate("common.fromFriends")}
+                </Text>
+              </View>
+
+              {status === "error" && (
+                <View style={styles.errorContainer}>
+                  <Feather name="alert-circle" size={16} color="#D32F2F" />
+                  <Text style={styles.errorText}>{message}</Text>
+                </View>
+              )}
+
+              <View style={styles.buttonRow}>
+                {/* Przycisk Anuluj */}
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={handleClose}
+                  disabled={status === "loading"}
+                >
+                  <Text style={styles.cancelButtonText}>
+                    {translate("common.cancel") || "Anuluj"}
                   </Text>
-                </View>
+                </TouchableOpacity>
 
-                {status === "error" && (
-                  <View style={styles.errorContainer}>
-                    <Feather name="alert-circle" size={16} color="#D32F2F" />
-                    <Text style={styles.errorText}>{message}</Text>
-                  </View>
-                )}
-
-                <View style={styles.buttonRow}>
-                  {/* Przycisk Anuluj */}
-                  <TouchableOpacity
-                    style={[styles.button, styles.cancelButton]}
-                    onPress={handleClose}
-                    disabled={status === "loading"}
-                  >
-                    <Text style={styles.cancelButtonText}>{translate("common.cancel") || "Anuluj"}</Text>
-                  </TouchableOpacity>
-
-                  {/* Przycisk Usuń */}
-                  <TouchableOpacity
-                    style={[styles.button, styles.deleteButton]}
-                    onPress={handleSubmit}
-                    disabled={status === "loading"}
-                  >
-                    {status === "loading" ? (
-                      <ActivityIndicator color={WhiteVar} size="small" />
-                    ) : (
-                      <Text style={styles.deleteButtonText}>{translate("common.confirm") || "Usuń"}</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </>
-            )
-          }
+                {/* Przycisk Usuń */}
+                <TouchableOpacity
+                  style={[styles.button, styles.deleteButton]}
+                  onPress={handleSubmit}
+                  disabled={status === "loading"}
+                >
+                  {status === "loading" ? (
+                    <ActivityIndicator color={WhiteVar} size="small" />
+                  ) : (
+                    <Text style={styles.deleteButtonText}>
+                      {translate("common.confirm") || "Usuń"}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Ionicons name="person-remove" size={20} color={WhiteVar} />
@@ -125,13 +136,11 @@ export default function RemoveFriendModal({ name, visible, onClose }: RemoveFrie
           {status === "success" && (
             <Text style={styles.success}>✅ {t("successRemove")}</Text>
           )}
-          {status === "error" && (
-            <Text style={styles.error}>❌ {message}</Text>
-          )}
+          {status === "error" && <Text style={styles.error}>❌ {message}</Text>}
 
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          {/* <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeText}>{translate("common.close")}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </Modal>
@@ -197,15 +206,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   centerContent: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   iconCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 16,
   },
   panelTitle: {
@@ -236,26 +245,26 @@ const styles = StyleSheet.create({
   },
   // Obsługa błędów
   errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFEBEE',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFEBEE",
     padding: 8,
     borderRadius: 8,
     marginBottom: 16,
-    width: '100%',
-    justifyContent: 'center',
+    width: "100%",
+    justifyContent: "center",
   },
   errorText: {
     color: "#D32F2F",
     marginLeft: 6,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   // Przyciski
   buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     gap: 12, // Dostępne od nowszych wersji RN, jeśli nie działa użyj marginHorizontal w przyciskach
   },
   button: {

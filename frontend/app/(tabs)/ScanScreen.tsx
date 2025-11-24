@@ -3,6 +3,7 @@ import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
 import translate from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
@@ -14,8 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
-import {useSafeAreaInsets} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ScanScreen() {
   const insets = useSafeAreaInsets();
@@ -38,7 +38,13 @@ export default function ScanScreen() {
   // 1️⃣ Brak zgody na kamerę
   if (!permission.granted) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom}}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: WhiteVar,
+          paddingBottom: 60 + insets.bottom,
+        }}
+      >
         <HeaderBar />
         <View style={styles.center}>
           <Image
@@ -54,6 +60,7 @@ export default function ScanScreen() {
 
           <Text style={styles.title}>{t("permissionTitle")}</Text>
           <Text style={styles.description}>{t("permissionDesc")}</Text>
+
           <TouchableOpacity style={styles.button} onPress={requestPermission}>
             <Text style={styles.buttonText}>{t("grantPermission")}</Text>
           </TouchableOpacity>
@@ -65,7 +72,13 @@ export default function ScanScreen() {
   // 2️⃣ Podgląd zdjęcia (jeśli zrobione)
   if (uri && !showCamera) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: WhiteVar,
+          paddingBottom: 60 + insets.bottom,
+        }}
+      >
         <HeaderBar />
         <View style={styles.center}>
           {loading && (
@@ -117,7 +130,10 @@ export default function ScanScreen() {
                 setLoading(false);
                 router.push({
                   pathname: "/(more)/ShoppingListsScreen",
-                  params: { food: JSON.stringify(result.data), fromScan: "true" },
+                  params: {
+                    food: JSON.stringify(result.data),
+                    fromScan: "true",
+                  },
                 });
               } catch (err) {
                 setLoading(false);
@@ -145,8 +161,7 @@ export default function ScanScreen() {
 
       try {
         const photo = await ref.current?.takePictureAsync({ quality: 1.0 });
-        if (photo?.uri)
-          setUri(photo.uri);
+        if (photo?.uri) setUri(photo.uri);
       } catch (e) {
         console.error("Błąd zdjęcia", e);
       } finally {
@@ -219,7 +234,10 @@ export default function ScanScreen() {
             <Ionicons name="flashlight" size={28} color={WhiteVar} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={takePicture} style={styles.shutterButtonOuter}>
+          <TouchableOpacity
+            onPress={takePicture}
+            style={styles.shutterButtonOuter}
+          >
             <View style={styles.shutterButtonInner} />
           </TouchableOpacity>
         </View>
@@ -229,7 +247,13 @@ export default function ScanScreen() {
 
   // 4️⃣ Ekran startowy (przycisk otwarcia kamery)
   return (
-    <View style={{ flex: 1, paddingBottom: 60 + insets.bottom, backgroundColor: WhiteVar }}>
+    <View
+      style={{
+        flex: 1,
+        paddingBottom: 60 + insets.bottom,
+        backgroundColor: WhiteVar,
+      }}
+    >
       <HeaderBar />
       <View style={styles.center}>
         <Ionicons name="camera-outline" size={64} color={GreenVar} />
@@ -241,8 +265,38 @@ export default function ScanScreen() {
         >
           <Text style={styles.buttonText}>{t("openCamera")}</Text>
         </TouchableOpacity>
-        <View style={{ margin: 20 }}>
-          <Text style={styles.warning}>{t("cameraWarning1")}</Text>
+        <View style={styles.infoBox}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 7,
+              alignSelf: "flex-start",
+              position: "absolute",
+              top: 10,
+              left: 12,
+            }}
+          >
+            <Ionicons
+              name="warning-outline"
+              size={21}
+              color={"gray"}
+            ></Ionicons>
+            <Text
+              style={{
+                color: "gray",
+                textTransform: "uppercase",
+                width: "100%",
+                fontWeight: "700",
+              }}
+            >
+              Info
+            </Text>
+          </View>
+          <Text style={[styles.warning, { marginBottom: 10 }]}>
+            {t("cameraWarning1")}
+          </Text>
           <Text style={styles.warning}>{t("cameraWarning2")}</Text>
         </View>
       </View>
@@ -255,7 +309,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 22,
@@ -283,7 +337,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "black"
+    backgroundColor: "black",
   },
   camera: {
     ...StyleSheet.absoluteFillObject,
@@ -317,16 +371,16 @@ const styles = StyleSheet.create({
     height: 76,
     borderRadius: 38,
     borderWidth: 4,
-    borderColor: 'rgba(255,255,255,0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    borderColor: "rgba(255,255,255,0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
   },
   shutterButtonInner: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   preview: {
     width: "80%",
@@ -356,9 +410,25 @@ const styles = StyleSheet.create({
   warning: {
     alignSelf: "center",
     textAlign: "center",
-    color: "red",
+    color: "black",
     fontSize: 16,
     fontWeight: "600",
+    zIndex: 1,
+  },
+  infoBox: {
+    backgroundColor: "lightgray",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingTop: 45,
+    paddingBottom: 20,
+    marginTop: 20,
+    width: "90%",
+    elevation: 5, // Android
+    shadowColor: "#000", // iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     zIndex: 1,
   },
 });
