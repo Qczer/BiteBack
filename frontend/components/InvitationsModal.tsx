@@ -1,46 +1,62 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {Modal, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {useUser} from "@/contexts/UserContext";
+import translate from "@/locales/i18n"
 
 interface InvitationsProps {
   visible: boolean;
   onClose: () => void;
   invitations: string[];
+  onAccept: (index: number) => void;
+  onReject: (index: number) => void;
 }
 
 export default function Invitations({
   visible,
   onClose,
   invitations = [],
+  onAccept,
+  onReject,
 }: InvitationsProps) {
+  const { refreshData } = useUser();
+
+  const tURL = "modals.invitationsModal.";
+  const t = (key: string) => translate(tURL + key);
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.panelTitle}>📩 Invitations</Text>
-
+          <Text style={styles.panelTitle}>📩 {t("invitations")}</Text>
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={async () => await refreshData()}
+          >
+            <Ionicons name="refresh" size={24} color={GreenVar} />
+          </TouchableOpacity>
           {invitations.length > 0 ? (
             invitations.map((inv, i) => (
               <View key={i} style={styles.inviteRow}>
                 <Text style={styles.inviteText}>{inv}</Text>
                 <View style={styles.actions}>
-                  <TouchableOpacity style={styles.accept}>
+                  <TouchableOpacity style={styles.accept} onPress={() => onAccept(i)}>
                     <Ionicons name="checkmark" size={18} color={WhiteVar} />
-                    <Text style={styles.actionText}>Accept</Text>
+                    <Text style={styles.actionText}>{translate("common.accept")}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.reject}>
+                  <TouchableOpacity style={styles.reject} onPress={() => onReject(i)}>
                     <Ionicons name="close" size={18} color={WhiteVar} />
-                    <Text style={styles.actionText}>Reject</Text>
+                    <Text style={styles.actionText}>{translate("common.reject")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ))
           ) : (
-            <Text style={styles.infoText}>No invitations</Text>
+            <Text style={styles.infoText}>{t("noInvitations")}</Text>
           )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>{translate("common.close")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -73,6 +89,11 @@ const styles = StyleSheet.create({
     color: GreenVar,
     marginBottom: 20,
     textAlign: "center",
+  },
+  refreshButton: {
+    position: 'absolute',
+    right: 0,
+    padding: 4
   },
   inviteRow: {
     flexDirection: "row",

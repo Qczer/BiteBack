@@ -4,11 +4,11 @@ import React from "react";
 import { View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import t from "@/locales/i18n";
+import { GreenVar } from "@/assets/colors/colors";
 
-// Zdefiniujmy kolory w jednym miejscu
 const COLORS = {
-  primary: "#547067", // Twój zielony
-  active: "#547067",
+  primary: "#547067",
+  active: GreenVar,
   inactive: "#999999",
   background: "#ffffff",
 };
@@ -90,7 +90,7 @@ export default function TabLayout() {
                 width: 60,
                 height: 60,
                 borderRadius: 30,
-                backgroundColor: COLORS.primary,
+                backgroundColor: focused ? COLORS.active : COLORS.primary,
                 justifyContent: "center",
                 alignItems: "center",
                 elevation: 10,

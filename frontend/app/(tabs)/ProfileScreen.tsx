@@ -3,12 +3,12 @@ import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
 import LogoutModal from "@/components/LogoutModal";
-import ShareCode from "@/components/ShareCodeModal";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
-import { Ionicons } from "@expo/vector-icons";
+import {Feather, Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Image,
@@ -18,12 +18,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {useSafeAreaInsets} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {acceptFriendRequest, rejectFriendRequest} from "@/api/endpoints/friends";
+import RemoveFriendModal from "@/components/RemoveFriendModal";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { clearUser } = useUser();
+  const { user, userFriends, token, clearUser, refreshData } = useUser();
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
@@ -31,15 +33,10 @@ export default function ProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  const { user } = useUser();
-
-  const friends: string[] = [];
-  const leaderboard = [1, 2, 3, 5, 7, 9, 10];
-  const newInvitationsCount = 3;
-
   const [showAddFriend, setShowAddFriend] = useState(false);
-  const [showShareCode, setShowShareCode] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
+  const [showRemoveFriendModal, setShowRemoveFriendModal] = useState(false);
+  const [removeFriendName, setRemoveFriendName] = useState("");
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -49,7 +46,7 @@ export default function ProfileScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       quality: 1,
     });
 
@@ -59,7 +56,13 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: WhiteVar,
+        paddingBottom: 60 + insets.bottom,
+      }}
+    >
       <LogoutModal
         showConfirm={showConfirm}
         cancelOnPress={() => setShowConfirm(false)}
@@ -69,20 +72,33 @@ export default function ProfileScreen() {
           await handleLogout();
         }}
       />
+      <RemoveFriendModal
+        name={removeFriendName}
+        visible={showRemoveFriendModal}
+        onClose={() => setShowRemoveFriendModal(false)}
+      />
 
       {/* Modals */}
       <AddFriendModal
         visible={showAddFriend}
         onClose={() => setShowAddFriend(false)}
       />
-      <ShareCode
-        visible={showShareCode}
-        onClose={() => setShowShareCode(false)}
-      />
       <Invitations
         visible={showInvitations}
         onClose={() => setShowInvitations(false)}
-        invitations={[]}
+        invitations={userFriends?.requests.map(r => r.username) ?? []}
+        onAccept={async (index: number) => {
+          if (!userFriends)
+            return;
+          await acceptFriendRequest(userFriends.requests[index].username, token);
+          await refreshData();
+        }}
+        onReject={async (index: number) => {
+          if (!userFriends)
+            return;
+          await rejectFriendRequest(userFriends.requests[index].username, token);
+          await refreshData();
+        }}
       />
 
       <HeaderBar />
@@ -121,7 +137,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Ikony pod kartą */}
-        <View style={styles.iconRow}>
+        <View style={[styles.iconRow, styles.shadow]}>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
@@ -135,24 +151,16 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              setShowShareCode(true);
-            }}
-          >
-            <Ionicons name="share-social" size={32} color={GreenVar} />
-            <Text style={styles.iconLabel}>{t("shareCode")}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => {
               setShowInvitations(true);
             }}
           >
             <Ionicons name="mail" size={32} color={GreenVar} />
             <Text style={styles.iconLabel}>{t("invitations")}</Text>
-            {newInvitationsCount > 0 && (
+            {userFriends && userFriends.requests.length > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{newInvitationsCount}</Text>
+                <Text style={styles.badgeText}>
+                  {userFriends.requests.length}
+                </Text>
               </View>
             )}
           </TouchableOpacity>
@@ -162,11 +170,32 @@ export default function ProfileScreen() {
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{translate("common.friends")}</Text>
           <View style={styles.friendsList}>
-            {friends.length > 0 ? (
-              friends.map((f, i) => (
-                <Text key={i} style={styles.friend}>
-                  👤 {f}
-                </Text>
+            {userFriends && userFriends.friends?.length > 0 ? (
+              userFriends.friends.map(f => (
+                <TouchableOpacity
+                  key={f._id}
+                  style={styles.friendCard}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/(more)/PublicProfileScreen",
+                      params: { userID: f._id },
+                    });
+                  }}
+                >
+                  <TouchableOpacity
+                    style={{position: 'absolute', top: 0, right: 0, zIndex: 10}}
+                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                    onPress={() => { setRemoveFriendName(f.username); setShowRemoveFriendModal(true); }}
+                  >
+                    <Feather name="x" color="red" size={22} />
+                  </TouchableOpacity>
+                  <Image
+                    style={styles.friendAvatar}
+                    resizeMode="cover"
+                    source={require("@/assets/images/background.png")}
+                  />
+                  <Text style={styles.friendName}>{f.username}</Text>
+                </TouchableOpacity>
               ))
             ) : (
               <View>
@@ -179,7 +208,7 @@ export default function ProfileScreen() {
                   height={100}
                   width={100}
                   resizeMode="contain"
-                ></Image>
+                />
                 <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
               </View>
             )}
@@ -187,15 +216,31 @@ export default function ProfileScreen() {
         </View>
 
         {/* Leaderboard – tylko jeśli są znajomi */}
-        {friends.length > 0 && (
+        {userFriends && userFriends.friends.length > 0 && (
           <View style={styles.panel}>
-            <Text style={styles.panelTitle}>Leaderboard</Text>
-            <View style={styles.leaderboard}>
-              {leaderboard.map((l, i) => (
-                <Text key={i} style={styles.leader}>
-                  {l}
-                </Text>
-              ))}
+            <Text style={styles.panelTitle}>{t("leaderboard")}</Text>
+            <View style={styles.podium}>
+              {userFriends.friends
+                .slice()
+                .sort((a, b) => b.bitescore - a.bitescore)
+                .slice(0, 3)
+                .map((f, i) => {
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
+                  const podiumStyle =
+                    i === 0
+                      ? styles.goldBox
+                      : i === 1
+                      ? styles.silverBox
+                      : styles.bronzeBox;
+
+                  return (
+                    <View key={i} style={[styles.podiumSlot, podiumStyle]}>
+                      <Text style={styles.medal}>{medal}</Text>
+                      <Text style={styles.username}>{f.username}</Text>
+                      <Text style={styles.score}>{f.bitescore} pts</Text>
+                    </View>
+                  );
+                })}
             </View>
           </View>
         )}
@@ -203,9 +248,7 @@ export default function ProfileScreen() {
         {/* Rewards */}
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{t("biteScoreRewards")}</Text>
-          <Text style={styles.infoText}>
-            {translate("common.comingSoon")}...
-          </Text>
+          <Text style={styles.infoText}>{translate("common.comingSoon")}...</Text>
         </View>
 
         {/* Logout */}
@@ -230,7 +273,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 100,
     alignItems: "center",
-    backgroundColor: WhiteVar
+    backgroundColor: WhiteVar,
   },
   backgroundHigher: {
     backgroundColor: GreenVar,
@@ -304,7 +347,7 @@ const styles = StyleSheet.create({
     backgroundColor: "snow",
   },
   friend: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
   },
   leaderboard: {
@@ -312,6 +355,8 @@ const styles = StyleSheet.create({
     backgroundColor: "snow",
   },
   leader: {
+    justifyContent: "center",
+    alignItems: "center",
     fontSize: 14,
     color: "#333",
   },
@@ -324,11 +369,14 @@ const styles = StyleSheet.create({
   },
   iconRow: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-around",
     width: "90%",
-    marginVertical: 20,
-    marginBottom: 40,
-    backgroundColor: WhiteVar,
+    marginTop: 50,
+    marginVertical: 40,
+    paddingVertical: 20,
+    borderRadius: 10,
+    backgroundColor: "snow",
   },
   iconButton: {
     alignItems: "center",
@@ -373,5 +421,81 @@ const styles = StyleSheet.create({
     backgroundColor: GreenVar,
     borderRadius: 16,
     padding: 8,
+  },
+  friendCard: {
+    alignItems: "center",
+    justifyContent: "center",
+    position: 'relative',
+    width: 90,
+    height: 90,
+    borderWidth: 1,
+    borderColor: "blue"
+  },
+  friendName: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#333",
+  },
+  friendAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  shadow: {
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  // panel: {
+  //   marginTop: 20,
+  //   padding: 10,
+  //   backgroundColor: "#f9f9f9",
+  //   borderRadius: 8,
+  // },
+  // panelTitle: {
+  //   fontSize: 18,
+  //   fontWeight: "700",
+  //   marginBottom: 12,
+  //   textAlign: "center",
+  // },
+  podium: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+  },
+  podiumSlot: {
+    flex: 1,
+    marginHorizontal: 6,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: 8,
+  },
+  goldBox: {
+    backgroundColor: "#FFD700",
+    height: 120, // najwyższe
+  },
+  silverBox: {
+    backgroundColor: "#C0C0C0",
+    height: 90,
+  },
+  bronzeBox: {
+    backgroundColor: "#CD7F32",
+    height: 70,
+  },
+  medal: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  username: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+  },
+  score: {
+    fontSize: 12,
+    color: "#555",
   },
 });

@@ -45,7 +45,10 @@
       "nutritionOverview": "Przegląd Żywienia",
       "yourFridgeIsEmpty": "Twoja Lodówka Jest Pusta",
       "scanReceipt": "Skanuj Paragon",
-      "shortcuts": "Skróty"
+      "shortcuts": "Skróty",
+      "recentlyAdded":  "Ostatnio Dodane",
+      "recipes": "Przepisy",
+      "profile": "Profil"
     },
     "fridge": {
       "title": "Lodówka",
@@ -61,18 +64,30 @@
       "cameraDesc": "Otwórz kamerę, aby zrobić zdjęcie",
       "openCamera": "Otwórz Kamerę",
       "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
-      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników."
+      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników.",
 
+      "addToShoppingList": "Dodaj do Listy Zakupów",
+
+      "hereIsYourPhoto": "Oto twoje zdjęcie",
+      "takeAnotherPicture": "Zrób nowe zdjęcie"
     },
     "profile": {
       "title": "Profil",
       "joined": "Dołączył(a)",
       "addFriend": "Dodaj Znajomego",
+      "removeFriend": "Usuń Znajomego",
+      "askToRemoveFriend": "Usunąć znajomego?",
+      "successRemove": "Usunięto pomyślnie",
       "shareCode": "Udostępnij Kod",
       "invitations": "Zaproszenia",
       "noFriends": "Brak znajomych",
       "biteScoreRewards": "Nagrody BiteScore",
-      "logout": "Wyloguj się"
+      "logout": "Wyloguj się",
+      "leaderboard": "Ranking",
+      "mutualLeaderboard": "Ranking wspólnych znajomych",
+
+      "enterFriendsName": "Wprowadź imię znajomego",
+      "success": "Sukces! Zaproszono znajomego."
     },
     "more": {
       "title": "Więcej"
@@ -84,6 +99,14 @@
       "langaugeInfo": "Wybierz preferowany język interfejsu aplikacji.",
       "logout": "Wyloguj się",
       "logoutInfo": "Wyloguj się ze swojego konta."
+    },
+    "feedback": {
+      "title": "Dziękujemy za Twoją opinię!",
+      "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!"
+    },
+    "notFound": {
+      "title": "Ten ekran nie istnieje..",
+      "goToHomeScreen": "Przejdź do strony głównej!"
     }
   },
   "cards": {
@@ -133,6 +156,18 @@
       "headerTitle": "Zmień Ustawienia"
     }
   },
+  "modals": {
+    "invitationsModal": {
+      "invitations": "Zaproszenia",
+      "noInvitations": "Brak zaproszeń"
+    },
+    "logoutModal": {
+      "title": "Confirm Logout",
+      "description": "Are you sure you want to logout? This will clear your saved data.",
+      "cancelLabel": "Cancel",
+      "acceptLabel": "Yes, Logout"
+    }
+  },
   "filters": {
     "all": "Wszystkie",
     "junk": "Fast Food",
@@ -154,7 +189,9 @@
     "pcs": "Sztuki"
   },
   "common": {
+    "slogan": "Fight waste. BiteBack.",
     "friends": "Znajomi",
+    "mutualFriends": "Wspólni znajomi",
     "comingSoon": "Już Wkrótce",
     "name": "Nazwa",
     "description": "Opis",
@@ -164,13 +201,31 @@
     "city": "Miasto",
     "coordinates": "Koordynaty",
     "or": "Albo",
-    "searchFood": "Szukaj Jedzenia"
+    "searchFood": "Szukaj Jedzenia",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "open": "Otwórz",
+    "submit": "Wyślij",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "confirm": "Potwierdź",
+    "confirmText": "Czy na pewno chcesz usunąć",
+    "fromFriends": "z listy znajomych?",
+    "fetchingYourInfo": "Pobieranie twoich informacji"
   },
   "foodEditor": {
     "foodName": "Nazwa Jedzenia",
     "amount": "Ilość",
+    "selectAmount": "Wybierz ilość",
     "unit": "Jednostka",
-    "category": "Kategoria"
+    "selectUnit": "Wybierz jednostkę",
+    "category": "Kategoria",
+    "selectCategory": "Wybierz kategorię",
+    "expiryDate": "Data ważności",
+    "pickDate": "Wybierz datę",
+    "editProduct": "Edytuj Produkt"
   },
   "logoutModal": {
     "title": "Potwierdź wylogowanie",
