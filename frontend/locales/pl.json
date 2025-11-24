@@ -12,7 +12,11 @@
     "fridgeStep2": "Alternatywnie, możesz wyświetlić zawartość lodówki w formie listy klikając tutaj.",
     "fridgeStep3": "Obecnie są 2 sposoby na dodanie jedzenia: poprzez skanowanie paragonów i za pomocą list zakupów.",
     "scanStep1": "Z tego miejsca będziesz skanował paragony. Najpierw jednak musisz wyrazić zgodę na dostęp do kamery.",
-    "listStep1": "Oto twoja lista zakupów! Możesz tutaj dodawać produkty, które chcesz kupić, a następnie przenieść całą listę do swojej Wirtualnej Lodówki."
+    "listStep1": "Oto twoja lista zakupów! Możesz tutaj dodawać produkty, które chcesz kupić, a następnie przenieść całą listę do swojej Wirtualnej Lodówki.",
+    "next": "Dalej",
+    "previous": "Wstecz",
+    "skip": "Pomiń",
+    "finish": "Zakończ"
   },
   "screens": {
     "login": {

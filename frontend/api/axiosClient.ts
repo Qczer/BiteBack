@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = 'http://192.168.3.110:3000';
+const BASE_URL = "https://biteback.pl/api";
 
 export const axiosClient = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
