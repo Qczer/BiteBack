@@ -61,8 +61,10 @@
       "cameraDesc": "Open the camera to take a picture",
       "openCamera": "Open Camera",
       "cameraWarning1": "The photo should be taken against a bright background and as level as possible.",
-      "cameraWarning2": "Currently, our AI model has been optimized for analyzing such shots, ensuring the highest quality and consistency of results."
-      
+      "cameraWarning2": "Currently, our AI model has been optimized for analyzing such shots, ensuring the highest quality and consistency of results.",
+
+      "takeAnotherPicture": "Take another picture",
+      "addToShoppingList": "Add to Shopping List"
     },
     "profile": {
       "title": "Profile",

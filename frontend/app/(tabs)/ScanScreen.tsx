@@ -68,6 +68,22 @@ export default function ScanScreen() {
       <View style={{ flex: 1, backgroundColor: WhiteVar, paddingBottom: 60 + insets.bottom }}>
         <HeaderBar />
         <View style={styles.center}>
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: [
+                  { translateX: "-50%" },
+                  { translateY: "-50%" },
+                  { scale: 1.75 },
+                ],
+                zIndex: 100,
+              }}
+            />
+          )}
           <Image source={{ uri }} style={styles.preview} />
           <Text style={styles.description}>Here is your photo</Text>
           <TouchableOpacity
@@ -78,6 +94,38 @@ export default function ScanScreen() {
             }}
           >
             <Text style={styles.buttonText}>Take another picture</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              try {
+                setLoading(true);
+
+                const form = new FormData();
+                form.append("image", {
+                  uri: uri,
+                  name: "image.jpg",
+                  type: "image/jpeg",
+                } as any);
+
+                const result = await axiosClient.post("/ai/scan/", form, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                });
+
+                setLoading(false);
+                router.push({
+                  pathname: "/(more)/ShoppingListsScreen",
+                  params: { food: JSON.stringify(result.data), fromScan: "true" },
+                });
+              } catch (err) {
+                setLoading(false);
+                console.error("Upload failed:", err);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>Add to Shopping List</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -96,32 +144,9 @@ export default function ScanScreen() {
       if (snapshot?.uri) setSnapshotUri(snapshot.uri);
 
       try {
-        const photo = await ref.current?.takePictureAsync({ imageType: "png" });
-        if (photo?.uri) {
+        const photo = await ref.current?.takePictureAsync({ quality: 1.0 });
+        if (photo?.uri)
           setUri(photo.uri);
-
-          const form = new FormData();
-          form.append("image", {
-            uri: photo.uri,
-            name: "image.png",
-            type: "image/png",
-          } as any);
-
-          try {
-            const result = await axiosClient.post("/ai/scan/", form, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            });
-
-            router.replace({
-              pathname: "/(more)/ShoppingListsScreen",
-              params: { food: JSON.stringify(result.data), fromScan: "true" },
-            });
-          } catch (err) {
-            console.error("Upload failed:", err);
-          }
-        }
       } catch (e) {
         console.error("Błąd zdjęcia", e);
       } finally {
@@ -184,17 +209,18 @@ export default function ScanScreen() {
 
         {/* Controls */}
         <View style={styles.controls}>
-          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-            <Ionicons name="camera" size={28} color={WhiteVar} />
-          </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.flashlightButton,
-              { opacity: flashlightOn ? 0.5 : 0.9 },
+              { opacity: flashlightOn ? 0.7 : 1 },
             ]}
             onPress={() => setFlashlightOn((prev) => !prev)}
           >
             <Ionicons name="flashlight" size={28} color={WhiteVar} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={takePicture} style={styles.shutterButtonOuter}>
+            <View style={styles.shutterButtonInner} />
           </TouchableOpacity>
         </View>
       </View>
@@ -281,10 +307,26 @@ const styles = StyleSheet.create({
   },
   flashlightButton: {
     position: "absolute",
-    backgroundColor: GreenVar,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 10,
     borderRadius: 40,
     right: 10,
+  },
+  shutterButtonOuter: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: 'rgba(255,255,255,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  shutterButtonInner: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'white',
   },
   preview: {
     width: "80%",

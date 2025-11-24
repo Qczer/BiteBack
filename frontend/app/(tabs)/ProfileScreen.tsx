@@ -32,9 +32,6 @@ export default function ProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  // const leaderboard = [1, 2, 3, 5, 7, 9, 10];
-  const newInvitationsCount = 3;
-
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
 
@@ -46,7 +43,7 @@ export default function ProfileScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       quality: 1,
     });
 
@@ -166,7 +163,7 @@ export default function ProfileScreen() {
           <Text style={styles.panelTitle}>{translate("common.friends")}</Text>
           <View style={styles.friendsList}>
             {userFriends && userFriends.friends?.length > 0 ? (
-              userFriends.friends.map((f, i) => (
+              userFriends.friends.map(f => (
                 <TouchableOpacity
                   key={f._id}
                   style={styles.friendCard}

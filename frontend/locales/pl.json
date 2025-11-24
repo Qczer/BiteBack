@@ -61,8 +61,10 @@
       "cameraDesc": "Otwórz kamerę, aby zrobić zdjęcie",
       "openCamera": "Otwórz Kamerę",
       "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
-      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników."
+      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników.",
 
+      "takeAnotherPicture": "Zrób nowe zdjęcie",
+      "addToShoppingList": "Dodaj do Listy Zakupów"
     },
     "profile": {
       "title": "Profil",

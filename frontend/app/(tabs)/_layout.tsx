@@ -4,7 +4,7 @@ import React from "react";
 import { View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import t from "@/locales/i18n";
-import {GreenVar} from "@/assets/colors/colors";
+import { GreenVar } from "@/assets/colors/colors";
 
 const COLORS = {
   primary: "#547067",

@@ -15,15 +15,25 @@ export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
   const expiryDate = new Date(food.expDate!);
   const dateDiff = expiryDate.getTime() - Date.now();
 
+  const day = 24 * 60 * 60 * 1000;
+
+  const ratio = Math.max(0, Math.min(1, dateDiff / 86400000));
+
+  const r = 85 + (33 - 85) * ratio;
+  const g = 92 + (150 - 92) * ratio;
+  const b = 20 + (243 - 20) * ratio;
+
+  const dynamicColor = `rgb(${r}, ${g}, ${b})`;
+  const dynamicOpacity = 0.3 + ratio * 0.7;
+
   return (
     <View style={{ width: "17.5%", backgroundColor: "transparent" }}>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <View style={{ height: "100%", margin: 0 }}>
           <Ionicons
             name={food?.iconUrl ?? ("cube-outline" as any)}
-            color={
-              dateDiff <= 0 ? "red" : dateDiff <= 86400000 ? "orange" : "green"
-            }
+            color={dynamicColor}
+            style={{opacity: dynamicOpacity}}
             size={50}
           ></Ionicons>
           <Text
