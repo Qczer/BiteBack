@@ -3,9 +3,11 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import path from "path"
 import multer from "multer";
+import fs from "fs"
 
 import User from "../model/User.js"
 import {serverError} from "../utils.js";
+import { authenticateToken, authenticateUser } from "../middleware/auth.js";
 
 
 const router = express.Router();
@@ -13,60 +15,35 @@ const router = express.Router();
 const JWT_EXPIRATION_TIME = "7d"
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, "./storage/avatars"); // folder na pliki
-    },
-    filename: function(req, file, cb) {
-        const date = Date.now();
-        cb(null, date + path.extname(file.originalname));
+  destination: (req, file, cb) => {
+    const dir = "storage/avatars";
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
+    cb(null, dir);
+  },
+
+  filename: (req, file, cb) => {
+    const userID = req.params.userID;
+
+    const ext = path.extname(file.originalname);
+    const filePath = `storage/avatars/${userID}${ext}`;
+
+    // usuwanie poprzedniego profilowego na podstawie wszystkich mozliwych extensions
+    const possibleExt = [".jpg", ".jpeg", ".png", ".webp"];
+    for (const e of possibleExt) {
+      const oldPath = `storage/avatars/${userID}${e}`;
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+
+    cb(null, `${userID}${ext}`);
+  }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 // MIDDLEWARE DO AUTORYZACJI
-export const authenticateToken = (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization;
 
-        if (!authHeader) {
-            return res.status(401).json({ message: "Brak nagłówka Authorization" });
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        if (!token) {
-            return res.status(401).json({ message: "Brak tokena w nagłówku (format: Bearer <token>)" });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        req.user = decoded;
-        next();
-
-    } catch(err) {
-        console.log("Auth Error:", err.message);
-
-        if (err.name === 'TokenExpiredError') {
-            return res.status(401).json({
-                message: "Token wygasł",
-                code: "TOKEN_EXPIRED"
-            });
-        }
-
-        if (err.name === 'JsonWebTokenError') {
-            return res.status(401).json({
-                message: "Nieprawidłowy token (zły podpis lub struktura)",
-                code: "INVALID_TOKEN"
-            });
-        }
-
-        return res.status(401).json({
-            message: "Błąd autoryzacji",
-            details: err.message
-        });
-    }
-};
 
 
 // Routes
@@ -176,8 +153,41 @@ router.get("/:userID", async (req, res) => {
     }
 })
 
+router.patch("/avatar/:userID", authenticateUser, upload.single("avatar"), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "Nie przesłano pliku 'avatar'" });
+    }
+
+    User.findOne({_id: req.params.userID}).then(user => {
+        if (user == null) {
+            res.status(404).json({
+                message: "User not found"
+            })
+            return;
+        }
+        
+        user.avatar = req.file.filename 
+        user.save().then(result => {
+            res.status(200).json({
+                message: "Pomyślnie ustawiono zdjęcie profilowe",
+                filename: req.file.filename,
+                path: `/storage/avatars/${req.file.filename}`
+            });
+            return; 
+        })
+        
+    }).catch(err => {
+        console.log(err)
+        res.status(500).json(err)
+        return;        
+    })
+
+  
+});
+
+
 const ALLOWED_LANGS = ["pl", "en"];
-router.patch("/lang/:userID", authenticateToken, (req, res) => {
+router.patch("/lang/:userID", authenticateUser, (req, res) => {
     if (req.user._id !== req.params.userID) {
         return res.status(403).json({
             message: "Forbidden: You can only update your own account."

@@ -3,14 +3,13 @@ import express from "express"
 import Food from "../model/Food.js"
 import User from "../model/User.js"
 import {serverError} from "../utils.js";
-import { getRecipe } from "../model/Recipe.js";
-
+import { authenticateUser } from "../middleware/auth.js";
 
 const router = express.Router();
 
 
 // Routes
-router.get("/:userID", async (req, res) => {
+router.get("/:userID", authenticateUser, async (req, res) => {
     try {
         User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
             if (user == null) {
@@ -32,7 +31,7 @@ router.get("/:userID", async (req, res) => {
     }
 })
 
-router.post("/:userID", async (req, res) => {
+router.post("/:userID", authenticateUser, async (req, res) => {
     try {
         const user = await User.findOne({_id: req.params.userID});
         if (!user) {
@@ -64,7 +63,7 @@ router.put("/:userID", (req, res) => {
 
 })
 
-router.patch("/:userID", (req, res) => {
+router.patch("/:userID", authenticateUser, (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({
@@ -98,7 +97,7 @@ router.patch("/:userID", (req, res) => {
     }).catch(err => serverError(err, res))
 })
 
-router.delete("/:userID", (req, res) => {
+router.delete("/:userID", authenticateUser, (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({

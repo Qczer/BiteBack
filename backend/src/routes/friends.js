@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import User from "../model/User.js";
-import { authenticateToken } from "./user.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
