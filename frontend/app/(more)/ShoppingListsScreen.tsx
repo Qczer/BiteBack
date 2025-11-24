@@ -6,6 +6,7 @@ import translate from "@/locales/i18n";
 import { getItem, setItem } from "@/services/Storage";
 import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -32,42 +33,31 @@ function ShoppingListsScreen() {
   );
   const insets = useSafeAreaInsets();
 
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     const checkTutorialFlag = async () => {
-  //       try {
-  //         const hasSeen = await AsyncStorage.getItem("@hasSeenHomeTutorial");
-  //         if (!hasSeen && !hasStartedTutorial.current) {
-  //           // Odpalamy tutorial z opóźnieniem
-  //           const timer = setTimeout(() => {
-  //             hasStartedTutorial.current = true;
-  //             start();
-  //             AsyncStorage.setItem("@hasSeenHomeTutorial", "true");
-  //           }, 0);
-
-  //           return () => clearTimeout(timer);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error checking tutorial flag.", error);
-  //       }
-  //     };
-
-  //     // ma byc !dev jesli production ready
-  //     if (__DEV__) {
-  //       checkTutorialFlag();
-  //     }
-  //   }, [start])
-  // );
   useFocusEffect(
     React.useCallback(() => {
-      if (!hasStartedTutorial.current) {
-        const timer = setTimeout(() => {
-          hasStartedTutorial.current = true;
-          console.log("Starting copilot with", totalStepsNumber, "steps.");
-          start();
-        }, 250);
+      const checkTutorialFlag = async () => {
+        try {
+          const hasSeen = await AsyncStorage.getItem(
+            "@hasSeenShoppingListTutorial"
+          );
+          if (!hasSeen && !hasStartedTutorial.current) {
+            // Odpalamy tutorial z opóźnieniem
+            const timer = setTimeout(() => {
+              hasStartedTutorial.current = true;
+              start();
+              AsyncStorage.setItem("@hasSeenShoppingListTutorial", "true");
+            }, 0);
 
-        return () => clearTimeout(timer);
+            return () => clearTimeout(timer);
+          }
+        } catch (error) {
+          console.error("Error checking tutorial flag.", error);
+        }
+      };
+
+      // ma byc !dev jesli production ready
+      if (!__DEV__) {
+        checkTutorialFlag();
       }
     }, [start])
   );
@@ -115,7 +105,7 @@ function ShoppingListsScreen() {
       ]}
     >
       {/* LIST */}
-      <CopilotStep order={1} name="shoppingList" text={copilot("listStep1")}>
+      <CopilotStep order={1} name="explain1" text={copilot("listStep1")}>
         <CopilotView>
           {/* HEADER */}
           <View style={styles.headerBlock}>

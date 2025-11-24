@@ -16,6 +16,7 @@ import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { FoodCategory } from "@/types/Food";
 import FoodFilter from "@/types/FoodFilter";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
 import React from "react";
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
@@ -45,42 +46,34 @@ function VirtualFridgeScreen() {
     }))
   );
 
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     const checkTutorialFlag = async () => {
-  //       try {
-  //         const hasSeen = await AsyncStorage.getItem("@hasSeenHomeTutorial");
-  //         if (!hasSeen && !hasStartedTutorial.current) {
-  //           // Odpalamy tutorial z opóźnieniem
-  //           const timer = setTimeout(() => {
-  //             hasStartedTutorial.current = true;
-  //             start();
-  //             AsyncStorage.setItem("@hasSeenHomeTutorial", "true");
-  //           }, 0);
-
-  //           return () => clearTimeout(timer);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error checking tutorial flag.", error);
-  //       }
-  //     };
-
-  //     // ma byc !dev jesli production ready
-  //     if (__DEV__) {
-  //       checkTutorialFlag();
-  //     }
-  //   }, [start])
-  // );
   useFocusEffect(
     React.useCallback(() => {
-      if (!hasStartedTutorial.current) {
-        const timer = setTimeout(() => {
-          hasStartedTutorial.current = true;
-          console.log("Starting copilot with", totalStepsNumber, "steps.");
-          start();
-        }, 250);
+      const checkTutorialFlag = async () => {
+        try {
+          const hasSeen = await AsyncStorage.getItem(
+            "@hasSeenVirtualFridgeScreenTutorial"
+          );
+          if (!hasSeen && !hasStartedTutorial.current) {
+            // Odpalamy tutorial z opóźnieniem
+            const timer = setTimeout(() => {
+              hasStartedTutorial.current = true;
+              start();
+              AsyncStorage.setItem(
+                "@hasSeenVirtualFridgeScreenTutorial",
+                "true"
+              );
+            }, 0);
 
-        return () => clearTimeout(timer);
+            return () => clearTimeout(timer);
+          }
+        } catch (error) {
+          console.error("Error checking tutorial flag.", error);
+        }
+      };
+
+      // ma byc !dev jesli production ready
+      if (!__DEV__) {
+        checkTutorialFlag();
       }
     }, [start])
   );
@@ -146,13 +139,13 @@ function VirtualFridgeScreen() {
       {/* REST */}
       <View style={styles.mainContainer}>
         <View style={styles.topBar}>
-          <CopilotStep order={3} name="thanks3" text={copilot("fridgeStep3")}>
+          <CopilotStep order={3} name="explain1" text={copilot("fridgeStep3")}>
             <CopilotText style={styles.title}>
               {t("screens.fridge.headerTitle")}
             </CopilotText>
           </CopilotStep>
           {/* <Text >}</Text> */}
-          <CopilotStep order={2} name="thanks" text={copilot("fridgeStep2")}>
+          <CopilotStep order={2} name="explain2" text={copilot("fridgeStep2")}>
             <CopilotView>
               <ExpandButton
                 onPressIn={() => setExpanded(true)}
@@ -164,7 +157,7 @@ function VirtualFridgeScreen() {
         </View>
         <SearchInput />
         <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters} />
-        <CopilotStep order={1} name="thanks2" text={copilot("fridgeStep1")}>
+        <CopilotStep order={1} name="hello" text={copilot("fridgeStep1")}>
           <CopilotView>
             <Fridge
               food={userFood}
