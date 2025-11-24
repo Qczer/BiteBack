@@ -86,7 +86,7 @@ export default function MapsScreen() {
         let markers = []
         window.onload = function () {
             map = tt.map({
-                key: `+ TomTomApiKey +`,
+                key: '`+ TomTomApiKey +`',
                 container: "map",
                 center: [21.0122, 52.2297],
                 zoom: 1
