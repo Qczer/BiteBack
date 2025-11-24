@@ -79,6 +79,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+
       const res = await login(email, password);
       if (res.success) {
 
@@ -86,8 +87,10 @@ export default function LoginScreen() {
         setToken(res.data);
         router.replace("/(tabs)/HomeScreen");
       }
-      else
+      else {
+        console.log(res)
         showToast(`Error ${res.status}: ${res.message}`);
+      }
     } catch (error) {
       showToast("An unexpected error occurred. Please try again.");
     } finally {

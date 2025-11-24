@@ -1,5 +1,5 @@
-import { axiosClient } from '../axiosClient';
 import { AxiosError } from 'axios';
+import { axiosClient } from '../axiosClient';
 
 type LoginResult =
 | { success: true; data: string }
@@ -56,7 +56,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
   }
   catch(error) {
     const err = error as AxiosError<any>; 
-    
+    console.log(body)
     return {
       success: false,
       status: err.response?.status ?? null,

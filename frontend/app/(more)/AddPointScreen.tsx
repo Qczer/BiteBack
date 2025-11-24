@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 
+import { createNewPoint } from "@/api/endpoints/dotationpoints";
 import translate from "@/locales/i18n";
 
 export default function AddPointScreen() {
@@ -24,7 +25,6 @@ export default function AddPointScreen() {
   const [street, setStreet] = useState("");
   const [number, setNumber] = useState("");
   const [city, setCity] = useState("");
-  const [location, setLocation] = useState("");
 
   const showToast = (message: string) => {
     Toast.show({
@@ -36,15 +36,26 @@ export default function AddPointScreen() {
   };
 
   const allFilled =
-    name && description && zip && street && number && city && location;
+    name && description && zip && street && number && city;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!allFilled) {
       showToast("Please fill in all fields.");
       return;
     }
-
-    console.log({ name, description, zip, street, number, city, location });
+    try {
+      const res = await createNewPoint(name, description, zip, street, number, city);
+      if (res.success) {
+    
+      }
+      else {
+        console.log(res)
+        showToast(`Error ${res.status}: ${res.message}`);
+      }
+    } catch (error) {
+      showToast("An unexpected error occurred. Please try again.");
+    }
+    console.log({ name, description, zip, street, number, city });
   };
 
   return (
@@ -93,12 +104,6 @@ export default function AddPointScreen() {
             placeholder={t("cityEG")}
             setVal={setCity}
             leftIcon="location-outline"
-          />
-          <FormInput
-            label={translate("common.coordinates")}
-            placeholder={t("coordsEG")}
-            setVal={setLocation}
-            leftIcon="map-outline"
           />
         </View>
 
