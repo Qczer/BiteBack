@@ -1,7 +1,6 @@
 import dotenv from "dotenv"
 import mongoose from "mongoose";
 import express from "express"
-import { getRecipe } from "./src/model/Recipe.js";
 
 import { userRoutes, fridgeRoutes, dotationPointRoutes, aiRoutes, friendsRoutes } from "./src/routes/index.js"
 
