@@ -1,3 +1,4 @@
+import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import React, { useEffect, useRef } from "react";
 import {
   GestureResponderEvent,
@@ -14,6 +15,9 @@ import CustomStepNumber from "./CustomStepNumber";
 
 const imageMap: Record<string, number> = {
   thanks: require("@/assets/images/people/thanks.png"),
+  explain1: require("@/assets/images/people/explain1.png"),
+  explain2: require("@/assets/images/people/explain2.png"),
+  hello: require("@/assets/images/people/hello.png"),
 };
 
 export const Tooltip = ({ labels }: TooltipProps) => {
@@ -75,11 +79,11 @@ export default Tooltip;
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: "#222",
+    backgroundColor: WhiteVar,
     padding: 16,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#cbbb93",
+    borderColor: GreenVar,
     maxWidth: "100%",
     maxHeight: 280,
     alignSelf: "center",
@@ -99,7 +103,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   tooltipText: {
-    color: "#fff",
+    color: "black",
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
