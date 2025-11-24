@@ -1,6 +1,6 @@
 import { getFridge } from "@/api/endpoints/fridge";
 import { auth, getUser } from "@/api/endpoints/user";
-import { getToken, removeItem, removeToken } from "@/services/Storage";
+import { getToken } from "@/services/Storage";
 import Food from "@/types/Food";
 import User, {UserFriendsInterface} from "@/types/User";
 import React, {
@@ -45,12 +45,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (token) {
         const authRes = await auth(token);
 
-        if (authRes.success)
-          setUserID(authRes.data.userID);
-        else {
-          removeToken();
+        if (!authRes.success)
           return;
-        }
+
+        setUserID(authRes.data.userID);
 
         const userRes = await getUser(authRes.data.userID);
 
@@ -102,10 +100,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       return daysDiff <= 1;
     });
 
-    const amount = rottingFood.length;
-
     // zaproszenia
-    return amount;
+    return rottingFood.length;
   };
   const value = useMemo(() => {
     return {

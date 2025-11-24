@@ -40,10 +40,10 @@ export default function MapsScreen() {
 
   const onMessage = (event: WebViewMessageEvent) => {
     try {
-      const data : {lng: number, lat: number, type: string } = JSON.parse(event.nativeEvent.data);
+      const data: { lng: number, lat: number, type: string } = JSON.parse(event.nativeEvent.data);
 
       if (data.type === "map-center") {
-        setPosition([data.lng, data.lat]);  
+        setPosition([data.lng, data.lat]);
         console.log("Nowe centrum mapy:", data);
       }
     } catch {
