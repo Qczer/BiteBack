@@ -5,7 +5,15 @@
     "email": "Email",
     "password": "Password"
   },
-
+  "copilot": {
+    "step": "Step",
+    "homeStep1": "Welcome to BiteBack! I'm Max and i'll get you started with our app.",
+    "fridgeStep1": "This is your Virtual Fridge where you can see all your stored food items. Colors and opacity will indicate their freshness.",
+    "fridgeStep2": "Alternatively, you can view the fridge contents in a list format by clicking here.",
+    "fridgeStep3": "Currently there are 2 ways to add food: by scanning receipts and through shopping lists.",
+    "scanStep1": "From here you'll be scanning receipts. But first, you need to grant camera access.",
+    "listStep1": "Here is your shopping list! You can add items you want to buy here, and then move the entire list to your Virtual Fridge."
+  },
   "screens": {
     "login": {
       "title": "Sign In",
