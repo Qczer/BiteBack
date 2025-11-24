@@ -1,12 +1,13 @@
 import { axiosClient } from "@/api/axiosClient";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
+import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import translate from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -15,11 +16,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function ScanScreen() {
-  const insets = useSafeAreaInsets();
+const CopilotView = walkthroughable(View);
+const CopilotText = walkthroughable(Text);
 
+function ScanScreen() {
+  const insets = useSafeAreaInsets();
+  const copilot = (key: string) => translate("copilot." + key);
+
+  const { start, totalStepsNumber } = useCopilot();
+  const hasStartedTutorial = useRef(false);
   const tURL = "screens.scan.";
   const t = (key: string) => translate(tURL + key);
 
@@ -32,6 +40,46 @@ export default function ScanScreen() {
   const [showCamera, setShowCamera] = useState(false);
   const [flashlightOn, setFlashlightOn] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const checkTutorialFlag = async () => {
+  //       try {
+  //         const hasSeen = await AsyncStorage.getItem("@hasSeenHomeTutorial");
+  //         if (!hasSeen && !hasStartedTutorial.current) {
+  //           // Odpalamy tutorial z opóźnieniem
+  //           const timer = setTimeout(() => {
+  //             hasStartedTutorial.current = true;
+  //             start();
+  //             AsyncStorage.setItem("@hasSeenHomeTutorial", "true");
+  //           }, 0);
+
+  //           return () => clearTimeout(timer);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error checking tutorial flag.", error);
+  //       }
+  //     };
+
+  //     // ma byc !dev jesli production ready
+  //     if (__DEV__) {
+  //       checkTutorialFlag();
+  //     }
+  //   }, [start])
+  // );
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasStartedTutorial.current) {
+        const timer = setTimeout(() => {
+          hasStartedTutorial.current = true;
+          console.log("Starting copilot with", totalStepsNumber, "steps.");
+          start();
+        }, 250);
+
+        return () => clearTimeout(timer);
+      }
+    }, [start])
+  );
 
   if (!permission) return null;
 
@@ -61,9 +109,16 @@ export default function ScanScreen() {
           <Text style={styles.title}>{t("permissionTitle")}</Text>
           <Text style={styles.description}>{t("permissionDesc")}</Text>
 
-          <TouchableOpacity style={styles.button} onPress={requestPermission}>
-            <Text style={styles.buttonText}>{t("grantPermission")}</Text>
-          </TouchableOpacity>
+          <CopilotStep order={1} name="thanks" text={copilot("scanStep1")}>
+            <CopilotView>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={requestPermission}
+              >
+                <Text style={styles.buttonText}>{t("grantPermission")}</Text>
+              </TouchableOpacity>
+            </CopilotView>
+          </CopilotStep>
         </View>
       </View>
     );
@@ -303,6 +358,8 @@ export default function ScanScreen() {
     </View>
   );
 }
+
+export default withCopilotProvider(ScanScreen);
 
 const styles = StyleSheet.create({
   center: {
