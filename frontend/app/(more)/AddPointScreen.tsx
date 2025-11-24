@@ -4,10 +4,16 @@ import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
 import toastConfig from "@/components/ToastConfig";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { createNewPoint } from "@/api/endpoints/dotationpoints";
 import translate from "@/locales/i18n";
+import { router } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function AddPointScreen() {
@@ -29,7 +35,14 @@ export default function AddPointScreen() {
       swipeable: true,
     });
   };
-
+  const showSuccessfulToast = (message: string) => {
+    Toast.show({
+      type: "success",
+      text1: message,
+      position: "top",
+      swipeable: true,
+    });
+  };
   const allFilled =
     name && description && zip && street && number && city;
 
@@ -41,7 +54,8 @@ export default function AddPointScreen() {
     try {
       const res = await createNewPoint(name, description, zip, street, number, city);
       if (res.success) {
-    
+        showSuccessfulToast("Successfully sent!")
+        router.replace("/(more)/PointSentScreen")
       }
       else {
         console.log(res)
@@ -54,7 +68,7 @@ export default function AddPointScreen() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 25, backgroundColor: WhiteVar }}>
+    <>
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1 }}
@@ -123,7 +137,7 @@ export default function AddPointScreen() {
         <Text style={styles.infoNote}>⚠️ {t("infoNote")}</Text>
       </KeyboardAwareScrollView>
       <Toast config={toastConfig} />
-    </View>
+    </>
   );
 }
 
@@ -169,7 +183,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   submitButtonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#ccc", // szary, gdy nie wszystkie pola wypełnione
   },
   submitText: {
     color: "white",

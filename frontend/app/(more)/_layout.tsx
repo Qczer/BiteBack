@@ -58,6 +58,12 @@ export default function Layout() {
           title: "Recipe",
         }}
       />
+      <Stack.Screen
+        name="PointSentScreen"
+        options={{
+          title: "Point Sent",
+        }}
+      />
     </Stack>
   );
 }
