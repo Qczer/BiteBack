@@ -16,8 +16,7 @@ import {
 const screenWidth = Dimensions.get("window").width;
 
 export default function HeaderBar() {
-  const { user, notifications } = useUser();
-  console.log(notifications)
+  const { user, unreadNotifications } = useUser();
 
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
 
@@ -53,10 +52,10 @@ export default function HeaderBar() {
           {/* Notifications */}
           <TouchableOpacity>
             <Ionicons name="notifications-outline" size={28} color={GreenVar} />
-            {notifications.length > 0 && (
+            {unreadNotifications.length > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
-                  {notifications.length > 9 ? "9+" : notifications.length}
+                  {unreadNotifications.length > 9 ? "9+" : unreadNotifications.length}
                 </Text>
               </View>
             )}

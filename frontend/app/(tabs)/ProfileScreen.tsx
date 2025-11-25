@@ -63,8 +63,6 @@ export default function ProfileScreen() {
     }
   };
 
-  console.log(user?.avatar)
-
   const handleChangeAvatar = async () => {
     const avatarUri = await pickImage(); // ustawienie lokalnego podglądu
     if (!avatarUri) return;
@@ -140,7 +138,7 @@ export default function ProfileScreen() {
               resizeMode="contain"
             />
             {/* Ikonka edycji */}
-            <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
+            <TouchableOpacity style={styles.editIcon} onPress={handleChangeAvatar}>
               <Ionicons name="create-outline" size={18} color={WhiteVar} />
             </TouchableOpacity>
           </View>
@@ -193,9 +191,9 @@ export default function ProfileScreen() {
           <View style={styles.friendsList}>
             {userFriends && userFriends.friends?.length > 0 ? (
               <>
-                {userFriends.friends.slice(0, 9).map((f) => (
+                {userFriends?.friends.slice(0, 9).map((f, index) => (
                   <TouchableOpacity
-                    key={f._id}
+                    key={f._id ? f._id.toString() : index}
                     style={styles.friendCard}
                     onPress={() => {
                       router.push({
@@ -222,13 +220,13 @@ export default function ProfileScreen() {
                     <Image
                       style={styles.friendAvatar}
                       resizeMode="cover"
-                      source={require("@/assets/images/background.png")}
+                      source={f.avatar ? { uri: f.avatar} : require("@/assets/images/background.png")}
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>
                 ))}
 
-                {userFriends.friends.length > 9 && (
+                {userFriends?.friends.length > 9 && (
                   <Pressable
                     style={styles.moreButton}
                     onPress={() => setShowFriendsModal(true)}

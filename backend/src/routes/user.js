@@ -238,9 +238,17 @@ router.get("/:userID/notifications", authenticateToken, ensureCorrectUser, async
     try {
         const notifications = await Notification.find({
             userID: req.params.userID
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: -1 }).lean();
 
-        res.status(200).json(notifications);
+        const formattedNotifications = notifications.map(notif => ({
+            ...notif,
+            _id: notif._id.toString(),
+            userID: notif.userID.toString(),
+        }));
+
+        console.log(formattedNotifications);
+
+        res.status(200).json(formattedNotifications);
     }
     catch(err) {
         serverError(err, res);
@@ -252,9 +260,17 @@ router.get("/:userID/notifications/unread", authenticateToken, ensureCorrectUser
         const notifications = await Notification.find({
             userID: req.params.userID,
             isRead: false
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: -1 }).lean();
 
-        res.status(200).json(notifications);
+        const formattedNotifications = notifications.map(notif => ({
+            ...notif,
+            _id: notif._id.toString(),
+            userID: notif.userID.toString(),
+        }));
+
+        console.log(formattedNotifications);
+
+        res.status(200).json(formattedNotifications);
     }
     catch(err) {
         serverError(err, res);
