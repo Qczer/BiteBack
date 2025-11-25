@@ -23,6 +23,7 @@ export default function SearchInput({ onInput, addStyle }: SearchInputProps) {
                     ref={inputRef}
                     style={styles.searchInput}
                     placeholder={t("common.searchFood")}
+                    placeholderTextColor="#888"
                     onChangeText={(text) => onInput?.(text)}
                 />
                 <Ionicons name="search" size={22} color={GreenVar} style={styles.searchButton} />
