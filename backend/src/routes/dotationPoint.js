@@ -1,11 +1,7 @@
 import express from "express"
 import nodemailer from "nodemailer"
-
 import DotationPoint from "../model/DotationPoint.js"
-
-
 const router = express.Router();
-
 
 // Routes
 router.get("/", (req, res) => {

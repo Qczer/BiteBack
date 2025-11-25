@@ -1,7 +1,7 @@
-import { getUser } from "@/api/endpoints/user";
+import { getProfile } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import translate from "@/locales/i18n";
-import User, { MutualFriendsInterface } from "@/types/User";
+import { Profile, MutualFriendsInterface } from "@/types/User";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -11,24 +11,26 @@ import { useUser } from "@/contexts/UserContext";
 export default function PublicProfileScreen() {
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
-  const { userID }: { userID: string } = useLocalSearchParams();
+  const { userName }: { userName: string } = useLocalSearchParams();
   const { token } = useUser();
-  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [mutualFriends, setMutualFriends] = useState<MutualFriendsInterface | null>(null);
 
 
   useEffect(() => {
     const getFriend = async () => {
-      const userRes = await getUser(userID as string);
-      if (userRes.success)
-        setUser(userRes.data);
+      const profileRes = await getProfile(userName, token);
+      console.log("Username: " + userName)
+      console.log("Profile: ", profileRes)
+      if (profileRes.success)
+        setProfile(profileRes.data);
 
-      const friendsRes = await getMutualFriends(userID, token);
+      const friendsRes = await getMutualFriends(userName, token);
       if (friendsRes.success)
         setMutualFriends(friendsRes.data)
     };
     getFriend();
-  }, [userID]);
+  }, [userName]);
 
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
@@ -39,15 +41,16 @@ export default function PublicProfileScreen() {
         {/* Karta profilu */}
         <View style={styles.card}>
           <Image
-            source={require("@/assets/images/logo.png")}
+            source={{ uri: profile?.avatar }}
             style={styles.avatar}
+            resizeMode="contain"
           />
           <View style={styles.cardInfo}>
-            <Text style={styles.nickname}>{user?.username}</Text>
+            <Text style={styles.nickname}>{profile?.username}</Text>
             <Text style={styles.infoText}>
-              Joined: {new Date(user?.createDate as any).toLocaleDateString()}
+              Joined: {profile?.createDate ? new Date(profile?.createDate).toLocaleDateString() : t("noDate")}
             </Text>
-            <Text style={styles.infoText}>BiteScore: {user?.bitescore}</Text>
+            <Text style={styles.infoText}>BiteScore: {profile?.bitescore}</Text>
           </View>
         </View>
 
@@ -63,7 +66,7 @@ export default function PublicProfileScreen() {
                   onPress={() => {
                     router.push({
                       pathname: "/(more)/PublicProfileScreen",
-                      params: { userID: f._id },
+                      params: { userName: f.username },
                     });
                   }}
                 >

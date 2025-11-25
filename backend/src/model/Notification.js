@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
 
 const NotificationSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    title: String,
-    body: String,
-    data: Object, // Np. { screen: 'Promo', id: '123' } - do przekierowania
+    userID: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    title: { type: String, required: true },
+    body: { type: String, required: true },
+    data: { type: Object, default: {} },
     isRead: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true }); // timestamps - Dodaje createdAt i updatedAd
 
 const Notification = mongoose.model("Notification", NotificationSchema)
-
 export default Notification

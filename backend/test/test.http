@@ -55,7 +55,7 @@ Authorization: Bearer {{token}}
 ###
 # group: user
 # @name user/:userID
-PATCH {{baseURL}}user/lang/{{userID}}
+PATCH {{baseURL}}user/{{userID}}/lang
 Content-Type: application/json
 
 {

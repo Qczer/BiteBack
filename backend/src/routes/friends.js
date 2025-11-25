@@ -1,33 +1,25 @@
 import express from "express";
 import mongoose from "mongoose";
 import User from "../model/User.js";
-import { authenticateToken } from "../middleware/auth.js";
+import { authenticateToken, ensureCorrectUser } from "../middleware/auth.js";
+import { sendNotification } from "../notificationsSystem.js";
 
 const router = express.Router();
 
 // GET /api/friends/:userID
-router.get('/:userID', authenticateToken, async (req, res) => {
+router.get('/:userID', authenticateToken, ensureCorrectUser, async (req, res) => {
     try {
         const { userID } = req.params;
 
-        const currentUserID = req.user._id;
-
         if (!mongoose.Types.ObjectId.isValid(userID))
             return res.status(400).json({ message: "Nieprawidłowe ID użytkownika." });
-
-        if (userID !== currentUserID.toString()) {
-            return res.status(403).json({
-                message: "Brak uprawnień. Możesz przeglądać tylko własną listę znajomych."
-            });
-        }
 
         const user = await User.findById(userID)
             .populate('friends', 'username email avatar bitescore')
             .populate('friendRequests', 'username avatar');
 
-        if (!user) {
+        if (!user)
             return res.status(404).json({ message: "Nie znaleziono użytkownika." });
-        }
 
         res.status(200).json({
             userID: user._id,
@@ -35,25 +27,25 @@ router.get('/:userID', authenticateToken, async (req, res) => {
             friends: user.friends,
             requests: user.friendRequests,
         });
-    } catch (error) {
+    }
+    catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
 // GET /api/friends/mutual/:userID
-router.get('/mutual/:recipientID', authenticateToken, async (req, res) => {
+router.get('/mutual/:recipientName', authenticateToken, async (req, res) => {
     try {
-        const { recipientID } = req.params;
+        const { recipientName } = req.params;
         const currentUserID = req.user._id.toString();
 
-        if (!mongoose.Types.ObjectId.isValid(recipientID))
-            return res.status(400).json({ message: "Nieprawidłowe ID użytkownika." });
+        const otherUser = await User.findOne({ username: recipientName }).populate('friends', '_id username avatar bitescore');
+        if (!otherUser)
+            return res.status(404).json({ message: "Nie znaleziono użytkownika o podanej nazwie." });
 
         const currentUser = await User.findById(currentUserID).populate('friends', '_id username avatar bitescore');
-        const otherUser = await User.findById(recipientID).populate('friends', '_id username avatar bitescore');
-
-        if (!currentUser || !otherUser)
-            return res.status(404).json({ message: "Nie znaleziono użytkownika." });
+        if (!currentUser)
+            return res.status(404).json({ message: "Błąd: obecny użytkownik nie istnieje." });
 
         const currentFriends = currentUser.friends.map(f => f._id.toString());
         const otherFriends = otherUser.friends.map(f => f._id.toString());
@@ -78,18 +70,19 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
     const requesterID = req.user._id;
 
     try {
-        const targetUser = await User.findOne({ username: recipientName } );
+        const recipientUser = await User.findOne({ username: recipientName } );
+        const requesterUser = await User.findOne({ _id: requesterID } );
 
-        if (!targetUser)
+        if (!recipientUser)
             return res.status(404).json({ message: "Użytkownik docelowy nie istnieje." });
 
-        const recipientID = targetUser._id;
+        const recipientID = recipientUser._id;
 
         if (requesterID.toString() === recipientID.toString())
             return res.status(400).json({ message: "Nie możesz dodać samego siebie." });
 
-        const alreadyFriends = targetUser.friends.some(id => id.toString() === requesterID.toString());
-        const alreadyRequested = targetUser.friendRequests.some(id => id.toString() === requesterID.toString());
+        const alreadyFriends = recipientUser.friends.some(id => id.toString() === requesterID.toString());
+        const alreadyRequested = recipientUser.friendRequests.some(id => id.toString() === requesterID.toString());
 
         if (alreadyFriends) return res.status(400).json({ message: "Jesteście już znajomymi." });
         if (alreadyRequested) return res.status(400).json({ message: "Zaproszenie zostało już wysłane." });
@@ -97,6 +90,8 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
         await User.findByIdAndUpdate(recipientID, {
             $addToSet: { friendRequests: requesterID }
         });
+
+        sendNotification(recipientID, "Zaproszenie do znajomych", `Dostałeś zaproszenie do znajomych od ${requesterUser.username}`);
 
         res.status(200).json({ message: "Zaproszenie wysłane pomyślnie." });
     }

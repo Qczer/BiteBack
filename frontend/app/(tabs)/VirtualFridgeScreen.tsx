@@ -34,7 +34,7 @@ function VirtualFridgeScreen() {
   const insets = useSafeAreaInsets();
   const copilot = (key: string) => translate("copilot." + key);
 
-  const { userID, userFood, setUserFood } = useUser();
+  const { userID, token, userFood, setUserFood } = useUser();
   const [refresh, setRefresh] = useState(false);
   const { start, totalStepsNumber } = useCopilot();
   const hasStartedTutorial = useRef(false);
@@ -82,7 +82,7 @@ function VirtualFridgeScreen() {
     useCallback(() => {
       // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
-        const res = await getFridge(userID);
+        const res = await getFridge(userID, token);
         if (res?.data) setUserFood(res.data.fridge);
       };
 
@@ -92,7 +92,7 @@ function VirtualFridgeScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getFridge(userID);
+      const res = await getFridge(userID, token);
       if (res?.data) setUserFood(res.data.fridge);
     };
 

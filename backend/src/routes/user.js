@@ -6,8 +6,9 @@ import multer from "multer";
 import fs from "fs"
 
 import User from "../model/User.js"
+import Notification from "../model/Notification.js"
 import {serverError} from "../utils.js";
-import { authenticateToken, authenticateUser } from "../middleware/auth.js";
+import { authenticateToken, ensureCorrectUser } from "../middleware/auth.js";
 
 
 const router = express.Router();
@@ -27,12 +28,12 @@ const storage = multer.diskStorage({
     const userID = req.params.userID;
 
     const ext = path.extname(file.originalname);
-    const filePath = `storage/avatars/${userID}${ext}`;
+    const filePath = `api/storage/avatars/${userID}${ext}`;
 
     // usuwanie poprzedniego profilowego na podstawie wszystkich mozliwych extensions
     const possibleExt = [".jpg", ".jpeg", ".png", ".webp"];
     for (const e of possibleExt) {
-      const oldPath = `storage/avatars/${userID}${e}`;
+      const oldPath = `api/storage/avatars/${userID}${e}`;
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     }
 
@@ -131,8 +132,7 @@ router.get("/auth", authenticateToken, (req, res) => {
     })
 })
 
-// zamiennik za oczekiwane /profile 
-router.get("/:userID", async (req, res) => {
+router.get("/:userID", authenticateToken, ensureCorrectUser, async (req, res) => {
     const user = await User.findOne({_id: req.params.userID})
     if (user == null) {
         res.status(404).json({
@@ -146,7 +146,7 @@ router.get("/:userID", async (req, res) => {
     try {
         const userCopy = user.toObject()
         delete userCopy.password
-        userCopy.avatar = `${req.protocol}://${req.get('host')}/storage/avatars/${user.avatar}`;
+        userCopy.avatar = `${req.protocol}://${req.get('host')}/api/storage/avatars/${user.avatar}`;
         res.status(200).json(userCopy)
     }
     catch(err) {
@@ -154,7 +154,7 @@ router.get("/:userID", async (req, res) => {
     }
 })
 
-router.patch("/avatar/:userID", authenticateUser, upload.single("avatar"), (req, res) => {
+router.patch("/avatar/:userID", authenticateToken, ensureCorrectUser, upload.single("avatar"), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "Nie przesłano pliku 'avatar'" });
     }
@@ -172,23 +172,20 @@ router.patch("/avatar/:userID", authenticateUser, upload.single("avatar"), (req,
             res.status(200).json({
                 message: "Pomyślnie ustawiono zdjęcie profilowe",
                 filename: req.file.filename,
-                path: `/storage/avatars/${req.file.filename}`
+                path: `/api/storage/avatars/${req.file.filename}`
             });
             return; 
         })
         
     }).catch(err => {
-        console.log(err)
-        res.status(500).json(err)
+        serverError(err, res);
         return;        
     })
-
-  
 });
 
 
 const ALLOWED_LANGS = ["pl", "en"];
-router.patch("/lang/:userID", authenticateUser, (req, res) => {
+router.patch("/:userID/lang", authenticateToken, ensureCorrectUser, (req, res) => {
     if (req.user._id !== req.params.userID) {
         return res.status(403).json({
             message: "Forbidden: You can only update your own account."
@@ -219,5 +216,100 @@ router.patch("/lang/:userID", authenticateUser, (req, res) => {
         });
     }).catch(err => serverError(err, res));
 })
+
+router.post("/push-token", authenticateToken, async (req, res) => {
+    const { token } = req.body;
+    if (!token)
+        return res.status(400).json({ error: "Token required" });
+
+    try {
+        await User.findByIdAndUpdate(req.user._id, {
+            $addToSet: { pushTokens: token }
+        });
+        res.json({ ok: true });
+    }
+    catch (err) {
+        serverError(err, res);
+    }
+})
+
+// NOTIFICATIONS
+router.get("/:userID/notifications", authenticateToken, ensureCorrectUser, async (req, res) => {
+    try {
+        const notifications = await Notification.find({
+            userID: req.params.userID
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json(notifications);
+    }
+    catch(err) {
+        serverError(err, res);
+    }
+})
+
+router.get("/:userID/notifications/unread", authenticateToken, ensureCorrectUser, async (req, res) => {
+    try {
+        const notifications = await Notification.find({
+            userID: req.params.userID,
+            isRead: false
+        }).sort({ createdAt: -1 });
+
+        res.status(200).json(notifications);
+    }
+    catch(err) {
+        serverError(err, res);
+    }
+})
+
+router.patch("/:userID/notifications/:notificationID/read", authenticateToken, ensureCorrectUser, async (req, res) => {
+    try {
+        const notification = await Notification.findOneAndUpdate(
+            {
+                _id: req.params.notificationID,
+                userID: req.params.userID
+            },
+            { isRead: true },
+            { new: true }
+        );
+
+        if (!notification) {
+            return res.status(404).json({
+                error: {
+                    message: "Notification not found"
+                }
+            });
+        }
+
+        res.status(200).json(notification);
+    }
+    catch (err) {
+        serverError(err, res);
+    }
+});
+
+router.delete("/:userID/notifications/:notificationID", authenticateToken, ensureCorrectUser, async (req, res) => {
+    try {
+        const notification = await Notification.findOneAndDelete({
+            _id: req.params.notificationID,
+            userID: req.params.userID
+        });
+
+        if (!notification) {
+            return res.status(404).json({
+                error: {
+                    message: "Notification not found"
+                }
+            });
+        }
+
+        res.status(200).json({
+            message: "Notification deleted successfully",
+            notification
+        });
+    }
+    catch (err) {
+        serverError(err, res);
+    }
+});
 
 export default router
