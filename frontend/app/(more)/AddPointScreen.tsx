@@ -4,12 +4,7 @@ import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
 import toastConfig from "@/components/ToastConfig";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { createNewPoint } from "@/api/endpoints/dotationpoints";
 import translate from "@/locales/i18n";
@@ -43,8 +38,7 @@ export default function AddPointScreen() {
       swipeable: true,
     });
   };
-  const allFilled =
-    name && description && zip && street && number && city;
+  const allFilled = name && description && zip && street && number && city;
 
   const handleSubmit = async () => {
     if (!allFilled) {
@@ -52,13 +46,19 @@ export default function AddPointScreen() {
       return;
     }
     try {
-      const res = await createNewPoint(name, description, zip, street, number, city);
+      const res = await createNewPoint(
+        name,
+        description,
+        zip,
+        street,
+        number,
+        city
+      );
       if (res.success) {
-        showSuccessfulToast("Successfully sent!")
-        router.replace("/(more)/PointSentScreen")
-      }
-      else {
-        console.log(res)
+        showSuccessfulToast("Successfully sent!");
+        router.replace("/(more)/PointSentScreen");
+      } else {
+        console.log(res);
         showToast(`Error ${res.status}: ${res.message}`);
       }
     } catch (error) {
@@ -71,7 +71,11 @@ export default function AddPointScreen() {
     <>
       <KeyboardAwareScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          width: "90%",
+          alignSelf: "center",
+        }}
         enableOnAndroid={true}
         extraScrollHeight={250}
         keyboardOpeningTime={0}
@@ -196,5 +200,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#777",
     textAlign: "center",
+    paddingBottom: 30,
   },
 });
