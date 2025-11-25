@@ -1,5 +1,5 @@
 import { getFridge } from "@/api/endpoints/fridge";
-import {auth, getNotifications, getUser} from "@/api/endpoints/user";
+import {auth, getNotifications, getUnreadNotifications, getUser} from "@/api/endpoints/user";
 import { getToken } from "@/services/Storage";
 import Food from "@/types/Food";
 import User, {UserFriendsInterface} from "@/types/User";
@@ -29,6 +29,7 @@ interface UserContextType {
   setUserFood: React.Dispatch<React.SetStateAction<Food[]>>;
   setUserFriends: React.Dispatch<React.SetStateAction<UserFriendsInterface | null>>;
   notifications: NotificationClass[];
+  unreadNotifications: NotificationClass[];
   clearUser: () => void;
   refreshData: () => Promise<void>;
   expoPushToken: string;
@@ -44,6 +45,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
   const [expoPushToken, setExpoPushToken] = useState<string>("");
   const [notifications, setNotifications] = useState<NotificationClass[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = useState<NotificationClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshData = useCallback(async () => {
@@ -60,19 +62,19 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       setUserID(authRes.data.userID);
 
-      const [userRes, friendsRes, fridgeRes, notificationsRes] = await Promise.all([
+      const [userRes, friendsRes, fridgeRes, notificationsRes, unreadNotificationsRes] = await Promise.all([
         getUser(authRes.data.userID, currentToken),
         getFriends(authRes.data.userID, currentToken),
         getFridge(authRes.data.userID, currentToken),
-        getNotifications(authRes.data.userID, currentToken)
+        getNotifications(authRes.data.userID, currentToken),
+        getUnreadNotifications(authRes.data.userID, currentToken)
       ]);
 
       if (userRes.success) setUser(userRes.data);
       if (friendsRes.data) setUserFriends(friendsRes.data);
       if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
-      if (notificationsRes?.data) setNotifications(notificationsRes.data);
-
-      console.log("Notifications: ", notificationsRes.data)
+      if (notificationsRes) setNotifications(notificationsRes);
+      if (unreadNotificationsRes) setUnreadNotifications(unreadNotificationsRes);
     }
     catch (error) {
       console.error("Failed to load User from storage", error);
@@ -99,7 +101,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           { token: tokenExpo },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        console.log("Push token synced");
       }
       catch (err) {
         console.error("Error sending push token:", err);
@@ -138,9 +139,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       expoPushToken,
       clearUser,
       refreshData,
-      notifications
+      notifications,
+      unreadNotifications
     };
-  }, [user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications]);
+  }, [user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications]);
 
   if (isLoading) return null;
 

@@ -137,6 +137,7 @@ export default function MapsScreen() {
         <TextInput
           style={styles.input}
           placeholder="Wyszukaj punkt dotacji"
+          placeholderTextColor="#888"
           value={searchText}
           onChangeText={setSearchText}
         />
