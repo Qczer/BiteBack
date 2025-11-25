@@ -35,7 +35,7 @@ export const showToast = (message: string) => {
 };
 
 export default function LoginScreen() {
-  const { setToken } = useUser()
+  const { setToken, refreshData } = useUser()
 
   const tURL = "screens.login.";
   const t = (key: string) => translate(tURL + key);
@@ -85,6 +85,7 @@ export default function LoginScreen() {
 
         await saveTokenToStorage(res.data);
         setToken(res.data);
+        await refreshData();
         router.replace("/(tabs)/HomeScreen");
       }
       else {

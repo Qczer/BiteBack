@@ -5,13 +5,15 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as Notifications from 'expo-notifications';
+import { router } from 'expo-router';
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider } from "@/contexts/UserContext";
+import {schedulePushNotification, useNotifications} from "@/hooks/useNotifications";
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
 
@@ -20,10 +22,45 @@ export const unstable_settings = {
   initialRouteName: "(auth)",
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+function useNotificationObserver() {
+  useEffect(() => {
+    function redirect(notification: Notifications.Notification) {
+      const url = notification.request.content.data?.url;
+      if (typeof url === 'string') {
+        console.log(url)
+        router.push(url as any);
+      }
+    }
+
+    const response = Notifications.getLastNotificationResponse();
+    if (response?.notification) {
+      console.log(response.notification)
+      redirect(response.notification);
+    }
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response.notification)
+      redirect(response.notification);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -31,15 +68,13 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded)
       SplashScreen.hideAsync();
-    }
   }, [loaded]);
 
   if (!loaded) {
@@ -50,7 +85,8 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  useNotifications();
+  useNotificationObserver();
 
   return (
     <QueryClientProvider client={queryClient}>
