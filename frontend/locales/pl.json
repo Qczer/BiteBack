@@ -63,6 +63,8 @@
       "shortcuts": "Skróty",
       "recentlyAdded":  "Ostatnio Dodane",
       "recipes": "Przepisy",
+      "recipe": "Przepisy",
+      "comingSoon": "Dostępne wkrótce!",
       "profile": "Profil"
     },
     "fridge": {
@@ -113,9 +115,11 @@
       "title": "Ustawienia",
       "headerTitle": "Zmień Ustawienia",
       "language": "Język",
-      "langaugeInfo": "Wybierz preferowany język interfejsu aplikacji.",
+      "languageInfo": "Wybierz preferowany język interfejsu aplikacji.",
       "logout": "Wyloguj się",
-      "logoutInfo": "Wyloguj się ze swojego konta."
+      "logoutInfo": "Wyloguj się ze swojego konta.",
+      "replayTutorial": "Powtórz przewodnik",
+      "replayTutorialInfo": "Powtórz oprowadzenie po aplikacji."
     },
     "feedback": {
       "title": "Dziękujemy za Twoją opinię!",
@@ -172,7 +176,8 @@
     "settings": {
       "title": "Ustawienia",
       "subtitle": "Zmień ustawienia i preferencje aplikacji",
-      "headerTitle": "Zmień Ustawienia"
+      "headerTitle": "Zmień Ustawienia",
+      "replay": "Poradnik pokaże się po ponownym uruchomieniu aplikacji."
     }
   },
   "modals": {

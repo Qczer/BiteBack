@@ -1,7 +1,8 @@
 import { deleteFood, editFood, editFoodProperty } from "@/api/endpoints/fridge";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
-import Food, {FoodCategory} from "@/types/Food";
+import translate from "@/locales/i18n";
+import Food, { FoodCategory } from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
@@ -15,7 +16,6 @@ import {
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import FoodIconPickerModal from "./IconModal";
-import translate from "@/locales/i18n"
 
 interface FoodModalProps {
   visible: boolean;
@@ -24,13 +24,13 @@ interface FoodModalProps {
 }
 
 const categoryItems = [
-  { label: "Meat 🍖", value: FoodCategory.Meat },
-  { label: "Dairy 🥛", value: FoodCategory.Dairy },
-  { label: "Fruit 🍎", value: FoodCategory.Fruit },
-  { label: "Vegetable 🥦", value: FoodCategory.Vegetable },
-  { label: "Snacks 🍪", value: FoodCategory.Snack },
-  { label: "Fastfood 🍔", value: FoodCategory.Junk },
-  { label: "Other ❓", value: FoodCategory.Other },
+  { label: translate("filters.meat"), value: FoodCategory.Meat },
+  { label: translate("filters.dairy"), value: FoodCategory.Dairy },
+  { label: translate("filters.fruit"), value: FoodCategory.Fruit },
+  { label: translate("filters.vegetable"), value: FoodCategory.Vegetable },
+  { label: translate("filters.snack"), value: FoodCategory.Snack },
+  { label: translate("filters.junk"), value: FoodCategory.Junk },
+  { label: translate("filters.other"), value: FoodCategory.Other },
 ];
 const unitItems = [
   { label: "Kilogram (kg)", value: "kg" },
@@ -52,7 +52,9 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
     food.iconUrl ?? "cube-outline"
   );
 
-  const [date, setDate] = useState(new Date(food?.expDate ?? Date.now() + 24 * 60 * 60 * 1000));
+  const [date, setDate] = useState(
+    new Date(food?.expDate ?? Date.now() + 24 * 60 * 60 * 1000)
+  );
   const [show, setShow] = useState(false);
 
   const [editedFood, setEditedFood] = useState<Food>(food);
@@ -78,7 +80,10 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
         name: key,
         value: key === "expDate" ? date.toISOString() : value,
       }));
-    await editFood(userID, token, food._id, { id: food._id, params: newParams });
+    await editFood(userID, token, food._id, {
+      id: food._id,
+      params: newParams,
+    });
     onClose();
   };
 
@@ -220,7 +225,9 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
               onPress={handleDelete}
             >
               <Ionicons name="trash-outline" size={18} color={WhiteVar} />
-              <Text style={styles.actionText}>{translate("common.delete")}</Text>
+              <Text style={styles.actionText}>
+                {translate("common.delete")}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
