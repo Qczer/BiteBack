@@ -62,7 +62,6 @@ export default function ProfileScreen() {
 
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
-      console.log("In if !result.canceld: " + result.assets[0].uri);
       return result.assets[0].uri;
     }
     return null;
@@ -76,7 +75,6 @@ export default function ProfileScreen() {
     if (response) {
       refreshData();
       setAvatarUri(avatarUri);
-      console.log("In handleChangeAvatar: " + avatarUri);
     }
   };
 
