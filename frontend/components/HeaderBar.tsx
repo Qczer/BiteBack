@@ -16,21 +16,10 @@ import {
 const screenWidth = Dimensions.get("window").width;
 
 export default function HeaderBar() {
-  const { user, getNotifications, userFood } = useUser();
+  const { user, notifications } = useUser();
+  console.log(notifications)
 
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
-  const [notifications, setNotifications] = useState<number>(0);
-
-  // Ładowanie danych i cykliczne odświeżanie
-  useEffect(() => {
-    const fetchData = async () => {
-      const notifRes = await getNotifications();
-
-      setNotifications(notifRes);
-    };
-
-    fetchData();
-  }, [userFood]);
 
   if (!fontsLoaded) return null;
 
@@ -64,10 +53,10 @@ export default function HeaderBar() {
           {/* Notifications */}
           <TouchableOpacity>
             <Ionicons name="notifications-outline" size={28} color={GreenVar} />
-            {notifications > 0 && (
+            {notifications.length > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
-                  {notifications > 9 ? "9+" : notifications}
+                  {notifications.length > 9 ? "9+" : notifications.length}
                 </Text>
               </View>
             )}

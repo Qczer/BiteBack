@@ -1,5 +1,12 @@
 import Food from "./Food";
 
+export interface Profile {
+  username: string;
+  avatar: string;
+  bitescore: number;
+  createDate: Date;
+}
+
 export interface FriendInterface {
   "_id": string,
   "username": string,

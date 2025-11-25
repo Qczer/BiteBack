@@ -100,7 +100,8 @@
       "rewards": "Nagrody będą dostępne wkrótce!",
       "enterFriendsName": "Wprowadź imię znajomego",
       "success": "Sukces! Zaproszono znajomego.",
-      "emptyLeaderboard": "Gratulacje, jesteś najlepszy wśród swoich znajomych!"
+      "emptyLeaderboard": "Gratulacje, jesteś najlepszy wśród swoich znajomych!",
+      "noDate": "Brak Daty"
     },
     "more": {
       "title": "Więcej"

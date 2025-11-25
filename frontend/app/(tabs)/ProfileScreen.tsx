@@ -25,11 +25,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {changeAvatar} from "@/api/endpoints/user";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { user, userFriends, token, clearUser, refreshData } = useUser();
+  const { user, userID, userFriends, token, clearUser, refreshData } = useUser();
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
 
@@ -58,6 +59,19 @@ export default function ProfileScreen() {
 
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
+      return result.assets[0].uri;
+    }
+  };
+
+  console.log(user?.avatar)
+
+  const handleChangeAvatar = async () => {
+    const avatarUri = await pickImage(); // ustawienie lokalnego podglądu
+    if (!avatarUri) return;
+
+    const response = await changeAvatar(userID, token, avatarUri);
+    if (response) {
+      console.log("Avatar zmieniony:", response);
     }
   };
 
@@ -121,12 +135,9 @@ export default function ProfileScreen() {
             style={{ position: "relative", backgroundColor: "transparent" }}
           >
             <Image
-              source={
-                avatarUri
-                  ? { uri: avatarUri }
-                  : require("@/assets/images/logo.png")
-              }
+              source={{ uri: user?.avatar }}
               style={styles.avatar}
+              resizeMode="contain"
             />
             {/* Ikonka edycji */}
             <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
@@ -189,7 +200,7 @@ export default function ProfileScreen() {
                     onPress={() => {
                       router.push({
                         pathname: "/(more)/PublicProfileScreen",
-                        params: { userID: f._id },
+                        params: { userName: f.username },
                       });
                     }}
                   >
@@ -481,9 +492,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     width: 90,
-    height: 90,
-    borderWidth: 1,
-    borderColor: "blue",
+    height: 90
   },
   friendName: {
     marginTop: 4,

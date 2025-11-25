@@ -17,9 +17,9 @@ export const getFriends = async (userID: string, token: string) => {
   }
 };
 
-export const getMutualFriends = async (userID: string, token: string) => {
+export const getMutualFriends = async (userName: string, token: string) => {
   try {
-    const { data } = await axiosClient.get(`/friends/mutual/${userID}`, { headers: { "Authorization": `Bearer ${token}` }});
+    const { data } = await axiosClient.get(`/friends/mutual/${userName}`, { headers: { "Authorization": `Bearer ${token}` }});
     return { success: true, data }
   }
   catch (error) {

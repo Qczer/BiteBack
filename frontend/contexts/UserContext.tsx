@@ -1,5 +1,5 @@
 import { getFridge } from "@/api/endpoints/fridge";
-import { auth, getUser } from "@/api/endpoints/user";
+import {auth, getNotifications, getUser} from "@/api/endpoints/user";
 import { getToken } from "@/services/Storage";
 import Food from "@/types/Food";
 import User, {UserFriendsInterface} from "@/types/User";
@@ -12,6 +12,12 @@ import React, {
   useState,
 } from "react";
 import {getFriends} from "@/api/endpoints/friends";
+import {
+  registerForPushNotificationsAsync,
+  useNotificationObserver
+} from "@/hooks/useNotifications";
+import {axiosClient} from "@/api/axiosClient";
+import NotificationClass from "@/types/Notification";
 
 interface UserContextType {
   user: User | null;
@@ -22,9 +28,10 @@ interface UserContextType {
   userFriends: UserFriendsInterface | null;
   setUserFood: React.Dispatch<React.SetStateAction<Food[]>>;
   setUserFriends: React.Dispatch<React.SetStateAction<UserFriendsInterface | null>>;
-  getNotifications: () => Promise<number>;
+  notifications: NotificationClass[];
   clearUser: () => void;
   refreshData: () => Promise<void>;
+  expoPushToken: string;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -35,74 +42,89 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userID, setUserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
   const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
+  const [expoPushToken, setExpoPushToken] = useState<string>("");
+  const [notifications, setNotifications] = useState<NotificationClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshData = useCallback(async () => {
     try {
-      const token = await getToken();
-      setToken(token ?? "");
+      const currentToken = await getToken();
+      if(!currentToken)
+        return;
 
-      if (token) {
-        const authRes = await auth(token);
+      setToken(currentToken);
 
-        if (!authRes.success)
-          return;
+      const authRes = await auth(currentToken);
+      if (!authRes.success)
+        return;
 
-        setUserID(authRes.data.userID);
+      setUserID(authRes.data.userID);
 
-        const userRes = await getUser(authRes.data.userID);
+      const [userRes, friendsRes, fridgeRes, notificationsRes] = await Promise.all([
+        getUser(authRes.data.userID, currentToken),
+        getFriends(authRes.data.userID, currentToken),
+        getFridge(authRes.data.userID, currentToken),
+        getNotifications(authRes.data.userID, currentToken)
+      ]);
 
-        const friendsRes = await getFriends(authRes.data.userID, token);
+      if (userRes.success) setUser(userRes.data);
+      if (friendsRes.data) setUserFriends(friendsRes.data);
+      if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
+      if (notificationsRes?.data) setNotifications(notificationsRes.data);
 
-        if (userRes.success)
-          setUser(userRes.data);
-        if (friendsRes.data)
-          setUserFriends(friendsRes.data);
-
-        const fetchData = async () => {
-          const fridgeRes = await getFridge(authRes.data.userID);
-          if (fridgeRes?.data)
-            setUserFood(fridgeRes.data.fridge);
-        };
-
-        fetchData();
-      }
-    } catch (error) {
+      console.log("Notifications: ", notificationsRes.data)
+    }
+    catch (error) {
       console.error("Failed to load User from storage", error);
-    } finally {
+    }
+    finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    const registerPushToken = async () => {
+      if (!token)
+        return;
+
+      try {
+        const tokenExpo = await registerForPushNotificationsAsync();
+        if (!tokenExpo || tokenExpo === expoPushToken)
+          return;
+
+        setExpoPushToken(tokenExpo);
+
+        await axiosClient.post(
+          "/user/push-token",
+          { token: tokenExpo },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log("Push token synced");
+      }
+      catch (err) {
+        console.error("Error sending push token:", err);
+      }
+    };
+
+    registerPushToken();
+  }, [token]);
+
+  useEffect(() => {
     refreshData();
 
-    const intervalId = setInterval(() => {
-      refreshData();
-    }, 15000);
-
+    const intervalId = setInterval(refreshData, 60000);
     return () => clearInterval(intervalId);
   }, [refreshData]);
+
+  useNotificationObserver();
 
   const clearUser = () => {
     setUserID("");
     setUser(null);
     setUserFriends(null);
+    setNotifications([]);
   };
 
-  const getNotifications = async () => {
-    // jedzenie
-    const rottingFood = userFood.filter((item) => {
-      const now = new Date();
-      const expiryDate = new Date(item.expDate!);
-      const timeDiff = expiryDate.getTime() - now.getTime();
-      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-      return daysDiff <= 1;
-    });
-
-    // zaproszenia
-    return rottingFood.length;
-  };
   const value = useMemo(() => {
     return {
       user,
@@ -113,23 +135,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setUserFood,
       userFriends,
       setUserFriends,
-      getNotifications,
+      expoPushToken,
       clearUser,
-      refreshData
+      refreshData,
+      notifications
     };
-  }, [
-    user,
-    userID,
-    token,
-    setToken,
-    userFood,
-    setUserFood,
-    userFriends,
-    setUserFriends,
-    getNotifications,
-    clearUser,
-    refreshData
-  ]);
+  }, [user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications]);
 
   if (isLoading) return null;
 
