@@ -1,5 +1,5 @@
 import { getMutualFriends } from "@/api/endpoints/friends";
-import { getProfile } from "@/api/endpoints/user";
+import {getAvatarUri, getProfile} from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
@@ -44,7 +44,7 @@ export default function PublicProfileScreen() {
         {/* Karta profilu */}
         <View style={styles.card}>
           <Image
-            source={{ uri: profile?.avatar }}
+            source={{ uri: getAvatarUri(profile?.avatar ?? null) }}
             style={styles.avatar}
             resizeMode="cover"
           />

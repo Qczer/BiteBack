@@ -2,7 +2,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
 } from "@/api/endpoints/friends";
-import { changeAvatar } from "@/api/endpoints/user";
+import {changeAvatar, getAvatarUri} from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
@@ -138,7 +138,7 @@ export default function ProfileScreen() {
             style={{ position: "relative", backgroundColor: "transparent" }}
           >
             <Image
-              source={{ uri: user?.avatar }}
+              source={{ uri: getAvatarUri(avatarUri, user?.avatar) }}
               style={styles.avatar}
               resizeMode="cover"
             />
@@ -228,11 +228,7 @@ export default function ProfileScreen() {
                     <Image
                       style={styles.friendAvatar}
                       resizeMode="cover"
-                      source={
-                        f.avatar
-                          ? { uri: f.avatar }
-                          : require("@/assets/images/background.png")
-                      }
+                      source={{ uri: getAvatarUri(f.avatar) }}
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>

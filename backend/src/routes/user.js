@@ -146,7 +146,6 @@ router.get("/:userID", authenticateToken, ensureCorrectUser, async (req, res) =>
     try {
         const userCopy = user.toObject()
         delete userCopy.password
-        userCopy.avatar = `${req.protocol}://${req.get('host')}/api/storage/avatars/${user.avatar}`;
         res.status(200).json(userCopy)
     }
     catch(err) {
@@ -154,33 +153,28 @@ router.get("/:userID", authenticateToken, ensureCorrectUser, async (req, res) =>
     }
 })
 
-router.patch("/avatar/:userID", authenticateToken, ensureCorrectUser, upload.single("avatar"), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "Nie przesłano pliku 'avatar'" });
-    }
+router.patch("/avatar/:userID", authenticateToken, ensureCorrectUser, upload.single("avatar"), async (req, res) => {
+    try {
+        if (!req.file)
+            return res.status(400).json({ error: "Nie przesłano pliku 'avatar'" });
 
-    User.findOne({_id: req.params.userID}).then(user => {
-        if (user == null) {
-            res.status(404).json({
-                message: "User not found"
-            })
-            return;
-        }
-        
-        user.avatar = req.file.filename 
-        user.save().then(result => {
-            res.status(200).json({
-                message: "Pomyślnie ustawiono zdjęcie profilowe",
-                filename: req.file.filename,
-                path: `/api/storage/avatars/${req.file.filename}`
-            });
-            return; 
+        const user = await User.findOne({_id: req.params.userID})
+        if (!user)
+            return res.status(404).json({ message: "User not found" })
+
+        user.avatar = req.file.filename;
+        console.log("Changing avatar to: ", req.file.filename);
+        await user.save();
+        return res.status(200).json({
+            message: "Pomyślnie ustawiono zdjęcie profilowe",
+            filename: req.file.filename,
+            path: `/api/storage/avatars/${req.file.filename}`
         })
-        
-    }).catch(err => {
+    }
+    catch (err) {
         serverError(err, res);
-        return;        
-    })
+        return;
+    }
 });
 
 
@@ -246,8 +240,6 @@ router.get("/:userID/notifications", authenticateToken, ensureCorrectUser, async
             userID: notif.userID.toString(),
         }));
 
-        console.log(formattedNotifications);
-
         res.status(200).json(formattedNotifications);
     }
     catch(err) {
@@ -267,8 +259,6 @@ router.get("/:userID/notifications/unread", authenticateToken, ensureCorrectUser
             _id: notif._id.toString(),
             userID: notif.userID.toString(),
         }));
-
-        console.log(formattedNotifications);
 
         res.status(200).json(formattedNotifications);
     }
