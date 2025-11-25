@@ -2,7 +2,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
 } from "@/api/endpoints/friends";
-import { changeAvatar } from "@/api/endpoints/user";
+import {changeAvatar, getAvatarUri} from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
@@ -62,6 +62,7 @@ export default function ProfileScreen() {
 
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
+      console.log("In if !result.canceld: " + result.assets[0].uri);
       return result.assets[0].uri;
     }
     return null;
@@ -74,9 +75,15 @@ export default function ProfileScreen() {
     const response = await changeAvatar(userID, token, avatarUri);
     if (response) {
       refreshData();
-      console.log("Avatar zmieniony:", response);
+      setAvatarUri(avatarUri);
+      console.log("In handleChangeAvatar: " + avatarUri);
     }
   };
+
+  const baseAvatarUri = getAvatarUri(avatarUri, user?.avatar);
+  const displayAvatarUri = baseAvatarUri?.startsWith("http")
+    ? `${baseAvatarUri}?t=${new Date().getTime()}`
+    : baseAvatarUri;
 
   return (
     <View
@@ -138,7 +145,7 @@ export default function ProfileScreen() {
             style={{ position: "relative", backgroundColor: "transparent" }}
           >
             <Image
-              source={{ uri: user?.avatar }}
+              source={{ uri: displayAvatarUri }}
               style={styles.avatar}
               resizeMode="cover"
             />
@@ -228,11 +235,7 @@ export default function ProfileScreen() {
                     <Image
                       style={styles.friendAvatar}
                       resizeMode="cover"
-                      source={
-                        f.avatar
-                          ? { uri: f.avatar }
-                          : require("@/assets/images/background.png")
-                      }
+                      source={{ uri: getAvatarUri(null, f.avatar) }}
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>

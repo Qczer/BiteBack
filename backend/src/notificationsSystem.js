@@ -1,3 +1,4 @@
+import { getTranslation } from "./translations.js";
 import { Expo } from "expo-server-sdk";
 import User from "./model/User.js";
 import Notification from "./model/Notification.js";
@@ -5,18 +6,23 @@ import Notification from "./model/Notification.js";
 const expo = new Expo();
 
 //  WYSYŁANIE POWIADOMIENIA
-export async function sendNotification(userID, title, body, data = {}) {
+export async function sendNotification(userID, baseKey, args = {}, data = {}) {
     const user = await User.findById(userID);
     if (!user || !user.pushTokens || user.pushTokens.length === 0) {
         console.log(`Użytkownik ${userID} nie ma tokenów push.`);
         return;
     }
 
-    console.log(`Sending a new notification message (to ${userID}):`, title, data);
+    const userLang = user.lang || 'en';
+
+    const title = getTranslation(userLang, `${baseKey}_TITLE`);
+    const body = getTranslation(userLang, `${baseKey}_BODY`, args);
 
     // Zapis do historii
     await Notification.create({
         userID,
+        translationKey: baseKey,
+        translationArgs: args,
         title,
         body,
         data,
@@ -24,7 +30,6 @@ export async function sendNotification(userID, title, body, data = {}) {
     });
 
     const messages = [];
-
     for (const token of user.pushTokens) {
         if (!Expo.isExpoPushToken(token))
             continue;
@@ -34,7 +39,11 @@ export async function sendNotification(userID, title, body, data = {}) {
             sound: "default",
             title,
             body,
-            data,
+            data: {
+                ...data,
+                translationKey: baseKey,
+                translationArgs: args
+            },
             badge: 1,
             channelId: "default"
         });

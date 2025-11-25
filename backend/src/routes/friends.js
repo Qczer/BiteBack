@@ -22,23 +22,11 @@ router.get('/:userID', authenticateToken, ensureCorrectUser, async (req, res) =>
         if (!user)
             return res.status(404).json({ message: "Nie znaleziono użytkownika." });
 
-        const baseUrl = `${req.protocol}://${req.get('host')}/api/storage/avatars/`;
-
-        const friendsWithLinks = (user.friends || []).map(friend => ({
-            ...friend,
-            avatar: friend.avatar ? `${baseUrl}${friend.avatar}` : null
-        }));
-
-        const requestsWithLinks = (user.friendRequests || []).map(request => ({
-            ...request,
-            avatar: request.avatar ? `${baseUrl}${request.avatar}` : null
-        }));
-
         res.status(200).json({
             userID: user._id,
             username: user.username,
-            friends: friendsWithLinks,
-            requests: requestsWithLinks,
+            friends: user.friends,
+            requests: user.friendRequests,
         });
     }
     catch (error) {
@@ -104,7 +92,7 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
             $addToSet: { friendRequests: requesterID }
         });
 
-        sendNotification(recipientID, "Zaproszenie do znajomych", `Dostałeś zaproszenie do znajomych od ${requesterUser.username}`);
+        sendNotification(recipientID, "FRIEND_INVITE", { username: requesterUser.username });
 
         res.status(200).json({ message: "Zaproszenie wysłane pomyślnie." });
     }
