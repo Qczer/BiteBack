@@ -14,11 +14,20 @@ type AuthResult =
 | { success: true; data: AuthResponse }
 | { success: false; status: number | null; message?: string };
 
-export const getAvatarUri = (avatarUri: string | null, userAvatar?: string) => {
-  if (avatarUri) return 'https://biteback.pl/api/storage/avatars/' + avatarUri;
-  if (userAvatar) return 'https://biteback.pl/api/storage/avatars/' + userAvatar;
+const BASE_URL = "https://biteback.pl/api/storage/avatars";
+const NO_PFP = `${BASE_URL}/nopfp.png`;
 
-  return "https://biteback.pl/api/storage/avatars/nopfp.png";
+export const getAvatarUri = (localUri: string | null, serverFilename?: string) => {
+  if (localUri) localUri;
+
+  if (serverFilename) {
+    if (serverFilename.startsWith('http')) {
+      return serverFilename;
+    }
+    return `${BASE_URL}/${serverFilename}`;
+  }
+
+  return NO_PFP;
 }
 
 export const getUser = async (userID: string, token: string) => {

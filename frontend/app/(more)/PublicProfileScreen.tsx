@@ -35,6 +35,11 @@ export default function PublicProfileScreen() {
     getFriend();
   }, [userName]);
 
+  const baseAvatarUri = getAvatarUri(profile?.avatar ?? null);
+  const displayAvatarUri = baseAvatarUri?.startsWith("http")
+    ? `${baseAvatarUri}?t=${new Date().getTime()}`
+    : baseAvatarUri;
+
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
       {/* <HeaderBar /> */}
@@ -44,7 +49,7 @@ export default function PublicProfileScreen() {
         {/* Karta profilu */}
         <View style={styles.card}>
           <Image
-            source={{ uri: getAvatarUri(profile?.avatar ?? null) }}
+            source={{ uri: getAvatarUri(null, profile?.avatar) }}
             style={styles.avatar}
             resizeMode="cover"
           />
@@ -81,7 +86,7 @@ export default function PublicProfileScreen() {
                   <Image
                     style={styles.friendAvatar}
                     resizeMode="cover"
-                    source={{ uri: f.avatar }}
+                    source={{ uri: displayAvatarUri }}
                   />
                   <Text style={styles.friendName}>{f.username}</Text>
                 </TouchableOpacity>

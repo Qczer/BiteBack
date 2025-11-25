@@ -75,8 +75,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
       if (notificationsRes) setNotifications(notificationsRes);
       if (unreadNotificationsRes) setUnreadNotifications(unreadNotificationsRes);
-
-      console.log(userRes.data);
     }
     catch (error) {
       console.error("Failed to load User from storage", error);

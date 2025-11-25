@@ -74,9 +74,14 @@ export default function ProfileScreen() {
     const response = await changeAvatar(userID, token, avatarUri);
     if (response) {
       refreshData();
-      console.log("Avatar zmieniony:", response);
+      setAvatarUri(avatarUri);
     }
   };
+
+  const baseAvatarUri = getAvatarUri(avatarUri, user?.avatar);
+  const displayAvatarUri = baseAvatarUri?.startsWith("http")
+    ? `${baseAvatarUri}?t=${new Date().getTime()}`
+    : baseAvatarUri;
 
   return (
     <View
@@ -138,7 +143,7 @@ export default function ProfileScreen() {
             style={{ position: "relative", backgroundColor: "transparent" }}
           >
             <Image
-              source={{ uri: getAvatarUri(avatarUri, user?.avatar) }}
+              source={{ uri: displayAvatarUri }}
               style={styles.avatar}
               resizeMode="cover"
             />
@@ -228,7 +233,7 @@ export default function ProfileScreen() {
                     <Image
                       style={styles.friendAvatar}
                       resizeMode="cover"
-                      source={{ uri: getAvatarUri(f.avatar) }}
+                      source={{ uri: getAvatarUri(null, f.avatar) }}
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>
