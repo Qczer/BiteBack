@@ -119,7 +119,9 @@
     },
     "feedback": {
       "title": "Dziękujemy za Twoją opinię!",
-      "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!"
+      "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!",
+      "goBack": "W porządku!",
+      "findPoint": "Znajdź punkt"
     },
     "notFound": {
       "title": "Ten ekran nie istnieje..",

@@ -13,6 +13,7 @@ export default function Layout() {
         name="MapsScreen"
         options={{
           title: t("cards.maps.headerTitle"),
+          headerShown: false,
         }}
       />
       <Stack.Screen
@@ -62,6 +63,7 @@ export default function Layout() {
         name="PointSentScreen"
         options={{
           title: "Point Sent",
+          headerShown: false,
         }}
       />
     </Stack>

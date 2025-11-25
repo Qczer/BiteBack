@@ -4,7 +4,13 @@ import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
 import toastConfig from "@/components/ToastConfig";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { createNewPoint } from "@/api/endpoints/dotationpoints";
 import translate from "@/locales/i18n";
@@ -21,6 +27,7 @@ export default function AddPointScreen() {
   const [street, setStreet] = useState("");
   const [number, setNumber] = useState("");
   const [city, setCity] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const showToast = (message: string) => {
     Toast.show({
@@ -45,6 +52,7 @@ export default function AddPointScreen() {
       showToast("Please fill in all fields.");
       return;
     }
+    setLoading(true);
     try {
       const res = await createNewPoint(
         name,
@@ -63,6 +71,8 @@ export default function AddPointScreen() {
       }
     } catch (error) {
       showToast("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
     console.log({ name, description, zip, street, number, city });
   };
@@ -130,11 +140,16 @@ export default function AddPointScreen() {
         <TouchableOpacity
           style={[
             styles.submitButton,
-            !allFilled && styles.submitButtonDisabled,
+            (!allFilled || loading) && styles.submitButtonDisabled,
           ]}
           onPress={handleSubmit}
+          disabled={!allFilled || loading}
         >
-          <Text style={styles.submitText}>{t("submit")}</Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>{t("submit")}</Text>
+          )}
         </TouchableOpacity>
 
         {/* Info note */}
@@ -187,7 +202,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   submitButtonDisabled: {
-    backgroundColor: "#ccc", // szary, gdy nie wszystkie pola wypełnione
+    backgroundColor: "#ccc", // szary, gdy nie wszystkie pola wypełnione lub loading
   },
   submitText: {
     color: "white",
