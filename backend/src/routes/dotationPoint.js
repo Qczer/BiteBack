@@ -18,7 +18,7 @@ router.get("/", (req, res) => {
             dotationPoints: dotationPoints.map(point => {
                 return {
                     ...point._doc,
-                    
+
                 }
             })
         })
@@ -107,7 +107,7 @@ router.get("/:dotationPointID", (req, res) => {
         res.status(200).json({
             dotationPoint: doc
         })
-        
+
     }).catch(err => {
         res.status(500).json({
             error: err
@@ -122,7 +122,7 @@ router.post("/new", (req, res) => {
         description: request.desc,
         city: request.city,
         postalCode: request.code,
-        street: request.street, 
+        street: request.street,
         number: request.number,
         authorized: false,
         location: {
@@ -153,7 +153,7 @@ function sendPointToAuth(point) {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL, // TODO: your gmail account 
+            user: process.env.EMAIL, // TODO: your gmail account
             pass: process.env.EMAIL_PASSWORD // TODO: your gmail password
         }
     });
@@ -162,8 +162,58 @@ function sendPointToAuth(point) {
         from: `"BiteBack" ${process.env.EMAIL}`, // TODO: email sender
         to: process.env.ADMIN_EMAIL, // TODO: email receiver
         subject: 'New dotation point request',
-        text: "Hello admin, \r\nThere is new request:\r\n " + point.name +
-        `To response click: localhost:5000/dotation-point/auth/${point._id}`
+        html:   `<!DOCTYPE html>
+                <html lang="pl">
+                <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Akcja wymagana</title>
+                <style>
+                /* Ogólne style — wielu klientów ignoruje <style>, ale Gmail je akceptuje */
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f4f4f7;
+                    font-family: Arial, sans-serif;
+                }
+                .container {
+                    width: 100%;
+                    max-width: 600px;
+                    background: #ffffff;
+                    margin: 40px auto;
+                    padding: 30px;
+                    border-radius: 8px;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 14px 24px;
+                    background-color: #007bff;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+                .footer {
+                    text-align: center;
+                    color: #9a9ea6;
+                    font-size: 12px;
+                    margin-top: 30px;
+                }
+                </style>
+                </head>
+
+                <body>
+                <div class="container">
+                    <h2 style="color:#333;">${point.name}</h2>
+
+                    
+                    <h4>${point.city} ${point.postalCode} ${point.street} ${point.number}</h4>
+
+                    <a href="https://https://biteback.pl/api/dotationPoint/auth/${point._id}" class="button"> Potwierdź punkt dotacji</a>
+                </div>
+                </body>
+                </html>`
     };
 
     let result = true
@@ -176,7 +226,7 @@ function sendPointToAuth(point) {
 }
 
 // auth admina
-router.patch("/auth/:dotationPointID", (req, res) => {
+router.get("/auth/:dotationPointID", (req, res) => {
     DotationPoint.findById(req.params.dotationPointID).then((doc) => {
         if (doc.authorized == true) {
             res.status(200).json({message: "Dotation point is already authorized!"})

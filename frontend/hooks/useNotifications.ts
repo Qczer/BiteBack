@@ -7,7 +7,6 @@ import {router} from "expo-router";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: true,
     shouldShowBanner: true,
@@ -61,9 +60,22 @@ export async function registerForPushNotificationsAsync() {
 export function useNotificationObserver() {
   useEffect(() => {
     const redirect = (notification: Notifications.Notification) => {
-      const url = notification.request.content.data?.url;
-      if (typeof url === "string")
-        router.push(url as any);
+      const data = notification.request.content.data;
+      console.log("🔔 Kliknięto powiadomienie, dane:", data);
+
+      if (data?.url) {
+        try {
+          setTimeout(() => {
+            router.push({
+              pathname: data.url as any,
+              params: data.params as any
+            });
+          }, 500)
+        }
+        catch (e) {
+          console.error("Bład nawigacji z powiadomienia", e)
+        }
+      }
     };
 
     const response = Notifications.getLastNotificationResponse();

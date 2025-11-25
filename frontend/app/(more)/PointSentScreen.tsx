@@ -1,5 +1,6 @@
 import RealButton from "@/components/RealButton";
 import translate from "@/locales/i18n";
+import { router } from "expo-router";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function ReportBugScreen() {
@@ -17,7 +18,7 @@ export default function ReportBugScreen() {
       />
       <Text style={styles.title}>{t("title")}</Text>
       <Text style={styles.subtitle}>{t("subtitle")}</Text>
-      <RealButton text={t("goBack")}></RealButton>
+      <RealButton text={t("goBack")} onPress={() => {router.replace("/(tabs)/HomeScreen")}}></RealButton>
     </View>
   );
 }

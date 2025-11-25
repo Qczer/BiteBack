@@ -32,11 +32,14 @@ export default function AddFriendModal({
 
   const handleSubmit = async () => {
     const res = await sendFriendRequest(name, token);
-    if (res?.success)
+    if (res?.success) {
       setStatus("success");
+      setName("");
+    }
     else {
       setStatus("error");
       setMessage(res.message)
+      setName("");
     }
   };
 

@@ -68,7 +68,9 @@ router.get('/mutual/:recipientName', authenticateToken, async (req, res) => {
 // POST /api/friends/request/:recipientName
 router.post("/request/:recipientName", authenticateToken, async (req, res) => {
     const { recipientName } = req.params;
-    const requesterID = req.user._id;
+    const requesterID = req.user._id.toString();
+
+    console.log(requesterID)
 
     try {
         const recipientUser = await User.findOne({ username: recipientName } );
@@ -76,6 +78,8 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
 
         if (!recipientUser)
             return res.status(404).json({ message: "Użytkownik docelowy nie istnieje." });
+        if (!requesterUser)
+            return res.status(404).json({ message: "Użytkownik zapraszający nie istnieje." });
 
         const recipientID = recipientUser._id;
 
@@ -93,12 +97,12 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
         });
 
         sendNotification(
-            recipientID,
+            recipientID.toString(),
             "FRIEND_INVITE",
             { username: requesterUser.username },
             {
-                url: "/(more)/PublicProfileScreen",
-                params: { username: requester.username }
+                url: "/(tabs)/ProfileScreen",
+                params: { showInvitations: true }
             }
         );
 

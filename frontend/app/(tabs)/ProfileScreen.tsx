@@ -1,31 +1,21 @@
-import {
-  acceptFriendRequest,
-  rejectFriendRequest,
-} from "@/api/endpoints/friends";
+import {acceptFriendRequest, rejectFriendRequest,} from "@/api/endpoints/friends";
 import {changeAvatar, getAvatarUri} from "@/api/endpoints/user";
-import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import {GreenVar, WhiteVar} from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
 import LogoutModal from "@/components/LogoutModal";
 import RemoveFriendModal from "@/components/RemoveFriendModal";
-import { useUser } from "@/contexts/UserContext";
+import {useUser} from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
-import { handleLogout } from "@/services/Storage";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import {handleLogout} from "@/services/Storage";
+import {Feather, Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
-import { useState } from "react";
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {router, useLocalSearchParams} from "expo-router";
+import {useEffect, useState} from "react";
+import {Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {Image} from 'expo-image';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -33,10 +23,12 @@ export default function ProfileScreen() {
   const { user, userID, userFriends, token, clearUser, refreshData } =
     useUser();
 
+  const { showInvitations: initialShowInvitations } = useLocalSearchParams<{ showInvitations: string }>();
   const [showFriendsModal, setShowFriendsModal] = useState(false);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [avatarHash, setAvatarHash] = useState(Date.now());
 
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
@@ -45,6 +37,18 @@ export default function ProfileScreen() {
   const [showInvitations, setShowInvitations] = useState(false);
   const [showRemoveFriendModal, setShowRemoveFriendModal] = useState(false);
   const [removeFriendName, setRemoveFriendName] = useState("");
+
+  useEffect(() => {
+    console.log("Odebrano parametr showInvitations:", initialShowInvitations);
+
+    // Sprawdzamy czy to string "true" LUB boolean true
+    if (initialShowInvitations === "true" || initialShowInvitations as any === true) {
+      setShowInvitations(true);
+
+      // Opcjonalnie: Czyścimy parametr z URL, żeby po odświeżeniu (F5) modal sam nie wyskoczył
+      router.setParams({ showInvitations: "" });
+    }
+  }, [initialShowInvitations]);
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -71,17 +75,21 @@ export default function ProfileScreen() {
     const avatarUri = await pickImage(); // ustawienie lokalnego podglądu
     if (!avatarUri) return;
 
+    setAvatarUri(avatarUri);
+
     const response = await changeAvatar(userID, token, avatarUri);
     if (response) {
-      refreshData();
-      setAvatarUri(avatarUri);
+      await refreshData();
+      setAvatarHash(Date.now());
     }
   };
 
   const baseAvatarUri = getAvatarUri(avatarUri, user?.avatar);
   const displayAvatarUri = baseAvatarUri?.startsWith("http")
-    ? `${baseAvatarUri}?t=${new Date().getTime()}`
+    ? `${baseAvatarUri}?t=${avatarHash}`
     : baseAvatarUri;
+
+  console.log(displayAvatarUri)
 
   return (
     <View
@@ -145,7 +153,9 @@ export default function ProfileScreen() {
             <Image
               source={{ uri: displayAvatarUri }}
               style={styles.avatar}
-              resizeMode="cover"
+              contentFit="cover"
+              transition={500}
+              cachePolicy="memory-disk"
             />
             {/* Ikonka edycji */}
             <TouchableOpacity
@@ -232,8 +242,9 @@ export default function ProfileScreen() {
                     </TouchableOpacity>
                     <Image
                       style={styles.friendAvatar}
-                      resizeMode="cover"
+                      contentFit="cover"
                       source={{ uri: getAvatarUri(null, f.avatar) }}
+                      cachePolicy="memory-disk"
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>
@@ -252,10 +263,9 @@ export default function ProfileScreen() {
               <View>
                 <Image
                   source={require("@/assets/images/people/noFriends.png")}
-                  style={{ alignSelf: "center", marginBottom: 10 }}
-                  height={100}
-                  width={100}
-                  resizeMode="contain"
+                  style={{ alignSelf: "center", marginBottom: 10, height: 100, width: 100 }}
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
                 />
                 <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
               </View>
@@ -297,10 +307,11 @@ export default function ProfileScreen() {
                 style={{
                   alignSelf: "center",
                   marginBottom: 10,
+                  height: 140,
+                  width: 140
                 }}
-                height={140}
-                width={140}
-                resizeMode="contain"
+                contentFit="contain"
+                cachePolicy="memory-disk"
               />
               <Text style={{ textAlign: "center" }}>
                 {t("emptyLeaderboard")}
@@ -318,10 +329,11 @@ export default function ProfileScreen() {
               style={{
                 alignSelf: "center",
                 marginBottom: 10,
+                height: 140,
+                width: 140
               }}
-              height={140}
-              width={140}
-              resizeMode="contain"
+              contentFit="contain"
+              cachePolicy="memory-disk"
             />
             <Text style={{ textAlign: "center" }}>{t("rewards")}</Text>
           </View>

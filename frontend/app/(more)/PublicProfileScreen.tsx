@@ -7,13 +7,13 @@ import { MutualFriendsInterface, Profile } from "@/types/User";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import {Image} from 'expo-image';
 
 export default function PublicProfileScreen() {
   const tURL = "screens.profile.";
@@ -51,7 +51,8 @@ export default function PublicProfileScreen() {
           <Image
             source={{ uri: getAvatarUri(null, profile?.avatar) }}
             style={styles.avatar}
-            resizeMode="cover"
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{profile?.username}</Text>
@@ -85,8 +86,9 @@ export default function PublicProfileScreen() {
                 >
                   <Image
                     style={styles.friendAvatar}
-                    resizeMode="cover"
+                    contentFit="cover"
                     source={{ uri: displayAvatarUri }}
+                    cachePolicy="memory-disk"
                   />
                   <Text style={styles.friendName}>{f.username}</Text>
                 </TouchableOpacity>
@@ -98,11 +100,12 @@ export default function PublicProfileScreen() {
                   style={{
                     alignSelf: "center",
                     marginBottom: 10,
+                    height: 100,
+                    width: 100
                   }}
-                  height={100}
-                  width={100}
-                  resizeMode="contain"
-                ></Image>
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
+                />
                 <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
               </View>
             )}
