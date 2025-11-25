@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useRef } from "react";
 import {
+  Alert,
   Dimensions,
   Image,
   ScrollView,
@@ -235,7 +236,12 @@ function HomeScreen() {
           <Text style={styles.actionText}>{t("scanReceipt")}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionButton} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => {
+            Alert.alert("Recipes", "Coming soon!");
+          }}
+        >
           {/* TODO */}
           <Feather name="book-open" size={20} color={WhiteVar} />
           <Text style={styles.actionText}>{t("recipes")}</Text>
