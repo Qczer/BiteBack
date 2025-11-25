@@ -99,7 +99,7 @@ function ScanScreen() {
           <Text style={styles.title}>{t("permissionTitle")}</Text>
           <Text style={styles.description}>{t("permissionDesc")}</Text>
 
-          <CopilotStep order={1} name="thanks" text={copilot("scanStep1")}>
+          <CopilotStep order={1} name="explain2" text={copilot("scanStep1")}>
             <CopilotView>
               <TouchableOpacity
                 style={styles.button}
