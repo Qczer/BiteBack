@@ -5,6 +5,7 @@ import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import { default as translate } from "@/locales/i18n";
 import DotationPoint from "@/types/DotationPoint";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
@@ -25,23 +26,21 @@ const CopilotView = walkthroughable(View);
 const CopilotText = walkthroughable(Text);
 
 const showToast = (message: string) => {
-    Toast.show({
-      type: "error",
-      text1: message,
-      position: "top",
-      swipeable: true,
-    });
-  };
-  const showSuccessfulToast = (message: string) => {
-    Toast.show({
-      type: "success",
-      text1: message,
-      position: "top",
-      swipeable: true,
-    });
-  };
-
-
+  Toast.show({
+    type: "error",
+    text1: message,
+    position: "top",
+    swipeable: true,
+  });
+};
+const showSuccessfulToast = (message: string) => {
+  Toast.show({
+    type: "success",
+    text1: message,
+    position: "top",
+    swipeable: true,
+  });
+};
 
 function MapsScreen() {
   const copilot = (key: string) => translate("copilot." + key);
@@ -65,10 +64,15 @@ function MapsScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") return;
 
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      const coords: [number, number] = [loc.coords.longitude, loc.coords.latitude];
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+      const coords: [number, number] = [
+        loc.coords.longitude,
+        loc.coords.latitude,
+      ];
 
-      setPosition(coords); 
+      setPosition(coords);
 
       webviewRef.current?.injectJavaScript(`
         window.setUserLocationMarker([${coords[0]}, ${coords[1]}], true);
@@ -88,11 +92,14 @@ function MapsScreen() {
       subscriber = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 2000,    
-          distanceInterval: 1,    
+          timeInterval: 2000,
+          distanceInterval: 1,
         },
         (loc) => {
-          const coords: [number, number] = [loc.coords.longitude, loc.coords.latitude];
+          const coords: [number, number] = [
+            loc.coords.longitude,
+            loc.coords.latitude,
+          ];
 
           setPosition(coords);
 
@@ -109,8 +116,6 @@ function MapsScreen() {
     return () => subscriber?.remove();
   }, []);
 
-
-
   const createMarkers = async () => {
     const res = await getPoints(searchText, position, parseInt(distance));
 
@@ -118,16 +123,16 @@ function MapsScreen() {
     webviewRef.current?.injectJavaScript(`window.clearMarkers(); true;`);
 
     if (res && res.length > 0) {
-      showSuccessfulToast(`Ilość znalezionych punktów dotacji: ${res.length}`)
+      showSuccessfulToast(`Ilość znalezionych punktów dotacji: ${res.length}`);
       const markersData = res.map((p: DotationPoint) => ({
         coords: p.location,
         name: p.name,
-        description: p.description || '',
+        description: p.description || "",
         city: p.city,
         code: p.postalCode,
         street: p.street,
         number: p.number,
-        first: res.indexOf(p) == 0
+        first: res.indexOf(p) == 0,
       }));
 
       const jsCode = `
@@ -140,10 +145,9 @@ function MapsScreen() {
 
       webviewRef.current?.injectJavaScript(jsCode);
     } else {
-      showToast(`Znaleziono 0 punktów dotacji`)
+      showToast(`Znaleziono 0 punktów dotacji`);
     }
   };
-
 
   const onMessage = (event: WebViewMessageEvent) => {
     try {
@@ -175,13 +179,25 @@ function MapsScreen() {
       if (!hasStartedTutorial.current && isTomTomReady) {
         console.log("Map ready inside effect. Starting copilot...");
 
-        // Mały timeout dla pewności, że UI Reacta zdążył się przerysować
-        const timer = setTimeout(() => {
-          hasStartedTutorial.current = true;
-          start();
-        }, 500);
+        const checkTutorialFlag = async () => {
+          try {
+            const hasSeen = await AsyncStorage.getItem("@hasSeenMapsTutorial");
+            if (!hasSeen) {
+              // Odpalamy tutorial z małym opóźnieniem
+              const timer = setTimeout(() => {
+                hasStartedTutorial.current = true;
+                start();
+                AsyncStorage.setItem("@hasSeenMapsTutorial", "true");
+              }, 500);
 
-        return () => clearTimeout(timer);
+              return () => clearTimeout(timer);
+            }
+          } catch (error) {
+            console.error("Error checking tutorial flag.", error);
+          }
+        };
+
+        checkTutorialFlag();
       }
     }, [isTomTomReady, start])
   );
