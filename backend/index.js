@@ -24,7 +24,6 @@ app.use("/dotationPoint", dotationPointRoutes)
 app.use("/ai", aiRoutes)
 app.use("/friends", friendsRoutes)
 
-
 // Run
 app.listen(process.env.PORT, () => {
     console.info(`API running on port ${process.env.PORT}`)

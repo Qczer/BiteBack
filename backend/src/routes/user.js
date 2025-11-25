@@ -58,7 +58,8 @@ router.post("/register", upload.single("avatar"), (req, res) => {
             lang: req.body.lang || "pl",
             fridge: [],
             bitescore: 0,
-            avatar: req.file ? req.file.filename : "nopfp.png"
+            avatar: req.file ? req.file.filename : "nopfp.png",
+            pushTokens: []
         })
         newUser.save().then(result => {
             res.status(201).json({

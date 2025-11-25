@@ -65,7 +65,7 @@ export const login = async (email: string, password: string): Promise<LoginResul
   }
 };
 
-export const register = async (email: string, username: string, password: string): Promise<LoginResult> => {
+export const register = async (email: string, username: string, password: string) => {
   const body = {  email, username, password };
 
   try {

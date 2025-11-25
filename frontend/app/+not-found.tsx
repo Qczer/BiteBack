@@ -9,7 +9,7 @@ export default function NotFoundScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>{t("screens.notFound.title")}</Text>
 
-        <Link href="/(tabs)/HomeScreen" style={styles.link}>
+        <Link href="/(auth)/LoginScreen" style={styles.link}>
           <Text style={styles.linkText}>{t("screens.notFound.goToHomeScreen")}</Text>
         </Link>
       </View>
