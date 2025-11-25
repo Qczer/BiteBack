@@ -56,12 +56,15 @@ export default function ProfileScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
       quality: 1,
+      allowsEditing: true,
+      aspect: [1, 1],
     });
 
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
       return result.assets[0].uri;
     }
+    return null;
   };
 
   const handleChangeAvatar = async () => {
@@ -137,7 +140,7 @@ export default function ProfileScreen() {
             <Image
               source={{ uri: user?.avatar }}
               style={styles.avatar}
-              resizeMode="contain"
+              resizeMode="cover"
             />
             {/* Ikonka edycji */}
             <TouchableOpacity
