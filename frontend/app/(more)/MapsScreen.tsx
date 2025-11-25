@@ -6,9 +6,8 @@ import { default as translate } from "@/locales/i18n";
 import DotationPoint from "@/types/DotationPoint";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import * as Location from "expo-location";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -60,57 +59,6 @@ function MapsScreen() {
   const { start, totalStepsNumber } = useCopilot();
   const hasStartedTutorial = useRef(false);
 
-  useEffect(() => {
-    const initLocation = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") return;
-
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      const coords: [number, number] = [loc.coords.longitude, loc.coords.latitude];
-
-      setPosition(coords); 
-
-      webviewRef.current?.injectJavaScript(`
-        window.setUserLocationMarker([${coords[0]}, ${coords[1]}], true);
-        true;
-      `);
-    };
-
-    initLocation();
-  }, []);
-  useEffect(() => {
-    let subscriber: Location.LocationSubscription | null = null;
-
-    const startWatching = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") return;
-
-      subscriber = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 2000,    
-          distanceInterval: 1,    
-        },
-        (loc) => {
-          const coords: [number, number] = [loc.coords.longitude, loc.coords.latitude];
-
-          setPosition(coords);
-
-          webviewRef.current?.injectJavaScript(`
-            window.setUserLocationMarker([${coords[0]}, ${coords[1]}], false);
-            true;
-          `);
-        }
-      );
-    };
-
-    startWatching();
-
-    return () => subscriber?.remove();
-  }, []);
-
-
-
   const createMarkers = async () => {
     const res = await getPoints(searchText, position, parseInt(distance));
 
@@ -159,7 +107,6 @@ function MapsScreen() {
       if (data.type === "map-ready") {
         console.log("TomTom Map is fully rendered!");
         setIsTomTomReady(true);
-        createMarkers(); // Możemy od razu załadować markery
       } else if (data.type === "map-center" && data.lng && data.lat) {
         setPosition([data.lng, data.lat]);
       }
@@ -242,25 +189,6 @@ function MapsScreen() {
             map.flyTo({
               center: cords,
               zoom: 12
-            });
-          }
-        };
-
-        let userMarker = null;
-
-        window.setUserLocationMarker = function(coords, flyTo = false) {
-          if (userMarker) userMarker.remove();
-
-          const marker = new tt.Marker({ color: "blue" })
-              .setLngLat(coords)
-              .addTo(map);
-
-          userMarker = marker;
-
-          if (flyTo) {
-            map.flyTo({
-              center: coords,
-              zoom: 14
             });
           }
         };
