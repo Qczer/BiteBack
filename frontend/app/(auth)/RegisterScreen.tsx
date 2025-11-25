@@ -1,4 +1,4 @@
-import { register } from "@/api/endpoints/user";
+import {login, register} from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
@@ -63,7 +63,13 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       const res = await register(email, username, password);
-      if (res.success) router.replace("/LoginScreen");
+      if (res.success) {
+        const loginRes = await login(email, password);
+        if (loginRes.success)
+          router.replace("/LoginScreen");
+        else
+          throw new Error(loginRes.message);
+      }
       else {
         showToast(`Error ${res.status}: ${res.message}`);
       }

@@ -46,7 +46,8 @@ export default function MapsScreen() {
         setPosition([data.lng, data.lat]);
         console.log("Nowe centrum mapy:", data);
       }
-    } catch {
+    }
+    catch {
       console.log("Wiadomość:", event.nativeEvent.data);
     }
   };
@@ -145,6 +146,7 @@ export default function MapsScreen() {
             onValueChange={(itemValue) => setDistance(itemValue)}
             mode="dropdown"
             style={styles.picker}
+            dropdownIconColor="#000000"
           >
             <Picker.Item label="+5km" value="5000" />
             <Picker.Item label="+10km" value="10000" />
@@ -195,11 +197,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     marginHorizontal: 8,
-    overflow: "hidden",
+    overflow: "visible",
+    height: 40,
+    display: 'flex',
+    justifyContent: 'center'
   },
   picker: {
-    height: 40,
-    width: 120,
+    height: 55,
+    width: 125
   },
   searchButton: {
     padding: 8,

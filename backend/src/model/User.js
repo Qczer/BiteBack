@@ -19,7 +19,8 @@ const userSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         default: []
-    }]
+    }],
+    pushTokens: [{ type: String, required: true, default: [] }]
 })
 
 const User = mongoose.model("User", userSchema)
