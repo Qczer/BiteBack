@@ -49,8 +49,8 @@ const upload = multer({ storage });
 
 // Routes
 // potencjalnie email do uzytkownika
-router.post("/register", upload.single("avatar"), (req, res) => {
-    
+router.post("/register", (req, res) => {
+    console.log("register")
     bcrypt.hash(req.body.password, 15).then(hashed => {
         const newUser = new User({
             username: req.body.username,
@@ -59,7 +59,7 @@ router.post("/register", upload.single("avatar"), (req, res) => {
             lang: req.body.lang || "pl",
             fridge: [],
             bitescore: 0,
-            avatar: req.file ? req.file.filename : "nopfp.png",
+            avatar: "nopfp.png",
             pushTokens: []
         })
         newUser.save().then(result => {
