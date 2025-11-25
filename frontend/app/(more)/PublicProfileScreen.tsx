@@ -1,12 +1,19 @@
+import { getMutualFriends } from "@/api/endpoints/friends";
 import { getProfile } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
-import { Profile, MutualFriendsInterface } from "@/types/User";
+import { MutualFriendsInterface, Profile } from "@/types/User";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { getMutualFriends } from "@/api/endpoints/friends";
-import { useUser } from "@/contexts/UserContext";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function PublicProfileScreen() {
   const tURL = "screens.profile.";
@@ -14,18 +21,16 @@ export default function PublicProfileScreen() {
   const { userName }: { userName: string } = useLocalSearchParams();
   const { token } = useUser();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [mutualFriends, setMutualFriends] = useState<MutualFriendsInterface | null>(null);
-
+  const [mutualFriends, setMutualFriends] =
+    useState<MutualFriendsInterface | null>(null);
 
   useEffect(() => {
     const getFriend = async () => {
       const profileRes = await getProfile(userName, token);
-      if (profileRes.success)
-        setProfile(profileRes.data);
+      if (profileRes.success) setProfile(profileRes.data);
 
       const friendsRes = await getMutualFriends(userName, token);
-      if (friendsRes.success)
-        setMutualFriends(friendsRes.data)
+      if (friendsRes.success) setMutualFriends(friendsRes.data);
     };
     getFriend();
   }, [userName]);
@@ -41,12 +46,15 @@ export default function PublicProfileScreen() {
           <Image
             source={{ uri: profile?.avatar }}
             style={styles.avatar}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{profile?.username}</Text>
             <Text style={styles.infoText}>
-              Joined: {profile?.createDate ? new Date(profile?.createDate).toLocaleDateString() : t("noDate")}
+              Joined:{" "}
+              {profile?.createDate
+                ? new Date(profile?.createDate).toLocaleDateString()
+                : t("noDate")}
             </Text>
             <Text style={styles.infoText}>BiteScore: {profile?.bitescore}</Text>
           </View>
@@ -54,10 +62,12 @@ export default function PublicProfileScreen() {
 
         {/* Pasek znajomych */}
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>{translate("common.mutualFriends")}</Text>
+          <Text style={styles.panelTitle}>
+            {translate("common.mutualFriends")}
+          </Text>
           <View style={styles.friendsList}>
             {mutualFriends && mutualFriends?.mutualFriends.length > 0 ? (
-              mutualFriends.mutualFriends.map(f => (
+              mutualFriends.mutualFriends.map((f) => (
                 <TouchableOpacity
                   key={f._id}
                   style={styles.friendCard}
@@ -71,7 +81,7 @@ export default function PublicProfileScreen() {
                   <Image
                     style={styles.friendAvatar}
                     resizeMode="cover"
-                    source={{ uri: f.avatar}}
+                    source={{ uri: f.avatar }}
                   />
                   <Text style={styles.friendName}>{f.username}</Text>
                 </TouchableOpacity>
@@ -98,8 +108,7 @@ export default function PublicProfileScreen() {
           <View style={styles.panel}>
             <Text style={styles.panelTitle}>{t("mutualLeaderboard")}</Text>
             <View style={styles.podium}>
-              {
-                mutualFriends.mutualFriends
+              {mutualFriends.mutualFriends
                 .slice()
                 .sort((a, b) => b.bitescore - a.bitescore)
                 .slice(0, 3)
@@ -109,8 +118,8 @@ export default function PublicProfileScreen() {
                     i === 0
                       ? styles.goldBox
                       : i === 1
-                        ? styles.silverBox
-                        : styles.bronzeBox;
+                      ? styles.silverBox
+                      : styles.bronzeBox;
 
                   return (
                     <View key={i} style={[styles.podiumSlot, podiumStyle]}>
@@ -268,5 +277,5 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 12,
     color: "#555",
-  }
+  },
 });
