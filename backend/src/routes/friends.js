@@ -16,16 +16,29 @@ router.get('/:userID', authenticateToken, ensureCorrectUser, async (req, res) =>
 
         const user = await User.findById(userID)
             .populate('friends', 'username email avatar bitescore')
-            .populate('friendRequests', 'username avatar');
+            .populate('friendRequests', 'username avatar')
+            .lean();
 
         if (!user)
             return res.status(404).json({ message: "Nie znaleziono użytkownika." });
 
+        const baseUrl = `${req.protocol}://${req.get('host')}/api/storage/avatars/`;
+
+        const friendsWithLinks = (user.friends || []).map(friend => ({
+            ...friend,
+            avatar: friend.avatar ? `${baseUrl}${friend.avatar}` : null
+        }));
+
+        const requestsWithLinks = (user.friendRequests || []).map(request => ({
+            ...request,
+            avatar: request.avatar ? `${baseUrl}${request.avatar}` : null
+        }));
+
         res.status(200).json({
             userID: user._id,
             username: user.username,
-            friends: user.friends,
-            requests: user.friendRequests,
+            friends: friendsWithLinks,
+            requests: requestsWithLinks,
         });
     }
     catch (error) {
@@ -128,7 +141,8 @@ router.post("/accept/:requesterName", authenticateToken, async (req, res) => {
         });
 
         await User.findByIdAndUpdate(requesterID, {
-            $push: { friends: currentUserID }
+            $push: { friends: currentUserID },
+            $pull: { friendRequests: currentUserID }
         });
 
         res.status(200).json({ message: "Zaproszenie zaakceptowane." });
@@ -156,7 +170,8 @@ router.post('/reject/:requesterName', authenticateToken, async (req, res) => {
         });
 
         res.status(200).json({ message: "Zaproszenie odrzucone." });
-    } catch (error) {
+    }
+    catch (error) {
         res.status(500).json({ message: error.message });
     }
 });

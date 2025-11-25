@@ -66,6 +66,7 @@ export default function FormInput({
         <TextInput
           style={styles.textInput}
           placeholder={placeholder}
+          placeholderTextColor="#888"
           secureTextEntry={secureText}
           onChangeText={(text) => {
             setVal(text);
