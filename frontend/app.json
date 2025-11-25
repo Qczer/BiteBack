@@ -4,7 +4,7 @@
     "slug": "biteback",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "biteback",
     "userInterfaceStyle": "automatic",
     "updates": {
@@ -13,7 +13,7 @@
       "fallbackToCacheTimeout": 0,
       "url": "https://u.expo.dev/53dce49d-de68-4c40-a9c7-9327baf91afb"
     },
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
@@ -44,6 +44,7 @@
       [
         "expo-notifications",
         {
+          "icon": "./assets/images/logo.png",
           "color": "#ffffff",
           "defaultChannel": "default",
           "enableBackgroundRemoteNotifications": false

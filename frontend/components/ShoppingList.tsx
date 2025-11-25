@@ -34,7 +34,7 @@ export default function ShoppingList({
   clearList,
   showToast,
 }: ShoppingListProps) {
-  const { userID } = useUser();
+  const { userID, token } = useUser();
 
   const tURL = "cards.shoppingLists.";
   const t = (key: string) => translate(tURL + key)
@@ -88,7 +88,7 @@ export default function ShoppingList({
         return;
       }
 
-      await addFoodToFridge(userID, list);
+      await addFoodToFridge(userID, token, list);
       clearList();
       showSuccessToast("Successfully added!");
     } catch (error) {

@@ -100,7 +100,8 @@
       "rewards": "Rewards coming soon!",
       "enterFriendsName": "Enter friend's name",
       "success": "Success! Friend invited.",
-      "emptyLeaderboard": "Congratulations, You're the best among your friends!"
+      "emptyLeaderboard": "Congratulations, You're the best among your friends!",
+      "noDate": "No Date"
     },
     "more": {
       "title": "More"

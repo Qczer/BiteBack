@@ -45,7 +45,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   const tURL = "foodEditor.";
   const t = (key: string) => translate(tURL + key);
 
-  const { userID } = useUser();
+  const { userID, token } = useUser();
 
   const [iconModalVisible, setIconModalVisible] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(
@@ -78,14 +78,14 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
         name: key,
         value: key === "expDate" ? date.toISOString() : value,
       }));
-    await editFood(userID, food._id, { id: food._id, params: newParams });
+    await editFood(userID, token, food._id, { id: food._id, params: newParams });
     onClose();
   };
 
   const handleDelete = async () => {
     if (!food._id) return;
 
-    await deleteFood(userID, food._id);
+    await deleteFood(userID, token, food._id);
     onClose();
   };
 
