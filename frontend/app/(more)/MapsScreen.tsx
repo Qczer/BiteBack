@@ -1,16 +1,35 @@
 import { getPoints, TomTomApiKey } from "@/api/endpoints/dotationpoints";
+import { withCopilotProvider } from "@/components/WithCopilotProvider";
+import translate from "@/locales/i18n";
 import DotationPoint from "@/types/DotationPoint";
 import { Picker } from "@react-native-picker/picker";
+import { useFocusEffect } from "expo-router";
 import React, { useRef, useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 
-export default function MapsScreen() {
+const CopilotView = walkthroughable(View);
+const CopilotText = walkthroughable(Text);
+function MapsScreen() {
+  const copilot = (key: string) => translate("copilot." + key);
+
   const webviewRef = useRef<WebView>(null);
   const [searchText, setSearchText] = useState("");
   const [distance, setDistance] = useState("5000");
-  const [position, setPosition] = useState<[number, number]>([21.0122, 52.2297]);
+  const [position, setPosition] = useState<[number, number]>([
+    21.0122, 52.2297,
+  ]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const { start, totalStepsNumber } = useCopilot();
+  const hasStartedTutorial = useRef(false);
 
   const createMarkers = async () => {
     const res = await getPoints(searchText, position, parseInt(distance));
@@ -23,16 +42,18 @@ export default function MapsScreen() {
       const markersData = res.map((p: DotationPoint) => ({
         coords: p.location,
         name: p.name.replace(/'/g, "\\'").replace(/"/g, '\\"'),
-        description: (p.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"')
+        description: (p.description || "")
+          .replace(/'/g, "\\'")
+          .replace(/"/g, '\\"'),
       }));
 
       const jsCode = `
-        (function() {
-          const data = ${JSON.stringify(markersData)};
-          data.forEach(p => window.addMarker(p.coords, p.name, p.description));
+      (function() {
+        const data = ${JSON.stringify(markersData)};
+        data.forEach(p => window.addMarker(p.coords, p.name, p.description));
         })();
         true;
-      `;
+        `;
 
       webviewRef.current?.injectJavaScript(jsCode);
     }
@@ -40,19 +61,63 @@ export default function MapsScreen() {
 
   const onMessage = (event: WebViewMessageEvent) => {
     try {
-      const data: { lng: number, lat: number, type: string } = JSON.parse(event.nativeEvent.data);
+      setIsLoaded(true);
+      const data: { lng: number; lat: number; type: string } = JSON.parse(
+        event.nativeEvent.data
+      );
 
       if (data.type === "map-center") {
         setPosition([data.lng, data.lat]);
         console.log("Nowe centrum mapy:", data);
       }
-    }
-    catch {
+    } catch {
       console.log("Wiadomość:", event.nativeEvent.data);
     }
   };
 
-  const html = `<!DOCTYPE html>
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const checkTutorialFlag = async () => {
+  //       try {
+  //         const hasSeen =await AsyncStorage.getItem("@hasSeenHomeTutorial");
+  //         if (!hasSeen && !hasStartedTutorial.current) {
+  //           // Odpalamy tutorial z opóźnieniem
+  //           const timer = setTimeout(() => {
+  //             hasStartedTutorial.current = true;
+  //             start();
+  //             AsyncStorage.setItem("@hasSeenHomeTutorial", "true");
+  //           }, 0);
+
+  //           return () => clearTimeout(timer);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error checking tutorial flag.", error);
+  //       }
+  //     };
+
+  //     // ma byc !dev jesli production ready
+  //     if (__DEV__) {
+  //       checkTutorialFlag();
+  //     }
+  //   }, [start])
+  // );
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasStartedTutorial.current && isLoaded) {
+        console.log("Starting copilot tutorial...");
+        const timer = setTimeout(() => {
+          hasStartedTutorial.current = true;
+          console.log("Starting copilot with", totalStepsNumber, "steps.");
+          if (isMapLoaded) start();
+        }, 250);
+
+        return () => clearTimeout(timer);
+      }
+    }, [isLoaded, start, isMapLoaded])
+  );
+
+  const html =
+    `<!DOCTYPE html>
 <html>
 
 <head>
@@ -87,7 +152,9 @@ export default function MapsScreen() {
         let markers = []
         window.onload = function () {
             map = tt.map({
-                key: '`+ TomTomApiKey +`',
+                key: '` +
+    TomTomApiKey +
+    `',
                 container: "map",
                 center: [21.0122, 52.2297],
                 zoom: 1
@@ -126,9 +193,7 @@ export default function MapsScreen() {
     </script>
 </body>
 
-</html>`
-
-
+</html>`;
 
   return (
     <View style={styles.container}>
@@ -161,19 +226,29 @@ export default function MapsScreen() {
       </View>
 
       {/* WebView */}
-      <WebView
-        ref={webviewRef}
-        style={styles.webview}
-        originWhitelist={["*"]}
-        source={{ html: html}} // Twój html z mapą
-        javaScriptEnabled
-        domStorageEnabled
-        onLoadEnd={createMarkers}
-        onMessage={onMessage}
-      />
+
+      <CopilotStep name="hello" order={1} text={copilot("mapStep1")}>
+        <CopilotView>
+          <WebView
+            ref={webviewRef}
+            style={styles.webview}
+            originWhitelist={["*"]}
+            source={{ html: html }} // Twój html z mapą
+            javaScriptEnabled
+            domStorageEnabled
+            onLoadEnd={() => {
+              createMarkers();
+              setIsMapLoaded(true);
+            }}
+            onMessage={onMessage}
+          />
+        </CopilotView>
+      </CopilotStep>
     </View>
   );
 }
+
+export default withCopilotProvider(MapsScreen);
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -199,12 +274,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     overflow: "visible",
     height: 40,
-    display: 'flex',
-    justifyContent: 'center'
+    display: "flex",
+    justifyContent: "center",
   },
   picker: {
     height: 55,
-    width: 125
+    width: 125,
   },
   searchButton: {
     padding: 8,
