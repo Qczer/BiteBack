@@ -66,8 +66,11 @@ export default function AddPointScreen() {
         showSuccessfulToast("Successfully sent!");
         router.replace("/(more)/PointSentScreen");
       } else {
-        console.log(res);
-        showToast(`Error ${res.status}: ${res.message}`);
+        if (res.status == 0) {
+          showToast(`Sorry! We can't find your location.`);  
+        } else {
+          showToast(`Error ${res.status}: ${res.message}`);
+        }
       }
     } catch (error) {
       showToast("An unexpected error occurred. Please try again.");

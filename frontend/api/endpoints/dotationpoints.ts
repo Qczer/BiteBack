@@ -53,6 +53,9 @@ async function geocodeAddress(address: string) {
 export const createNewPoint = async (name: string, description: string, zip: string, street: string, number: string, city: string) => {
   let body = { name, description, street, number, city, code: zip};
   let cords = await geocodeAddress(`${street} ${number}, ${city} ${zip}`)
+  if (cords == null) {
+    return { success: false, status: 0, message: "Sorry, We can't find that address"}
+  }
   body = {...body, ...cords}
     console.log(body)
   try {
