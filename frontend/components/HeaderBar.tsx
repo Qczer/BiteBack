@@ -1,9 +1,9 @@
 import { GreenVar } from "@/assets/colors/colors";
+import NotificationsModal from "@/components/NotificationsModal";
 import { useUser } from "@/contexts/UserContext";
-
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   Image,
@@ -15,15 +15,19 @@ import {
 
 const screenWidth = Dimensions.get("window").width;
 
+export const HEADER_HEIGHT = 100;
+const HEADER_BAR_HEIGHT = 48;
+
 export default function HeaderBar() {
   const { user, unreadNotifications } = useUser();
-
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
+  const [modalVisible, setModalVisible] = useState(false);
 
   if (!fontsLoaded) return null;
 
   return (
-    <View style={styles.header}>
+    // pointerEvents="box-none" pozwala przekazywać gesty do elementów pod headerem
+    <View style={styles.header} pointerEvents="box-none">
       <View style={styles.headerBar}>
         {/* Left side */}
         <View style={styles.headerLeft}>
@@ -40,7 +44,6 @@ export default function HeaderBar() {
           {/* Currency */}
           <TouchableOpacity style={{ marginRight: 16 }}>
             <View style={styles.currencyBox}>
-              {/* <Ionicons name="cash-outline" size={26} color={GreenVar} /> */}
               <Image
                 source={require("@/assets/images/BiteScore.png")}
                 style={{ width: 35, height: 35 }}
@@ -50,24 +53,46 @@ export default function HeaderBar() {
           </TouchableOpacity>
 
           {/* Notifications */}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
             <Ionicons name="notifications-outline" size={28} color={GreenVar} />
-            {unreadNotifications.length > 0 && (
+            {unreadNotifications?.length > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
-                  {unreadNotifications.length > 9 ? "9+" : unreadNotifications.length}
+                  {unreadNotifications.length > 9
+                    ? "9+"
+                    : unreadNotifications.length}
                 </Text>
               </View>
             )}
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal */}
+      <NotificationsModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        fetchNotifications={async () => {
+          // TODO: podłącz swoje API
+          return [
+            {
+              id: "1",
+              title: "Witaj w BiteBack!",
+              message: "Twoje konto zostało pomyślnie utworzone.",
+              date: "2025-11-25",
+            },
+            {
+              id: "2",
+              title: "Nowa nagroda",
+              message: "Zdobyłeś 50 punktów BiteScore 🎉",
+              date: "2025-11-24",
+            },
+          ];
+        }}
+      />
     </View>
   );
 }
-
-const HEADER_HEIGHT = 100;
-const HEADER_BAR_HEIGHT = 48;
 
 const styles = StyleSheet.create({
   header: {
@@ -79,6 +104,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     elevation: 2,
     paddingHorizontal: 16,
+    zIndex: 10, // upewnij się, że header jest nad treścią
   },
   headerBar: {
     position: "absolute",

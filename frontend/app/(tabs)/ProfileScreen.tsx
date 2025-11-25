@@ -2,6 +2,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
 } from "@/api/endpoints/friends";
+import { changeAvatar } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
@@ -25,12 +26,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {changeAvatar} from "@/api/endpoints/user";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { user, userID, userFriends, token, clearUser, refreshData } = useUser();
+  const { user, userID, userFriends, token, clearUser, refreshData } =
+    useUser();
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
 
@@ -69,6 +70,7 @@ export default function ProfileScreen() {
 
     const response = await changeAvatar(userID, token, avatarUri);
     if (response) {
+      refreshData();
       console.log("Avatar zmieniony:", response);
     }
   };
@@ -138,7 +140,10 @@ export default function ProfileScreen() {
               resizeMode="contain"
             />
             {/* Ikonka edycji */}
-            <TouchableOpacity style={styles.editIcon} onPress={handleChangeAvatar}>
+            <TouchableOpacity
+              style={styles.editIcon}
+              onPress={handleChangeAvatar}
+            >
               <Ionicons name="create-outline" size={18} color={WhiteVar} />
             </TouchableOpacity>
           </View>
@@ -220,7 +225,11 @@ export default function ProfileScreen() {
                     <Image
                       style={styles.friendAvatar}
                       resizeMode="cover"
-                      source={f.avatar ? { uri: f.avatar} : require("@/assets/images/background.png")}
+                      source={
+                        f.avatar
+                          ? { uri: f.avatar }
+                          : require("@/assets/images/background.png")
+                      }
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>
@@ -490,7 +499,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     width: 90,
-    height: 90
+    height: 90,
   },
   friendName: {
     marginTop: 4,
