@@ -1,16 +1,85 @@
 import { getPoints, TomTomApiKey } from "@/api/endpoints/dotationpoints";
+import toastConfig from "@/components/ToastConfig";
 import DotationPoint from "@/types/DotationPoint";
 import { Picker } from "@react-native-picker/picker";
-import React, { useRef, useState } from "react";
+import * as Location from "expo-location"; // jeśli Expo
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 import { WebView, WebViewMessageEvent } from "react-native-webview";
+
+const showToast = (message: string) => {
+    Toast.show({
+      type: "error",
+      text1: message,
+      position: "top",
+      swipeable: true,
+    });
+  };
+  const showSuccessfulToast = (message: string) => {
+    Toast.show({
+      type: "success",
+      text1: message,
+      position: "top",
+      swipeable: true,
+    });
+  };
+
 
 export default function MapsScreen() {
   const webviewRef = useRef<WebView>(null);
   const [searchText, setSearchText] = useState("");
   const [distance, setDistance] = useState("5000");
   const [position, setPosition] = useState<[number, number]>([21.0122, 52.2297]);
+  useEffect(() => {
+    const initLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
+
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      const coords: [number, number] = [loc.coords.longitude, loc.coords.latitude];
+
+      setPosition(coords); 
+
+      webviewRef.current?.injectJavaScript(`
+        window.setUserLocationMarker([${coords[0]}, ${coords[1]}], true);
+        true;
+      `);
+    };
+
+    initLocation();
+  }, []);
+  useEffect(() => {
+    let subscriber: Location.LocationSubscription | null = null;
+
+    const startWatching = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
+
+      subscriber = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 2000,    
+          distanceInterval: 1,    
+        },
+        (loc) => {
+          const coords: [number, number] = [loc.coords.longitude, loc.coords.latitude];
+
+          setPosition(coords);
+
+          webviewRef.current?.injectJavaScript(`
+            window.setUserLocationMarker([${coords[0]}, ${coords[1]}], false);
+            true;
+          `);
+        }
+      );
+    };
+
+    startWatching();
+
+    return () => subscriber?.remove();
+  }, []);
 
   const createMarkers = async () => {
     const res = await getPoints(searchText, position, parseInt(distance));
@@ -19,22 +88,29 @@ export default function MapsScreen() {
     webviewRef.current?.injectJavaScript(`window.clearMarkers(); true;`);
 
     if (res && res.length > 0) {
-      // Tworzymy tablicę obiektów bezpiecznych dla JS
+      showSuccessfulToast(`Ilość znalezionych punktów dotacji: ${res.length}`)
       const markersData = res.map((p: DotationPoint) => ({
         coords: p.location,
-        name: p.name.replace(/'/g, "\\'").replace(/"/g, '\\"'),
-        description: (p.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"')
+        name: p.name,
+        description: p.description || '',
+        city: p.city,
+        code: p.postalCode,
+        street: p.street,
+        number: p.number,
+        first: res.indexOf(p) == 0
       }));
 
       const jsCode = `
         (function() {
           const data = ${JSON.stringify(markersData)};
-          data.forEach(p => window.addMarker(p.coords, p.name, p.description));
+          data.forEach(p => window.addMarker(p.coords, p.name, p.description, p.city, p.code, p.street, p.number, p.first));
         })();
         true;
       `;
 
       webviewRef.current?.injectJavaScript(jsCode);
+    } else {
+      showToast(`Znaleziono 0 punktów dotacji`)
     }
   };
 
@@ -108,17 +184,43 @@ export default function MapsScreen() {
             });
         };
 
-        window.addMarker = function(cords, name, description) {
+        window.addMarker = function(cords, name, description, city, code, street, number, first) {
           const popup = new tt.Popup({ offset: 35 })
-              .setHTML(\`<h3>\${name}</h3><p>\${description}</p>\`);
+              .setHTML(\`<h3>\${name}</h3><p>\${description}</p><h5> \${city} \${code}, \${street} \${number}</h5>\`);
 
-          const marker = new tt.Marker()
+          const marker = new tt.Marker({color: '#16533f'})
               .setLngLat(cords)
               .setPopup(popup)
               .addTo(map);
 
           markers.push(marker);
+          if (first) {
+            map.flyTo({
+              center: cords,
+              zoom: 12
+            });
+          }
         };
+
+        let userMarker = null;
+
+        window.setUserLocationMarker = function(coords, flyTo = false) {
+          if (userMarker) userMarker.remove();
+
+          const marker = new tt.Marker({ color: "blue" })
+              .setLngLat(coords)
+              .addTo(map);
+
+          userMarker = marker;
+
+          if (flyTo) {
+            map.flyTo({
+              center: coords,
+              zoom: 14
+            });
+          }
+        };
+
         window.clearMarkers = function () {
             markers.forEach(m => m.remove())
             markers = []
@@ -136,7 +238,7 @@ export default function MapsScreen() {
       <View style={styles.searchBar}>
         <TextInput
           style={styles.input}
-          placeholder="Wyszukaj punkt dotacji"
+          placeholder="Filtruj według nazwy"
           value={searchText}
           onChangeText={setSearchText}
         />
@@ -168,9 +270,9 @@ export default function MapsScreen() {
         source={{ html: html}} // Twój html z mapą
         javaScriptEnabled
         domStorageEnabled
-        onLoadEnd={createMarkers}
         onMessage={onMessage}
       />
+      <Toast config={toastConfig}></Toast>
     </View>
   );
 }
