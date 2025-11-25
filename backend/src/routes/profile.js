@@ -18,11 +18,9 @@ router.get("/:userName", async (req, res) => {
             return;
         }
 
-        const fullAvatarUrl = `${req.protocol}://${req.get('host')}/api/storage/avatars/${user.avatar}`;
-
         res.status(200).json({
             username: user.username,
-            avatar: fullAvatarUrl,
+            avatar: user.avatar,
             bitescore: user.bitescore,
             createDate: user.createDate
         });

@@ -14,6 +14,22 @@ type AuthResult =
 | { success: true; data: AuthResponse }
 | { success: false; status: number | null; message?: string };
 
+const BASE_URL = "https://biteback.pl/api/storage/avatars";
+const NO_PFP = `${BASE_URL}/nopfp.png`;
+
+export const getAvatarUri = (localUri: string | null, serverFilename?: string) => {
+  if (localUri) localUri;
+
+  if (serverFilename) {
+    if (serverFilename.startsWith('http')) {
+      return serverFilename;
+    }
+    return `${BASE_URL}/${serverFilename}`;
+  }
+
+  return NO_PFP;
+}
+
 export const getUser = async (userID: string, token: string) => {
   try {
     const { data } = await axiosClient.get(`/user/${userID}`, { headers: { Authorization: `Bearer ${token}` }});
@@ -81,9 +97,9 @@ export const login = async (email: string, password: string): Promise<LoginResul
 };
 
 export const register = async (email: string, username: string, password: string) => {
-  const body = {  email, username, password };
-
   try {
+    const body = {  email, username, password };
+
     const { data } = await axiosClient.post('/user/register', body);
 
     return { success: true, data };
@@ -103,6 +119,7 @@ export const changeAvatar = async (userID: string, token: string, avatarUri: str
   try {
     const formData = new FormData();
     // W React Native trzeba dopisać typ pliku i nazwę
+    console.log('Avatar URI: ', avatarUri);
     const filename = avatarUri.split("/").pop() || "avatar.jpg";
     const file: any = {
       uri: avatarUri,

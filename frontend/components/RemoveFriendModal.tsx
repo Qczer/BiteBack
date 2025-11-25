@@ -133,11 +133,6 @@ export default function RemoveFriendModal({
             <Text style={styles.buttonText}>{translate("common.confirm")}</Text>
           </TouchableOpacity>
 
-          {status === "success" && (
-            <Text style={styles.success}>✅ {t("successRemove")}</Text>
-          )}
-          {status === "error" && <Text style={styles.error}>❌ {message}</Text>}
-
           {/* <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeText}>{translate("common.close")}</Text>
           </TouchableOpacity> */}
