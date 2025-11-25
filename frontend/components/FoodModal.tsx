@@ -128,6 +128,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
                 value={editedFood.name || ""}
                 onChangeText={(text) => handleChange("name", text)}
                 placeholder="Product name"
+                placeholderTextColor="#888"
               />
               <Ionicons name="create-outline" size={20} color={GreenVar} />
             </View>

@@ -116,7 +116,9 @@
     },
     "feedback": {
       "title": "Thanks for Your opinion!",
-      "subtitle": "It'll help us improve our app and make it even better!"
+      "subtitle": "It'll help us improve our app and make it even better!",
+      "goBack": "Fine!",
+      "findPoint": "Find point"
     },
     "notFound": {
       "title": "This screen doesn't exist.",

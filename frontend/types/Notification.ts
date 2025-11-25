@@ -1,4 +1,5 @@
 export interface NotificationInterface {
+  _id: string;
   userID: string;
   title: string;
   body: string;
@@ -9,6 +10,7 @@ export interface NotificationInterface {
 }
 
 export default class Notification {
+  _id: string;
   userID: string;
   title: string;
   body: string;
@@ -18,6 +20,7 @@ export default class Notification {
   updatedAt: Date;
 
   constructor(props: NotificationInterface) {
+    this._id = props._id;
     this.userID = props.userID;
     this.title = props.title;
     this.body = props.body;

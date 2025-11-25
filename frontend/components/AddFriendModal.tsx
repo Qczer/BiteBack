@@ -49,6 +49,7 @@ export default function AddFriendModal({
           <TextInput
             style={styles.input}
             placeholder={t("enterFriendsName")}
+            placeholderTextColor="#888"
             value={name}
             onChangeText={setName}
           />
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     marginBottom: 16,
-    fontSize: 16,
+    fontSize: 16
   },
   button: {
     flexDirection: "row",

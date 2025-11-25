@@ -113,7 +113,7 @@ function HomeScreen() {
       <HeaderBar />
 
       {/* LOGO + POWITANIE */}
-      <CopilotStep order={1} text={copilot("homeStep1")} name="thanks">
+      <CopilotStep order={1} text={copilot("homeStep1")} name="hello">
         <CopilotView style={styles.headerBlock}>
           <Text style={styles.welcomeText}>
             {t("hello")} {user?.username} 👋
