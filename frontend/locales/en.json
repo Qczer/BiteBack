@@ -59,7 +59,8 @@
       "scanReceipt": "Scan Receipt",
       "shortcuts": "Shortcuts",
       "recentlyAdded":  "Recently Added",
-      "recipes": "Recipes",
+      "recipe": "Recipes",
+      "comingSoon": "Coming Soon",
       "profile": "Profile"
     },
     "fridge": {
@@ -112,7 +113,9 @@
       "language": "Language",
       "langaugeInfo": "Select your preferred language for the app interface.",
       "logout": "Logout",
-      "logoutInfo": "Sign out of your account."
+      "logoutInfo": "Sign out of your account.",
+      "replayTutorial": "Replay tutorial",
+      "replayTutorialInfo": "Replay tour of the app."
     },
     "feedback": {
       "title": "Thanks for Your opinion!",
@@ -169,7 +172,8 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Change app settings and preferences",
-      "headerTitle": "Zmień Ustawienia"
+      "headerTitle": "Change Settings",
+      "replay": "Replay will be shown after reset."
     }
   },
   "modals": {
