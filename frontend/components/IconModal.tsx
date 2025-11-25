@@ -20,8 +20,8 @@ const foodIcons = [
   "pizza", // pizza
   "fast-food", // burger / fast food
   "ice-cream", // lody
-  "cafe", // kawa
-  "beer", // piwo
+  "cafe", // kawa / filiżanka kawy
+  "beer", // piwo / kufel
   "wine", // kieliszek wina
   "restaurant", // sztućce
   "fish", // ryba
@@ -29,19 +29,7 @@ const foodIcons = [
   "nutrition", // jabłko / zdrowe jedzenie
   "leaf", // liść – wege/vegan
   "water", // kropla wody
-
-  // neutralne / placeholdery
   "cube-outline", // placeholder / produkt
-
-  // dodatkowe ikony z Ionicons, które mogą pasować do jedzenia/produktów
-  "cafe", // filiżanka kawy
-  "beer", // kufel piwa
-  "wine", // kieliszek wina
-  "restaurant", // sztućce
-  "fish", // ryba
-  "egg", // jajko
-  "nutrition", // jabłko
-  "water", // kropla
 ];
 
 export default function FoodIconPickerModal({
