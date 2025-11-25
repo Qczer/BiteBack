@@ -34,8 +34,7 @@ function VirtualFridgeScreen() {
   const insets = useSafeAreaInsets();
   const copilot = (key: string) => translate("copilot." + key);
 
-  const { userID, token, userFood, setUserFood } = useUser();
-  const [refresh, setRefresh] = useState(false);
+  const { userID, token, userFood, setUserFood, refreshData } = useUser();
   const { start, totalStepsNumber } = useCopilot();
   const hasStartedTutorial = useRef(false);
 
@@ -45,6 +44,8 @@ function VirtualFridgeScreen() {
       active: false,
     }))
   );
+
+  console.log("userFood", userFood.map(f =>f.iconUrl));
 
   useFocusEffect(
     React.useCallback(() => {
@@ -97,8 +98,7 @@ function VirtualFridgeScreen() {
     };
 
     fetchData();
-    setRefresh(false);
-  }, [refresh]);
+  }, []);
 
   const { t } = useLanguage();
 
@@ -163,7 +163,7 @@ function VirtualFridgeScreen() {
               food={userFood}
               addStyles={{ height: height * 0.55 }}
               filters={foodFilters}
-              refresh={() => setRefresh(true)}
+              refresh={() => refreshData()}
             />
           </CopilotView>
         </CopilotStep>
