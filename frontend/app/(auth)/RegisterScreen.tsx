@@ -17,6 +17,8 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Toast from "react-native-toast-message";
+import {removeToken, setToken as saveTokenToStorage} from "@/services/Storage";
+import {useUser} from "@/contexts/UserContext";
 
 const { width } = Dimensions.get("window");
 
@@ -32,6 +34,8 @@ const showToast = (message: string) => {
 export default function RegisterScreen() {
   const tURL = "screens.register.";
   const t = (key: string) => translate(tURL + key);
+
+  const { setToken, refreshData } = useUser();
 
   const [allFilled, setAllFilled] = useState(false);
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
@@ -65,16 +69,22 @@ export default function RegisterScreen() {
       const res = await register(email, username, password);
       if (res.success) {
         const loginRes = await login(email, password);
-        if (loginRes.success)
-          router.replace("/LoginScreen");
+        if (loginRes.success) {
+          setToken(loginRes.data);
+          await saveTokenToStorage(loginRes.data);
+          await refreshData();
+          router.replace("/HomeScreen");
+        }
         else
-          throw new Error(loginRes.message);
+          showToast(`Error ${loginRes.status}: ${loginRes.message}`);
       }
       else {
         showToast(`Error ${res.status}: ${res.message}`);
       }
-    } catch (error) {
-      showToast("An unexpected error occurred. Please try again.");
+    }
+    catch (error) {
+      showToast("Unexpected error: " + error);
+      console.error(error);
     } finally {
       setLoading(false);
     }

@@ -19,7 +19,7 @@ export const HEADER_HEIGHT = 100;
 const HEADER_BAR_HEIGHT = 48;
 
 export default function HeaderBar() {
-  const { user, unreadNotifications } = useUser();
+  const { user, unreadNotifications, notifications } = useUser();
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -72,23 +72,7 @@ export default function HeaderBar() {
       <NotificationsModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        fetchNotifications={async () => {
-          // TODO: podłącz swoje API
-          return [
-            {
-              id: "1",
-              title: "Witaj w BiteBack!",
-              message: "Twoje konto zostało pomyślnie utworzone.",
-              date: "2025-11-25",
-            },
-            {
-              id: "2",
-              title: "Nowa nagroda",
-              message: "Zdobyłeś 50 punktów BiteScore 🎉",
-              date: "2025-11-24",
-            },
-          ];
-        }}
+        notifications={notifications}
       />
     </View>
   );

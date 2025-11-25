@@ -80,7 +80,7 @@ export const auth = async (token: string): Promise<AuthResult> => {
 
 export const login = async (email: string, password: string): Promise<LoginResult> => {
   const body = {  email, password };
-
+  console.log(body)
   try {
     const { data } = await axiosClient.post<string>('/user/login', body);
 
@@ -187,3 +187,17 @@ export const readNotification = async (userID: string, notificationID: string, t
     console.error("Błąd nieprzeczytanych powiadomień:", e.response?.data || e.message);
   }
 }
+
+export const deleteNotification = async (userID: string, notificationID: string, token: string) => {
+  if (!userID)
+    return;
+
+  try {
+    const res = await axiosClient.delete(`/user/${userID}/notifications/${notificationID}`, { headers: { Authorization: `Bearer ${token}`} });
+    return { success: true, data: res.data };
+  }
+  catch (e: any) {
+    console.error("Delete notification error: ", e.message);
+    return { success: false, status: e.status, message: e.message };
+  }
+};

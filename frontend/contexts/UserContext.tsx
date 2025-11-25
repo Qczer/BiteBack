@@ -113,7 +113,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     refreshData();
 
-    const intervalId = setInterval(refreshData, 60000);
+    const intervalId = setInterval(refreshData, 10000);
     return () => clearInterval(intervalId);
   }, [refreshData]);
 

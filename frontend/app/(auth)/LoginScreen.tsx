@@ -82,7 +82,6 @@ export default function LoginScreen() {
 
       const res = await login(email, password);
       if (res.success) {
-
         await saveTokenToStorage(res.data);
         setToken(res.data);
         await refreshData();

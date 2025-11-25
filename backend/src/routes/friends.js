@@ -92,7 +92,15 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
             $addToSet: { friendRequests: requesterID }
         });
 
-        sendNotification(recipientID, "FRIEND_INVITE", { username: requesterUser.username });
+        sendNotification(
+            recipientID,
+            "FRIEND_INVITE",
+            { username: requesterUser.username },
+            {
+                url: "/(more)/PublicProfileScreen",
+                params: { username: requester.username }
+            }
+        );
 
         res.status(200).json({ message: "Zaproszenie wysłane pomyślnie." });
     }

@@ -68,6 +68,7 @@ export default function FoodEditor({
       setAmount("");
       setUnitValue(null);
       setCatValue(null);
+      setDate(new Date());
     }
   }, [reset]);
 

@@ -10,34 +10,26 @@ import {
   View,
 } from "react-native";
 
-type Notification = {
-  id: string;
-  title: string;
-  message: string;
-  date: string;
-};
+import Notification from "@/types/Notification";
+import {deleteNotification} from "@/api/endpoints/user";
+import {useUser} from "@/contexts/UserContext";
 
 interface NotificationsModalProps {
   visible: boolean;
   onClose: () => void;
-  fetchNotifications: () => Promise<Notification[]>; // API podasz później
+  notifications: Notification[];
 }
 
 export default function NotificationsModal({
   visible,
   onClose,
-  fetchNotifications,
+  notifications
 }: NotificationsModalProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { userID, token, refreshData } = useUser();
 
-  useEffect(() => {
-    if (visible) {
-      fetchNotifications().then(setNotifications).catch(console.error);
-    }
-  }, [visible]);
-
-  const removeNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  const removeNotification = async (id: string) => {
+    const delRes = await deleteNotification(userID, id, token);
+    refreshData();
   };
 
   const renderItem = ({ item }: { item: Notification }) => (
@@ -47,14 +39,14 @@ export default function NotificationsModal({
           <Text style={styles.title}>{item.title}</Text>
           <TouchableOpacity
             style={styles.closeIcon}
-            onPress={() => removeNotification(item.id)}
+            onPress={() => removeNotification(item._id)}
           >
             <Ionicons name="trash" size={20} color="red" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.date}>{item.date}</Text>
+        <Text style={styles.date}>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-"}</Text>
       </View>
-      <Text style={styles.message}>{item.message}</Text>
+      <Text style={styles.message}>{item.body}</Text>
     </View>
   );
 
@@ -74,7 +66,7 @@ export default function NotificationsModal({
           {notifications.length > 0 ? (
             <FlatList
               data={notifications}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item._id}
               renderItem={renderItem}
               contentContainerStyle={{ paddingBottom: 20 }}
             />

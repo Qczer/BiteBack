@@ -93,7 +93,7 @@ router.post("/login", (req, res) => {
         if (user == null) {
             return res.status(401).json({
                 error: {
-                    message: "Unauthorized."
+                    message: "Błędny email lub hasło."
                 }
             })
         }
@@ -108,7 +108,8 @@ router.post("/login", (req, res) => {
             if (result) {
                 const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: JWT_EXPIRATION_TIME});
                 res.status(200).json(token)
-            } else {
+            }
+            else {
                 // brak autoryzacji (niepoprawne hasło)
                 return res.status(401).json({
                     error: {
@@ -119,7 +120,7 @@ router.post("/login", (req, res) => {
         })
     }).catch(err => {
         return res.status(500).json({
-            error: err
+            message: err.message ?? "Błąd bazy danych"
         })
     })
 })

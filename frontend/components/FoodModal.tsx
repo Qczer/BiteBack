@@ -24,13 +24,13 @@ interface FoodModalProps {
 }
 
 const categoryItems = [
-  { label: translate("filters.meat"), value: FoodCategory.Meat },
-  { label: translate("filters.dairy"), value: FoodCategory.Dairy },
-  { label: translate("filters.fruit"), value: FoodCategory.Fruit },
-  { label: translate("filters.vegetable"), value: FoodCategory.Vegetable },
-  { label: translate("filters.snack"), value: FoodCategory.Snack },
-  { label: translate("filters.junk"), value: FoodCategory.Junk },
-  { label: translate("filters.other"), value: FoodCategory.Other },
+  { label: `${translate("filters.meat")} 🍖`, value: FoodCategory.Meat },
+  { label: `${translate("filters.dairy")} 🥛`, value: FoodCategory.Dairy },
+  { label: `${translate("filters.fruit")} 🍎`, value: FoodCategory.Fruit },
+  { label: `${translate("filters.vegetable")} 🥦`, value: FoodCategory.Vegetable },
+  { label: `${translate("filters.snack")} 🍪`, value: FoodCategory.Snack },
+  { label: `${translate("filters.junk")} 🍔`, value: FoodCategory.Junk },
+  { label: `${translate("filters.other")} ❓`, value: FoodCategory.Other },
 ];
 const unitItems = [
   { label: "Kilogram (kg)", value: "kg" },

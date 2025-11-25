@@ -45,8 +45,6 @@ function VirtualFridgeScreen() {
     }))
   );
 
-  console.log("userFood", userFood.map(f =>f.iconUrl));
-
   useFocusEffect(
     React.useCallback(() => {
       const checkTutorialFlag = async () => {
