@@ -2,6 +2,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
 } from "@/api/endpoints/friends";
+import { changeAvatar } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
@@ -25,12 +26,12 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {changeAvatar} from "@/api/endpoints/user";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { user, userID, userFriends, token, clearUser, refreshData } = useUser();
+  const { user, userID, userFriends, token, clearUser, refreshData } =
+    useUser();
 
   const [showFriendsModal, setShowFriendsModal] = useState(false);
 
@@ -55,15 +56,16 @@ export default function ProfileScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images",
       quality: 1,
+      allowsEditing: true,
+      aspect: [1, 1],
     });
 
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
       return result.assets[0].uri;
     }
+    return null;
   };
-
-  console.log(user?.avatar)
 
   const handleChangeAvatar = async () => {
     const avatarUri = await pickImage(); // ustawienie lokalnego podglądu
@@ -71,6 +73,7 @@ export default function ProfileScreen() {
 
     const response = await changeAvatar(userID, token, avatarUri);
     if (response) {
+      refreshData();
       console.log("Avatar zmieniony:", response);
     }
   };
@@ -137,10 +140,13 @@ export default function ProfileScreen() {
             <Image
               source={{ uri: user?.avatar }}
               style={styles.avatar}
-              resizeMode="contain"
+              resizeMode="cover"
             />
             {/* Ikonka edycji */}
-            <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
+            <TouchableOpacity
+              style={styles.editIcon}
+              onPress={handleChangeAvatar}
+            >
               <Ionicons name="create-outline" size={18} color={WhiteVar} />
             </TouchableOpacity>
           </View>
@@ -193,9 +199,9 @@ export default function ProfileScreen() {
           <View style={styles.friendsList}>
             {userFriends && userFriends.friends?.length > 0 ? (
               <>
-                {userFriends.friends.slice(0, 9).map((f) => (
+                {userFriends?.friends.slice(0, 9).map((f, index) => (
                   <TouchableOpacity
-                    key={f._id}
+                    key={f._id ? f._id.toString() : index}
                     style={styles.friendCard}
                     onPress={() => {
                       router.push({
@@ -222,13 +228,17 @@ export default function ProfileScreen() {
                     <Image
                       style={styles.friendAvatar}
                       resizeMode="cover"
-                      source={require("@/assets/images/background.png")}
+                      source={
+                        f.avatar
+                          ? { uri: f.avatar }
+                          : require("@/assets/images/background.png")
+                      }
                     />
                     <Text style={styles.friendName}>{f.username}</Text>
                   </TouchableOpacity>
                 ))}
 
-                {userFriends.friends.length > 9 && (
+                {userFriends?.friends.length > 9 && (
                   <Pressable
                     style={styles.moreButton}
                     onPress={() => setShowFriendsModal(true)}
@@ -492,7 +502,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     width: 90,
-    height: 90
+    height: 90,
   },
   friendName: {
     marginTop: 4,
