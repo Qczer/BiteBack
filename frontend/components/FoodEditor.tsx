@@ -77,6 +77,7 @@ export default function FoodEditor({
       <TextInput
         style={[styles.textInput, { flex: 3 }]}
         placeholder={t("foodName")}
+        placeholderTextColor="#888"
         value={name}
         onChangeText={setName}
         underlineColorAndroid="transparent"

@@ -20,8 +20,6 @@ export default function PublicProfileScreen() {
   useEffect(() => {
     const getFriend = async () => {
       const profileRes = await getProfile(userName, token);
-      console.log("Username: " + userName)
-      console.log("Profile: ", profileRes)
       if (profileRes.success)
         setProfile(profileRes.data);
 
@@ -73,7 +71,7 @@ export default function PublicProfileScreen() {
                   <Image
                     style={styles.friendAvatar}
                     resizeMode="cover"
-                    source={require("@/assets/images/background.png")}
+                    source={{ uri: f.avatar}}
                   />
                   <Text style={styles.friendName}>{f.username}</Text>
                 </TouchableOpacity>
