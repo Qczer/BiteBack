@@ -35,8 +35,7 @@ export const getCurrencyCount = async (): Promise<number> => {
 export const handleLogout = async () => {
   try {
     await removeToken();
-
-    router.replace("/LoginScreen");
+    router.replace("/(auth)/LoginScreen");
   } catch (error) {
     console.error("Error clearing SecureStore:", error);
   }

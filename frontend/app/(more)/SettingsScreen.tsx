@@ -91,7 +91,7 @@ export default function SettingsScreen() {
         cancelOnPress={() => setShowConfirm(false)}
         acceptOnPress={async () => {
           setShowConfirm(false);
-          clearUser();
+          await clearUser();
           await handleLogout();
         }}
       />

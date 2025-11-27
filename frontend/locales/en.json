@@ -59,7 +59,7 @@
       "scanReceipt": "Scan Receipt",
       "shortcuts": "Shortcuts",
       "recentlyAdded":  "Recently Added",
-      "recipe": "Recipes",
+      "recipes": "Recipes",
       "comingSoon": "Coming Soon",
       "profile": "Profile"
     },
@@ -111,7 +111,7 @@
       "title": "Settings",
       "headerTitle": "Change Settings",
       "language": "Language",
-      "langaugeInfo": "Select your preferred language for the app interface.",
+      "languageInfo": "Select your preferred language for the app interface.",
       "logout": "Logout",
       "logoutInfo": "Sign out of your account.",
       "replayTutorial": "Replay tutorial",

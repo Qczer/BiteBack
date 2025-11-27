@@ -101,7 +101,7 @@ router.post("/request/:recipientName", authenticateToken, async (req, res) => {
             "FRIEND_INVITE",
             { username: requesterUser.username },
             {
-                url: "/(tabs)/ProfileScreen",
+                url: "/ProfileScreen",
                 params: { showInvitations: true }
             }
         );

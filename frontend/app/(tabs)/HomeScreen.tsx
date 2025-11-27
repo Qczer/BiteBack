@@ -239,7 +239,7 @@ function HomeScreen() {
         <TouchableOpacity
           style={styles.actionButton}
           onPress={() => {
-            Alert.alert(t("recipe"), t("comingSoon"));
+            Alert.alert(t("recipes"), t("comingSoon"));
           }}
         >
           {/* TODO */}

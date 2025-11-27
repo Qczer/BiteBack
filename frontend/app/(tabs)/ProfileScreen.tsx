@@ -43,6 +43,7 @@ export default function ProfileScreen() {
 
     // Sprawdzamy czy to string "true" LUB boolean true
     if (initialShowInvitations === "true" || initialShowInvitations as any === true) {
+      refreshData();
       setShowInvitations(true);
 
       // Opcjonalnie: Czyścimy parametr z URL, żeby po odświeżeniu (F5) modal sam nie wyskoczył
@@ -104,7 +105,7 @@ export default function ProfileScreen() {
         cancelOnPress={() => setShowConfirm(false)}
         acceptOnPress={async () => {
           setShowConfirm(false);
-          clearUser();
+          await clearUser();
           await handleLogout();
         }}
       />

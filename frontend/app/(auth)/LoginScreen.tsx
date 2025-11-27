@@ -87,10 +87,8 @@ export default function LoginScreen() {
         await refreshData();
         router.replace("/(tabs)/HomeScreen");
       }
-      else {
-        console.log(res)
-        showToast(`Error ${res.status}: ${res.message}`);
-      }
+      else
+        showToast(res.message + "");
     } catch (error) {
       showToast("An unexpected error occurred. Please try again.");
     } finally {

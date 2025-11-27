@@ -80,7 +80,6 @@ export const auth = async (token: string): Promise<AuthResult> => {
 
 export const login = async (email: string, password: string): Promise<LoginResult> => {
   const body = {  email, password };
-  console.log(body)
   try {
     const { data } = await axiosClient.post<string>('/user/login', body);
 
@@ -199,5 +198,17 @@ export const deleteNotification = async (userID: string, notificationID: string,
   catch (e: any) {
     console.error("Delete notification error: ", e.message);
     return { success: false, status: e.status, message: e.message };
+  }
+};
+
+export const removePushToken = async (userID: string, token: string, pushTokenToRemove: string) => {
+  try {
+    const res = await axiosClient.delete(`/user/${userID}/push-token`, {
+      headers: { Authorization: `Bearer ${token}`},
+      data: { token: pushTokenToRemove },
+    });
+  }
+  catch (error) {
+    console.error("Błąd sieci przy usuwaniu tokenu:", error);
   }
 };

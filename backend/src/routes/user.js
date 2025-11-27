@@ -90,33 +90,19 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
     User.findOne({email: req.body.email}).then(user => {
         // brak autoryzacji (nie ma takiego uzytkownika)
-        if (user == null) {
-            return res.status(401).json({
-                error: {
-                    message: "Błędny email lub hasło."
-                }
-            })
-        }
+        if (user == null)
+            return res.status(401).json({ message: "Błędny email lub hasło." })
         bcrypt.compare(req.body.password, user.password, (err, result) => {
             // Błąd po stronie servera (bcrypt)
-            if (err) {
-                return res.status(500).json({
-                    error: err
-                })
-            }
+            if (err)
+                return res.status(500).json({ error: err })
             // sukces
             if (result) {
                 const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, {expiresIn: JWT_EXPIRATION_TIME});
                 res.status(200).json(token)
             }
-            else {
-                // brak autoryzacji (niepoprawne hasło)
-                return res.status(401).json({
-                    error: {
-                        message: "Unauthorized."
-                    }
-                })
-            }
+            else
+                return res.status(401).json({ message: "Unauthorized." }) // brak autoryzacji (niepoprawne hasło)
         })
     }).catch(err => {
         return res.status(500).json({
@@ -212,7 +198,7 @@ router.patch("/:userID/lang", authenticateToken, ensureCorrectUser, (req, res) =
     }).catch(err => serverError(err, res));
 })
 
-router.post("/push-token", authenticateToken, async (req, res) => {
+router.post("/push-token", authenticateToken, ensureCorrectUser, async (req, res) => {
     const { token } = req.body;
     if (!token)
         return res.status(400).json({ error: "Token required" });
@@ -227,6 +213,28 @@ router.post("/push-token", authenticateToken, async (req, res) => {
         serverError(err, res);
     }
 })
+
+router.delete("/push-token", authenticateToken, async (req, res) => {
+    const { token } = req.body;
+
+    if (!token)
+        return res.status(400).json({ error: "Token is required to remove it." });
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { $pull: { pushTokens: token } }
+        );
+
+        if (!updatedUser)
+            return res.status(404).json({ error: "User not found" });
+
+        res.json({ ok: true });
+    }
+    catch (err) {
+        serverError(err, res);
+    }
+});
 
 // NOTIFICATIONS
 router.get("/:userID/notifications", authenticateToken, ensureCorrectUser, async (req, res) => {

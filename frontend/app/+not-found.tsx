@@ -1,8 +1,16 @@
-import { Link, Stack } from 'expo-router';
+import {Link, Stack, usePathname} from 'expo-router';
 import { Text, View, StyleSheet } from 'react-native';
 import t from "@/locales/i18n"
+import {useEffect} from "react";
 
 export default function NotFoundScreen() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Logujemy błędną ścieżkę zaraz po wejściu na ten ekran
+    console.warn(`[404] Użytkownik próbował wejść na: ${pathname}`);
+  }, [pathname]);
+
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />

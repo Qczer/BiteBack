@@ -1,6 +1,6 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {
   Modal,
   StyleSheet,
@@ -30,7 +30,22 @@ export default function AddFriendModal({
   const [status, setStatus] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    if (!visible) {
+      const timer = setTimeout(() => {
+        setName("");
+        setStatus(null);
+        setMessage("");
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
   const handleSubmit = async () => {
+    if (name.trim() === "")
+      return;
+
     const res = await sendFriendRequest(name, token);
     if (res?.success) {
       setStatus("success");
@@ -39,7 +54,6 @@ export default function AddFriendModal({
     else {
       setStatus("error");
       setMessage(res.message)
-      setName("");
     }
   };
 

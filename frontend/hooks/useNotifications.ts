@@ -63,7 +63,7 @@ export function useNotificationObserver() {
       const data = notification.request.content.data;
       console.log("🔔 Kliknięto powiadomienie, dane:", data);
 
-      if (data?.url) {
+      if (data?.url && typeof data.url === 'string') {
         try {
           setTimeout(() => {
             router.push({

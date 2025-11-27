@@ -17,8 +17,8 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Toast from "react-native-toast-message";
-import {removeToken, setToken as saveTokenToStorage} from "@/services/Storage";
-import {useUser} from "@/contexts/UserContext";
+import { setToken as saveTokenToStorage } from "@/services/Storage";
+import { useUser } from "@/contexts/UserContext";
 
 const { width } = Dimensions.get("window");
 
@@ -73,7 +73,7 @@ export default function RegisterScreen() {
           setToken(loginRes.data);
           await saveTokenToStorage(loginRes.data);
           await refreshData();
-          router.replace("/HomeScreen");
+          router.replace("/(tabs)/HomeScreen");
         }
         else
           showToast(`Error ${loginRes.status}: ${loginRes.message}`);

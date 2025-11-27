@@ -1,6 +1,6 @@
 import { getFridge } from "@/api/endpoints/fridge";
-import {auth, getNotifications, getUnreadNotifications, getUser} from "@/api/endpoints/user";
-import { getToken } from "@/services/Storage";
+import {auth, getNotifications, getUnreadNotifications, getUser, removePushToken} from "@/api/endpoints/user";
+import {getToken, removeToken} from "@/services/Storage";
 import Food from "@/types/Food";
 import User, {UserFriendsInterface} from "@/types/User";
 import React, {
@@ -12,14 +12,12 @@ import React, {
   useState,
 } from "react";
 import {getFriends} from "@/api/endpoints/friends";
-import {
-  registerForPushNotificationsAsync,
-  useNotificationObserver
-} from "@/hooks/useNotifications";
+import { registerForPushNotificationsAsync } from "@/hooks/useNotifications";
 import {axiosClient} from "@/api/axiosClient";
 import NotificationClass from "@/types/Notification";
 
 interface UserContextType {
+  isLoading: boolean;
   user: User | null;
   userID: string;
   token: string;
@@ -32,7 +30,7 @@ interface UserContextType {
   unreadNotifications: NotificationClass[];
   clearUser: () => void;
   refreshData: () => Promise<void>;
-  expoPushToken: string;
+  expoPushToken: string | null;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -43,7 +41,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userID, setUserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
   const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
-  const [expoPushToken, setExpoPushToken] = useState<string>("");
+  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<NotificationClass[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState<NotificationClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +84,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const registerPushToken = async () => {
-      if (!token)
+      if (!token || !userID)
         return;
 
       try {
@@ -117,9 +115,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(intervalId);
   }, [refreshData]);
 
-  useNotificationObserver();
+  const clearUser = async () => {
+    if (user && token && expoPushToken)
+      await removePushToken(user._id, token, expoPushToken);
 
-  const clearUser = () => {
+    await removeToken();
     setUserID("");
     setUser(null);
     setUserFriends(null);
@@ -128,6 +128,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const value = useMemo(() => {
     return {
+      isLoading,
       user,
       userID,
       token,
@@ -142,9 +143,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       notifications,
       unreadNotifications
     };
-  }, [user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications]);
-
-  if (isLoading) return null;
+  }, [isLoading, user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
