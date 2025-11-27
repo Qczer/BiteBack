@@ -1,68 +1,104 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import {Slot, usePathname, useRouter, useSegments} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-import "react-native-reanimated";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-import { useColorScheme } from "@/components/useColorScheme";
+import React, { useEffect, useState } from "react";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { UserProvider, useUser } from "@/contexts/UserContext";
+import { getItem } from "@/services/Storage";
+import * as Notifications from "expo-notifications";
+import { useNotificationObserver } from "@/hooks/useNotifications";
+import CustomSplashScreen from "@/components/SplashScreen";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { UserProvider } from "@/contexts/UserContext";
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from "expo-router";
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(auth)",
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-const queryClient = new QueryClient();
-
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
+  const [fontsLoaded, error] = useFonts({
     SpaceMono: require("@/assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;
-  }
-
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  if (!fontsLoaded) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <UserProvider>
-        <LanguageProvider>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(more)" options={{ headerShown: false }} />
-          </Stack>
-        </LanguageProvider>
-      </UserProvider>
-    </QueryClientProvider>
+    <UserProvider>
+      <LanguageProvider>
+        <InitialLayout />
+      </LanguageProvider>
+    </UserProvider>
   );
+}
+
+function InitialLayout() {
+  const { userID, isLoading: isUserLoading } = useUser();
+  const segments = useSegments();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
+  const [isStorageLoading, setIsStorageLoading] = useState(true);
+  const [launchedByNotification, setLaunchedByNotification] = useState(false);
+
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
+  useNotificationObserver();
+
+  useEffect(() => {
+    if (
+      lastNotificationResponse &&
+      lastNotificationResponse.notification.request.content.data.url &&
+      !launchedByNotification
+    ) {
+      setLaunchedByNotification(true);
+    }
+  }, [lastNotificationResponse]);
+
+  useEffect(() => {
+    const checkFirstLaunch = async () => {
+      try {
+        const hasSeen = await getItem("hasSeenWelcomeScreen");
+        setIsFirstLaunch(!hasSeen);
+      }
+      catch {
+        setIsFirstLaunch(false);
+      }
+      finally {
+        setIsStorageLoading(false);
+      }
+    };
+    checkFirstLaunch();
+  }, []);
+
+  useEffect(() => {
+    if (isUserLoading || isStorageLoading) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    const atRoot = pathname === "";
+
+    if (userID) {
+      if (launchedByNotification)
+        return;
+
+      if (inAuthGroup || atRoot)
+        router.replace("/(tabs)/HomeScreen");
+    }
+    else {
+      if (!inAuthGroup) {
+        const routeName = isFirstLaunch ? "WelcomeScreen" : "LoginScreen";
+        router.replace(`/(auth)/${routeName}`);
+      }
+    }
+  }, [userID, isUserLoading, isStorageLoading, segments, isFirstLaunch, launchedByNotification]);
+
+  if (pathname === "/" || isUserLoading || isStorageLoading)
+    return <CustomSplashScreen />;
+
+  return <Slot />;
 }

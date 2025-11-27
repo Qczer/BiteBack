@@ -1,12 +1,12 @@
 import { deleteFood, editFood, editFoodProperty } from "@/api/endpoints/fridge";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { useUser } from "@/contexts/UserContext";
-import Food from "@/types/Food";
+import translate from "@/locales/i18n";
+import Food, { FoodCategory } from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import {
-  Image,
   Modal,
   StyleSheet,
   Text,
@@ -15,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import FoodIconPickerModal from "./IconModal";
 
 interface FoodModalProps {
   visible: boolean;
@@ -23,13 +24,13 @@ interface FoodModalProps {
 }
 
 const categoryItems = [
-  { label: "Meat 🍖", value: "meat" },
-  { label: "Dairy 🥛", value: "dairy" },
-  { label: "Fruit 🍎", value: "fruit" },
-  { label: "Vegetable 🥦", value: "vegetable" },
-  { label: "Snacks 🍪", value: "snacks" },
-  { label: "Fastfood 🍔", value: "fastfood" },
-  { label: "Other ❓", value: "other" },
+  { label: `${translate("filters.meat")} 🍖`, value: FoodCategory.Meat },
+  { label: `${translate("filters.dairy")} 🥛`, value: FoodCategory.Dairy },
+  { label: `${translate("filters.fruit")} 🍎`, value: FoodCategory.Fruit },
+  { label: `${translate("filters.vegetable")} 🥦`, value: FoodCategory.Vegetable },
+  { label: `${translate("filters.snack")} 🍪`, value: FoodCategory.Snack },
+  { label: `${translate("filters.junk")} 🍔`, value: FoodCategory.Junk },
+  { label: `${translate("filters.other")} ❓`, value: FoodCategory.Other },
 ];
 const unitItems = [
   { label: "Kilogram (kg)", value: "kg" },
@@ -41,46 +42,57 @@ const unitItems = [
 export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   if (!food) return null;
 
-  const { userId } = useUser();
+  const tURL = "foodEditor.";
+  const t = (key: string) => translate(tURL + key);
 
-  const [date, setDate] = useState(new Date());
+  const { userID, token } = useUser();
+
+  const [iconModalVisible, setIconModalVisible] = useState(false);
+  const [selectedIcon, setSelectedIcon] = useState(
+    food.iconUrl ?? "cube-outline"
+  );
+
+  const [date, setDate] = useState(
+    new Date(food?.expDate ?? Date.now() + 24 * 60 * 60 * 1000)
+  );
   const [show, setShow] = useState(false);
 
   const [editedFood, setEditedFood] = useState<Food>(food);
   const [unitValue, setUnitValue] = useState(editedFood.unit || null);
   const [categoryValue, setCategoryValue] = useState(editedFood.category);
-  
-  const isLocalImage = typeof food.iconUrl === "number";
-  const isRemoteImage =
-    typeof food.iconUrl === "string" && food.iconUrl.startsWith("http");
-  const isImage = isLocalImage || isRemoteImage;
 
   const handleChange = (key: keyof Food, value: string) => {
     setEditedFood({ ...editedFood, [key]: value });
   };
 
   const handleSave = async () => {
-    if (!food._id)
-      return;
+    if (!food._id) return;
 
-    let newParams: editFoodProperty[] =
-      Object.entries(editedFood)
-        .filter(([key, value]) => key !== '_id' && key !== '__v' && value !== undefined && value !== null)
-        .map(([key, value]) => ({
-          name: key,
-          value: (key === 'expDate' && value instanceof Date) ? value.toISOString() : value
-        }));;
-    await editFood(userId, food._id, { id: food._id, params: newParams});
+    let newParams: editFoodProperty[] = Object.entries(editedFood)
+      .filter(
+        ([key, value]) =>
+          key !== "_id" &&
+          key !== "__v" &&
+          value !== undefined &&
+          value !== null
+      )
+      .map(([key, value]) => ({
+        name: key,
+        value: key === "expDate" ? date.toISOString() : value,
+      }));
+    await editFood(userID, token, food._id, {
+      id: food._id,
+      params: newParams,
+    });
     onClose();
-  }
+  };
 
   const handleDelete = async () => {
-    if (!food._id)
-      return;
+    if (!food._id) return;
 
-    await deleteFood(userId, food._id);
+    await deleteFood(userID, token, food._id);
     onClose();
-  }
+  };
 
   return (
     <Modal
@@ -93,7 +105,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
         <View style={styles.modalBox}>
           {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}>Edit Product</Text>
+            <Text style={styles.title}>{t("editProduct")}</Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
@@ -101,19 +113,12 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
 
           {/* IMAGE + EDIT ICON */}
           <View style={styles.imageRow}>
-            {isImage ? (
-              <Image
-                source={
-                  isLocalImage
-                    ? (food.iconUrl as any)
-                    : { uri: food.iconUrl as any }
-                }
-                style={styles.image}
-              />
-            ) : (
-              <Ionicons name="cube-outline" size={80} color="gray" />
-            )}
-            <TouchableOpacity style={styles.editIcon}>
+            <Ionicons name={selectedIcon as any} size={80} color="gray" />
+
+            <TouchableOpacity
+              style={styles.editIcon}
+              onPress={() => setIconModalVisible(true)}
+            >
               <Ionicons name="create-outline" size={22} color={GreenVar} />
             </TouchableOpacity>
           </View>
@@ -121,61 +126,62 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
           {/* INFO (EDITABLE) */}
           <View style={styles.infoBlock}>
             {/* NAME */}
-            <Text style={styles.label}>Name</Text>
+            <Text style={styles.label}>{translate("common.name")}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
                 value={editedFood.name || ""}
                 onChangeText={(text) => handleChange("name", text)}
                 placeholder="Product name"
+                placeholderTextColor="#888"
               />
               <Ionicons name="create-outline" size={20} color={GreenVar} />
             </View>
 
             {/* AMOUNT */}
-            <Text style={styles.label}>Amount</Text>
+            <Text style={styles.label}>{t("amount")}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
                 value={editedFood.amount?.toString() || ""}
                 onChangeText={(text) => handleChange("amount", text)}
-                placeholder="Amount"
+                placeholder={t("selectAmount")}
               />
               <Ionicons name="create-outline" size={20} color={GreenVar} />
             </View>
 
             {/* UNIT */}
-            <Text style={styles.label}>Unit</Text>
+            <Text style={styles.label}>{t("unit")}</Text>
             <Dropdown
               value={unitValue}
               data={unitItems}
-              onChange={value => {
+              onChange={(value) => {
                 setUnitValue(value.value);
                 handleChange("unit", value.value);
               }}
-              placeholder="Select unit"
+              placeholder={t("selectUnit")}
               style={{ marginBottom: 10 }}
               labelField="label"
               valueField="value"
             />
 
             {/* CATEGORY */}
-            <Text style={styles.label}>Category</Text>
+            <Text style={styles.label}>{t("category")}</Text>
             <Dropdown
               value={categoryValue as string}
               data={categoryItems}
-              onChange={value => {
+              onChange={(value) => {
                 setCategoryValue(value.value);
                 handleChange("category", value.value);
               }}
-              placeholder="Select category"
+              placeholder={t("selectCategory")}
               style={{ marginBottom: 10 }}
               labelField="label"
               valueField="value"
             />
 
             {/* EXPIRY DATE */}
-            <Text style={styles.label}>Expiry Date</Text>
+            <Text style={styles.label}>{t("expiryDate")}</Text>
             <View style={styles.inputRow}>
               {/* Podgląd aktualnej daty */}
               <Text style={styles.datePreview}>
@@ -187,7 +193,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
                 style={styles.dateButton}
                 onPress={() => setShow(true)}
               >
-                <Text style={styles.dateButtonText}>Pick date</Text>
+                <Text style={styles.dateButtonText}>{t("pickDate")}</Text>
               </TouchableOpacity>
 
               {/* Ikonka edycji */}
@@ -212,17 +218,28 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
           <View style={styles.actions}>
             <TouchableOpacity style={styles.actionButton} onPress={handleSave}>
               <Ionicons name="save-outline" size={18} color={WhiteVar} />
-              <Text style={styles.actionText}>Save</Text>
+              <Text style={styles.actionText}>{translate("common.save")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: "red" }]} onPress={handleDelete}
+              style={[styles.actionButton, { backgroundColor: "red" }]}
+              onPress={handleDelete}
             >
               <Ionicons name="trash-outline" size={18} color={WhiteVar} />
-              <Text style={styles.actionText}>Delete</Text>
+              <Text style={styles.actionText}>
+                {translate("common.delete")}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
+      <FoodIconPickerModal
+        visible={iconModalVisible}
+        onClose={() => setIconModalVisible(false)}
+        onSelect={(icon) => {
+          setSelectedIcon(icon);
+          handleChange("iconUrl", icon); // zapisujemy w editedFood
+        }}
+      />
     </Modal>
   );
 }

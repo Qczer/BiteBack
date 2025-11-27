@@ -35,7 +35,7 @@ export const showToast = (message: string) => {
 };
 
 export default function LoginScreen() {
-  const { setToken } = useUser()
+  const { setToken, refreshData } = useUser()
 
   const tURL = "screens.login.";
   const t = (key: string) => translate(tURL + key);
@@ -79,15 +79,16 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+
       const res = await login(email, password);
       if (res.success) {
-
         await saveTokenToStorage(res.data);
         setToken(res.data);
+        await refreshData();
         router.replace("/(tabs)/HomeScreen");
       }
       else
-        showToast(`Error ${res.status}: ${res.message}`);
+        showToast(res.message + "");
     } catch (error) {
       showToast("An unexpected error occurred. Please try again.");
     } finally {

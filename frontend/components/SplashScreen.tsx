@@ -1,6 +1,7 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import React from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import translate from "@/locales/i18n"
 
 export default function SplashScreen() {
   return (
@@ -9,7 +10,7 @@ export default function SplashScreen() {
       <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
 
       {/* TEKST */}
-      <Text style={styles.text}>Fetching your information...</Text>
+      <Text style={styles.text}>{translate("common.fetchingYourInfo")}...</Text>
 
       {/* SPINNER */}
       <ActivityIndicator

@@ -1,38 +1,55 @@
-import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import {acceptFriendRequest, rejectFriendRequest,} from "@/api/endpoints/friends";
+import {changeAvatar, getAvatarUri} from "@/api/endpoints/user";
+import {GreenVar, WhiteVar} from "@/assets/colors/colors";
 import AddFriendModal from "@/components/AddFriendModal";
 import HeaderBar from "@/components/HeaderBar";
 import Invitations from "@/components/InvitationsModal";
 import LogoutModal from "@/components/LogoutModal";
-import ShareCode from "@/components/ShareCodeModal";
-import { useUser } from "@/contexts/UserContext";
+import RemoveFriendModal from "@/components/RemoveFriendModal";
+import {useUser} from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
-import { handleLogout } from "@/services/Storage";
-import { Ionicons } from "@expo/vector-icons";
+import {handleLogout} from "@/services/Storage";
+import {Feather, Ionicons} from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
-import { Text, View, Image, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import {router, useLocalSearchParams} from "expo-router";
+import {useEffect, useState} from "react";
+import {Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {useSafeAreaInsets} from "react-native-safe-area-context";
+import {Image} from 'expo-image';
 
 export default function ProfileScreen() {
-  const { clearUser } = useUser();
+  const insets = useSafeAreaInsets();
+
+  const { user, userID, userFriends, token, clearUser, refreshData } =
+    useUser();
+
+  const { showInvitations: initialShowInvitations } = useLocalSearchParams<{ showInvitations: string }>();
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [avatarHash, setAvatarHash] = useState(Date.now());
 
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
 
-  const { user }  = useUser();
-
-  const accountDate = "2023-05-12";
-  const currencyValue = 125.5;
-
-  const friends: string[] = [];
-  const leaderboard = [1, 2, 3, , 7, 9, 10];
-  const newInvitationsCount = 3;
-
   const [showAddFriend, setShowAddFriend] = useState(false);
-  const [showShareCode, setShowShareCode] = useState(false);
   const [showInvitations, setShowInvitations] = useState(false);
+  const [showRemoveFriendModal, setShowRemoveFriendModal] = useState(false);
+  const [removeFriendName, setRemoveFriendName] = useState("");
+
+  useEffect(() => {
+    console.log("Odebrano parametr showInvitations:", initialShowInvitations);
+
+    // Sprawdzamy czy to string "true" LUB boolean true
+    if (initialShowInvitations === "true" || initialShowInvitations as any === true) {
+      refreshData();
+      setShowInvitations(true);
+
+      // Opcjonalnie: Czyścimy parametr z URL, żeby po odświeżeniu (F5) modal sam nie wyskoczył
+      router.setParams({ showInvitations: "" });
+    }
+  }, [initialShowInvitations]);
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -42,33 +59,87 @@ export default function ProfileScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       quality: 1,
+      allowsEditing: true,
+      aspect: [1, 1],
     });
 
     if (!result.canceled) {
       setAvatarUri(result.assets[0].uri);
+      return result.assets[0].uri;
+    }
+    return null;
+  };
+
+  const handleChangeAvatar = async () => {
+    const avatarUri = await pickImage(); // ustawienie lokalnego podglądu
+    if (!avatarUri) return;
+
+    setAvatarUri(avatarUri);
+
+    const response = await changeAvatar(userID, token, avatarUri);
+    if (response) {
+      await refreshData();
+      setAvatarHash(Date.now());
     }
   };
 
+  const baseAvatarUri = getAvatarUri(avatarUri, user?.avatar);
+  const displayAvatarUri = baseAvatarUri?.startsWith("http")
+    ? `${baseAvatarUri}?t=${avatarHash}`
+    : baseAvatarUri;
+
+  console.log(displayAvatarUri)
+
   return (
-    <View style={{ flex: 1, backgroundColor: WhiteVar }}>
-  
-      <LogoutModal showConfirm={showConfirm} cancelOnPress={() => setShowConfirm(false)} acceptOnPress={async () => { setShowConfirm(false); clearUser(); await handleLogout(); }} />
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: WhiteVar,
+        paddingBottom: 60 + insets.bottom,
+      }}
+    >
+      <LogoutModal
+        showConfirm={showConfirm}
+        cancelOnPress={() => setShowConfirm(false)}
+        acceptOnPress={async () => {
+          setShowConfirm(false);
+          await clearUser();
+          await handleLogout();
+        }}
+      />
+      <RemoveFriendModal
+        name={removeFriendName}
+        visible={showRemoveFriendModal}
+        onClose={() => setShowRemoveFriendModal(false)}
+      />
 
       {/* Modals */}
       <AddFriendModal
         visible={showAddFriend}
         onClose={() => setShowAddFriend(false)}
       />
-      <ShareCode
-        visible={showShareCode}
-        onClose={() => setShowShareCode(false)}
-      />
       <Invitations
         visible={showInvitations}
         onClose={() => setShowInvitations(false)}
-        invitations={[]}
+        invitations={userFriends?.requests.map((r) => r.username) ?? []}
+        onAccept={async (index: number) => {
+          if (!userFriends) return;
+          await acceptFriendRequest(
+            userFriends.requests[index].username,
+            token
+          );
+          await refreshData();
+        }}
+        onReject={async (index: number) => {
+          if (!userFriends) return;
+          await rejectFriendRequest(
+            userFriends.requests[index].username,
+            token
+          );
+          await refreshData();
+        }}
       />
 
       <HeaderBar />
@@ -77,17 +148,21 @@ export default function ProfileScreen() {
 
         {/* Karta profilu */}
         <View style={styles.card}>
-          <View style={{ position: "relative", backgroundColor: 'transparent' }}>
+          <View
+            style={{ position: "relative", backgroundColor: "transparent" }}
+          >
             <Image
-              source={
-                avatarUri
-                  ? { uri: avatarUri }
-                  : require("@/assets/images/logo.png")
-              }
+              source={{ uri: displayAvatarUri }}
               style={styles.avatar}
+              contentFit="cover"
+              transition={500}
+              cachePolicy="memory-disk"
             />
             {/* Ikonka edycji */}
-            <TouchableOpacity style={styles.editIcon} onPress={pickImage}>
+            <TouchableOpacity
+              style={styles.editIcon}
+              onPress={handleChangeAvatar}
+            >
               <Ionicons name="create-outline" size={18} color={WhiteVar} />
             </TouchableOpacity>
           </View>
@@ -95,14 +170,17 @@ export default function ProfileScreen() {
           <View style={styles.cardInfo}>
             <Text style={styles.nickname}>{user?.username ?? "Guest"}</Text>
             <Text style={styles.infoText}>
-              {t("joined")}: {accountDate}
+              {t("joined")}:{" "}
+              {new Date(user?.createDate ?? "").toLocaleDateString()}
             </Text>
-            <Text style={styles.infoText}>BiteScore: {currencyValue}</Text>
+            <Text style={styles.infoText}>
+              BiteScore: {user?.bitescore ?? 0}
+            </Text>
           </View>
         </View>
 
         {/* Ikony pod kartą */}
-        <View style={styles.iconRow}>
+        <View style={[styles.iconRow, styles.shadow]}>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
@@ -116,24 +194,16 @@ export default function ProfileScreen() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              setShowShareCode(true);
-            }}
-          >
-            <Ionicons name="share-social" size={32} color={GreenVar} />
-            <Text style={styles.iconLabel}>{t("shareCode")}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => {
               setShowInvitations(true);
             }}
           >
             <Ionicons name="mail" size={32} color={GreenVar} />
             <Text style={styles.iconLabel}>{t("invitations")}</Text>
-            {newInvitationsCount > 0 && (
+            {userFriends && userFriends.requests.length > 0 && (
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{newInvitationsCount}</Text>
+                <Text style={styles.badgeText}>
+                  {userFriends.requests.length}
+                </Text>
               </View>
             )}
           </TouchableOpacity>
@@ -143,38 +213,131 @@ export default function ProfileScreen() {
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{translate("common.friends")}</Text>
           <View style={styles.friendsList}>
-            {friends.length > 0 ? (
-              friends.map((f, i) => (
-                <Text key={i} style={styles.friend}>
-                  👤 {f}
-                </Text>
-              ))
+            {userFriends && userFriends.friends?.length > 0 ? (
+              <>
+                {userFriends?.friends.slice(0, 9).map((f, index) => (
+                  <TouchableOpacity
+                    key={f._id ? f._id.toString() : index}
+                    style={styles.friendCard}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/(more)/PublicProfileScreen",
+                        params: { userName: f.username },
+                      });
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        zIndex: 10,
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      onPress={() => {
+                        setRemoveFriendName(f.username);
+                        setShowRemoveFriendModal(true);
+                      }}
+                    >
+                      <Feather name="x" color="red" size={22} />
+                    </TouchableOpacity>
+                    <Image
+                      style={styles.friendAvatar}
+                      contentFit="cover"
+                      source={{ uri: getAvatarUri(null, f.avatar) }}
+                      cachePolicy="memory-disk"
+                    />
+                    <Text style={styles.friendName}>{f.username}</Text>
+                  </TouchableOpacity>
+                ))}
+
+                {userFriends?.friends.length > 9 && (
+                  <Pressable
+                    style={styles.moreButton}
+                    onPress={() => setShowFriendsModal(true)}
+                  >
+                    <Text style={styles.moreButtonText}>{t("more")}</Text>
+                  </Pressable>
+                )}
+              </>
             ) : (
-              <Text style={styles.infoText}>{t("noFriends")}</Text>
+              <View>
+                <Image
+                  source={require("@/assets/images/people/noFriends.png")}
+                  style={{ alignSelf: "center", marginBottom: 10, height: 100, width: 100 }}
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
+                />
+                <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
+              </View>
             )}
           </View>
         </View>
 
         {/* Leaderboard – tylko jeśli są znajomi */}
-        {friends.length > 0 && (
-          <View style={styles.panel}>
-            <Text style={styles.panelTitle}>Leaderboard</Text>
-            <View style={styles.leaderboard}>
-              {leaderboard.map((l, i) => (
-                <Text key={i} style={styles.leader}>
-                  {l}
-                </Text>
-              ))}
+        <View style={styles.panel}>
+          <Text style={styles.panelTitle}>{t("leaderboard")}</Text>
+          {userFriends && userFriends.friends.length > 0 ? (
+            <View style={styles.podium}>
+              {userFriends.friends
+                .slice()
+                .sort((a, b) => b.bitescore - a.bitescore)
+                .slice(0, 3)
+                .map((f, i) => {
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
+                  const podiumStyle =
+                    i === 0
+                      ? styles.goldBox
+                      : i === 1
+                      ? styles.silverBox
+                      : styles.bronzeBox;
+
+                  return (
+                    <View key={i} style={[styles.podiumSlot, podiumStyle]}>
+                      <Text style={styles.medal}>{medal}</Text>
+                      <Text style={styles.username}>{f.username}</Text>
+                      <Text style={styles.score}>{f.bitescore} pts</Text>
+                    </View>
+                  );
+                })}
             </View>
-          </View>
-        )}
+          ) : (
+            <View>
+              <Image
+                source={require("@/assets/images/people/leaderboard.png")}
+                style={{
+                  alignSelf: "center",
+                  marginBottom: 10,
+                  height: 140,
+                  width: 140
+                }}
+                contentFit="contain"
+                cachePolicy="memory-disk"
+              />
+              <Text style={{ textAlign: "center" }}>
+                {t("emptyLeaderboard")}
+              </Text>
+            </View>
+          )}
+        </View>
 
         {/* Rewards */}
         <View style={styles.panel}>
           <Text style={styles.panelTitle}>{t("biteScoreRewards")}</Text>
-          <Text style={styles.infoText}>
-            {translate("common.comingSoon")}...
-          </Text>
+          <View>
+            <Image
+              source={require("@/assets/images/people/rewards.png")}
+              style={{
+                alignSelf: "center",
+                marginBottom: 10,
+                height: 140,
+                width: 140
+              }}
+              contentFit="contain"
+              cachePolicy="memory-disk"
+            />
+            <Text style={{ textAlign: "center" }}>{t("rewards")}</Text>
+          </View>
         </View>
 
         {/* Logout */}
@@ -231,7 +394,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 40,
     marginRight: 16,
-    backgroundColor: 'transparent'
+    backgroundColor: "transparent",
   },
   cardInfo: {
     flexDirection: "column",
@@ -273,7 +436,7 @@ const styles = StyleSheet.create({
     backgroundColor: "snow",
   },
   friend: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#333",
   },
   leaderboard: {
@@ -281,6 +444,8 @@ const styles = StyleSheet.create({
     backgroundColor: "snow",
   },
   leader: {
+    justifyContent: "center",
+    alignItems: "center",
     fontSize: 14,
     color: "#333",
   },
@@ -293,11 +458,14 @@ const styles = StyleSheet.create({
   },
   iconRow: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-around",
     width: "90%",
-    marginVertical: 20,
-    marginBottom: 40,
-    backgroundColor: WhiteVar,
+    marginTop: 50,
+    marginVertical: 40,
+    paddingVertical: 20,
+    borderRadius: 10,
+    backgroundColor: "snow",
   },
   iconButton: {
     alignItems: "center",
@@ -342,5 +510,91 @@ const styles = StyleSheet.create({
     backgroundColor: GreenVar,
     borderRadius: 16,
     padding: 8,
+  },
+  friendCard: {
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+    width: 90,
+    height: 90,
+  },
+  friendName: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#333",
+  },
+  friendAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  shadow: {
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  // panel: {
+  //   marginTop: 20,
+  //   padding: 10,
+  //   backgroundColor: "#f9f9f9",
+  //   borderRadius: 8,
+  // },
+  // panelTitle: {
+  //   fontSize: 18,
+  //   fontWeight: "700",
+  //   marginBottom: 12,
+  //   textAlign: "center",
+  // },
+  podium: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+  },
+  podiumSlot: {
+    flex: 1,
+    marginHorizontal: 6,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: 8,
+  },
+  goldBox: {
+    backgroundColor: "#FFD700",
+    height: 120, // najwyższe
+  },
+  silverBox: {
+    backgroundColor: "#C0C0C0",
+    height: 90,
+  },
+  bronzeBox: {
+    backgroundColor: "#CD7F32",
+    height: 70,
+  },
+  medal: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  username: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+  },
+  score: {
+    fontSize: 12,
+    color: "#555",
+  },
+  moreButton: {
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: GreenVar,
+    borderRadius: 6,
+    alignSelf: "center",
+  },
+  moreButtonText: {
+    color: WhiteVar,
+    fontSize: 14,
   },
 });

@@ -1,50 +1,145 @@
+import { getMutualFriends } from "@/api/endpoints/friends";
+import {getAvatarUri, getProfile} from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
-import HeaderBar from "@/components/HeaderBar";
-import { Text, View, Image, ScrollView, StyleSheet } from "react-native";
+import { useUser } from "@/contexts/UserContext";
+import translate from "@/locales/i18n";
+import { MutualFriendsInterface, Profile } from "@/types/User";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {Image} from 'expo-image';
 
 export default function PublicProfileScreen() {
-  // przykładowe dane – w realnej wersji pobierasz z API
-  const nickname = "OtherUser";
-  const accountDate = "2024-01-15";
-  const currencyValue = 250;
+  const tURL = "screens.profile.";
+  const t = (key: string) => translate(tURL + key);
+  const { userName }: { userName: string } = useLocalSearchParams();
+  const { token } = useUser();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [mutualFriends, setMutualFriends] =
+    useState<MutualFriendsInterface | null>(null);
 
-  const friends: string[] = ["Alice", "Bob", "Charlie"];
-  const leaderboard = [1, 2, 3, 4, 5];
+  useEffect(() => {
+    const getFriend = async () => {
+      const profileRes = await getProfile(userName, token);
+      if (profileRes.success) setProfile(profileRes.data);
+
+      const friendsRes = await getMutualFriends(userName, token);
+      if (friendsRes.success) setMutualFriends(friendsRes.data);
+    };
+    getFriend();
+  }, [userName]);
+
+  const baseAvatarUri = getAvatarUri(profile?.avatar ?? null);
+  const displayAvatarUri = baseAvatarUri?.startsWith("http")
+    ? `${baseAvatarUri}?t=${new Date().getTime()}`
+    : baseAvatarUri;
 
   return (
     <View style={{ flex: 1, backgroundColor: WhiteVar }}>
-      <HeaderBar />
+      {/* <HeaderBar /> */}
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.backgroundHigher}></View>
 
         {/* Karta profilu */}
         <View style={styles.card}>
           <Image
-            source={require("@/assets/images/logo.png")}
+            source={{ uri: getAvatarUri(null, profile?.avatar) }}
             style={styles.avatar}
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
           <View style={styles.cardInfo}>
-            <Text style={styles.nickname}>{nickname}</Text>
-            <Text style={styles.infoText}>Joined: {accountDate}</Text>
-            <Text style={styles.infoText}>BiteScore: {currencyValue}</Text>
+            <Text style={styles.nickname}>{profile?.username}</Text>
+            <Text style={styles.infoText}>
+              Joined:{" "}
+              {profile?.createDate
+                ? new Date(profile?.createDate).toLocaleDateString()
+                : t("noDate")}
+            </Text>
+            <Text style={styles.infoText}>BiteScore: {profile?.bitescore}</Text>
           </View>
         </View>
 
         {/* Pasek znajomych */}
         <View style={styles.panel}>
-          <Text style={styles.panelTitle}>Friends</Text>
+          <Text style={styles.panelTitle}>
+            {translate("common.mutualFriends")}
+          </Text>
           <View style={styles.friendsList}>
-            {friends.length > 0 ? (
-              friends.map((f, i) => (
-                <Text key={i} style={styles.friend}>
-                  👤 {f}
-                </Text>
+            {mutualFriends && mutualFriends?.mutualFriends.length > 0 ? (
+              mutualFriends.mutualFriends.map((f) => (
+                <TouchableOpacity
+                  key={f._id}
+                  style={styles.friendCard}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/(more)/PublicProfileScreen",
+                      params: { userName: f.username },
+                    });
+                  }}
+                >
+                  <Image
+                    style={styles.friendAvatar}
+                    contentFit="cover"
+                    source={{ uri: displayAvatarUri }}
+                    cachePolicy="memory-disk"
+                  />
+                  <Text style={styles.friendName}>{f.username}</Text>
+                </TouchableOpacity>
               ))
             ) : (
-              <Text style={styles.infoText}>No friends yet</Text>
+              <View>
+                <Image
+                  source={require("@/assets/images/people/noFriends.png")}
+                  style={{
+                    alignSelf: "center",
+                    marginBottom: 10,
+                    height: 100,
+                    width: 100
+                  }}
+                  contentFit="contain"
+                  cachePolicy="memory-disk"
+                />
+                <Text style={{ textAlign: "center" }}>{t("noFriends")}</Text>
+              </View>
             )}
           </View>
         </View>
+
+        {mutualFriends && mutualFriends.mutualFriends.length > 0 && (
+          <View style={styles.panel}>
+            <Text style={styles.panelTitle}>{t("mutualLeaderboard")}</Text>
+            <View style={styles.podium}>
+              {mutualFriends.mutualFriends
+                .slice()
+                .sort((a, b) => b.bitescore - a.bitescore)
+                .slice(0, 3)
+                .map((f, i) => {
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉";
+                  const podiumStyle =
+                    i === 0
+                      ? styles.goldBox
+                      : i === 1
+                      ? styles.silverBox
+                      : styles.bronzeBox;
+
+                  return (
+                    <View key={i} style={[styles.podiumSlot, podiumStyle]}>
+                      <Text style={styles.medal}>{medal}</Text>
+                      <Text style={styles.username}>{f.username}</Text>
+                      <Text style={styles.score}>{f.bitescore} pts</Text>
+                    </View>
+                  );
+                })}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -137,5 +232,58 @@ const styles = StyleSheet.create({
   leader: {
     fontSize: 14,
     color: "#333",
+  },
+  friendCard: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  friendName: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#333",
+    padding: 7,
+  },
+  friendAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  podium: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+  },
+  podiumSlot: {
+    flex: 1,
+    marginHorizontal: 6,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: 8,
+  },
+  goldBox: {
+    backgroundColor: "#FFD700",
+    height: 120, // najwyższe
+  },
+  silverBox: {
+    backgroundColor: "#C0C0C0",
+    height: 90,
+  },
+  bronzeBox: {
+    backgroundColor: "#CD7F32",
+    height: 70,
+  },
+  medal: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  username: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+  },
+  score: {
+    fontSize: 12,
+    color: "#555",
   },
 });

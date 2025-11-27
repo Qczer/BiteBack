@@ -1,26 +1,39 @@
-import Food from '@/types/Food';
-import { axiosClient } from '../axiosClient';
+import Food from "@/types/Food";
+import axios, { AxiosError } from "axios";
+import { axiosClient } from "../axiosClient";
 
-export const addFoodToFridge = async (userId: string, foodList: Food[]) => {
-  if (!userId)
-    return;
+export const addFoodToFridge = async (userID: string, token: string, foodList: Food[]) => {
+  if (!userID) return;
 
   try {
-    await axiosClient.post(`/fridge/${userId}`, foodList);
+    return await axiosClient.post(`/fridge/${userID}`, foodList, { headers: { Authorization: `Bearer ${token}`}});
   }
-  catch(e) {
-    console.error("Błąd podczas wysyłania jedzenia: ", e);
+  catch (e) {
+    if (axios.isAxiosError(e)) {
+      const axiosError = e as AxiosError;
+
+      console.error("------- DEBUG ERROR -------");
+      console.error(
+        "Pełny URL:",
+        (axiosError.config?.baseURL || "") + (axiosError.config?.url || "")
+      );
+      console.error("Metoda:", axiosError.config?.method);
+      console.error("Dane odpowiedzi:", axiosError.response?.data);
+      console.error("Status:", axiosError.response?.status);
+    }
+    else
+      console.error("Inny błąd:", e);
+    throw e;
   }
 };
 
-export const getFridge = async (userId: string) => {
-  if (!userId)
-    return;
+export const getFridge = async (userID: string, token: string) => {
+  if (!userID) return;
 
   try {
-    return await axiosClient.get(`/fridge/${userId}`);
+    return await axiosClient.get(`/fridge/${userID}`, { headers: { Authorization: `Bearer ${token}` } });
   }
-  catch(e: any) {
+  catch (e: any) {
     console.error("Get fridge error: ", e.message);
   }
 };
@@ -35,26 +48,30 @@ export interface editFoodParams {
   params: editFoodProperty[];
 }
 
-export const editFood = async (userId: string, foodId: string, params: editFoodParams) => {
-  if (!userId || !foodId)
-    return;
+export const editFood = async (
+  userID: string,
+  token: string,
+  foodId: string,
+  params: editFoodParams
+) => {
+  if (!userID || !foodId) return;
 
   try {
-    return await axiosClient.patch(`/fridge/${userId}`, params);
-  }
-  catch(e: any) {
+    return await axiosClient.patch(`/fridge/${userID}`, params, { headers: { Authorization: `Bearer ${token}` }});
+  } catch (e: any) {
     console.error("Patch food error: ", e.message);
   }
-}
+};
 
-export const deleteFood = async (userId: string, foodId: string) => {
-  if (!userId || !foodId)
-    return;
+export const deleteFood = async (userID: string, token: string, foodId: string) => {
+  if (!userID || !foodId) return;
 
   try {
-    return await axiosClient.delete(`/fridge/${userId}`, { data: { "id": foodId } });
-  }
-  catch(e: any) {
+    return await axiosClient.delete(`/fridge/${userID}`, {
+        data: { id: foodId },
+        headers: { Authorization: `Bearer ${token}`}
+    });
+  } catch (e: any) {
     console.error("Patch food error: ", e.message);
   }
-}
+};

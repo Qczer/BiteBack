@@ -1,5 +1,6 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import RealButton from "@/components/RealButton";
+import t from "@/locales/i18n";
 import { setItem } from "@/services/Storage";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { router } from "expo-router";
@@ -21,7 +22,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/background.png")}
+        source={require("@/assets/images/background2.png")}
         style={styles.backgroundImage}
         resizeMode="cover"
       />
@@ -29,21 +30,20 @@ export default function WelcomeScreen() {
         {/* Header 40% */}
         <View style={styles.header}>
           <Text style={styles.sloganText}>
-            Fight Waste, <Text style={styles.brand}>BiteBack</Text>.
+            Turn leftovers into possibilities with{" "}
+            <Text style={styles.brand}>BiteBack</Text>.
           </Text>
         </View>
 
         {/* Button 30% */}
         <RealButton
           text="GET STARTED"
-          onPress={() => router.push("./LoginScreen")}
+          onPress={() => router.replace("/(auth)/LoginScreen")}
         />
 
         {/* Footer 30% */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            HELP BUILD A WORLD WITH LESS WASTE.{"\n"}EVERY MEAL MATTERS.
-          </Text>
+          <Text style={styles.footerText}>{t("common.slogan")}</Text>
         </View>
       </View>
     </View>

@@ -5,11 +5,25 @@
     "email": "Email",
     "password": "Password"
   },
-
+  "copilot": {
+    "step": "Step",
+    "homeStep1": "Welcome to BiteBack! I'm Max and i'll get you started with our app.",
+    "fridgeStep1": "This is your Virtual Fridge where you can see all your stored food items. Colors and opacity will indicate their freshness.",
+    "fridgeStep2": "Alternatively, you can view the fridge contents in a list format by clicking here.",
+    "fridgeStep3": "Currently there are 2 ways to add food: by scanning receipts and through shopping lists.",
+    "scanStep1": "From here you'll be scanning receipts. But first, you need to grant camera access.",
+    "listStep1": "Here is your shopping list! You can add items you want to buy here, and then move the entire list to your Virtual Fridge.",
+    "next": "Next",
+    "previous": "Previous",
+    "skip": "Skip",
+    "finish": "Finish"
+  },
   "screens": {
     "login": {
       "title": "Sign In",
       "welcomeBack": "Welcome Back!",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "emailLabel": "Email address",
       "emailPlaceholder": "johndoe@mail.com",
       "passwordLabel": "Password",
@@ -33,7 +47,21 @@
       "pleaseFillAllFields": "Please fill in all fields correctly"
     },
     "home": {
-      "title": "Home"
+      "title": "Home",
+      "hello": "Hello",
+      "helloSub": "Ready to manage your fridge?",
+      "fridgeOverview": "Fridge Overview",
+      "itemsStored": "items stored",
+      "expiringToday": "expiring today",
+      "expired": "expired",
+      "nutritionOverview": "Nutrition Overview",
+      "yourFridgeIsEmpty": "Your Fridge Is Empty",
+      "scanReceipt": "Scan Receipt",
+      "shortcuts": "Shortcuts",
+      "recentlyAdded":  "Recently Added",
+      "recipes": "Recipes",
+      "comingSoon": "Coming Soon",
+      "profile": "Profile"
     },
     "fridge": {
       "title": "Fridge",
@@ -49,18 +77,32 @@
       "cameraDesc": "Open the camera to take a picture",
       "openCamera": "Open Camera",
       "cameraWarning1": "The photo should be taken against a bright background and as level as possible.",
-      "cameraWarning2": "Currently, our AI model has been optimized for analyzing such shots, ensuring the highest quality and consistency of results."
-      
+      "cameraWarning2": "Currently, our AI model has been optimized for analyzing such shots, ensuring the highest quality and consistency of results.",
+
+      "addToShoppingList": "Add to Shopping List",
+
+      "hereIsYourPhoto": "Here is your photo",
+      "takeAnotherPicture": "Take another picture"
     },
     "profile": {
       "title": "Profile",
       "joined": "Joined",
       "addFriend": "Add Friend",
+      "removeFriend": "Remove Friend",
+      "askToRemoveFriend": "Remove friend?",
+      "successRemove": "Removed successfully",
       "shareCode": "Share Code",
       "invitations": "Invitations",
       "noFriends": "No friends yet",
       "biteScoreRewards": "BiteScore Rewards",
-      "logout": "Logout"
+      "logout": "Logout",
+      "leaderboard": "Leaderboard",
+      "mutualLeaderboard": "Mutual friends' leaderboard",
+      "rewards": "Rewards coming soon!",
+      "enterFriendsName": "Enter friend's name",
+      "success": "Success! Friend invited.",
+      "emptyLeaderboard": "Congratulations, You're the best among your friends!",
+      "noDate": "No Date"
     },
     "more": {
       "title": "More"
@@ -69,9 +111,21 @@
       "title": "Settings",
       "headerTitle": "Change Settings",
       "language": "Language",
-      "langaugeInfo": "Select your preferred language for the app interface.",
+      "languageInfo": "Select your preferred language for the app interface.",
       "logout": "Logout",
-      "logoutInfo": "Sign out of your account."
+      "logoutInfo": "Sign out of your account.",
+      "replayTutorial": "Replay tutorial",
+      "replayTutorialInfo": "Replay tour of the app."
+    },
+    "feedback": {
+      "title": "Thanks for Your opinion!",
+      "subtitle": "It'll help us improve our app and make it even better!",
+      "goBack": "Fine!",
+      "findPoint": "Find point"
+    },
+    "notFound": {
+      "title": "This screen doesn't exist.",
+      "goToHomeScreen": "Go to home screen!"
     }
   },
   "cards": {
@@ -99,8 +153,11 @@
     "shoppingLists": {
       "title": "Shopping List",
       "subtitle": "Create shopping lists and add items to Fridge",
+      "desc": "Add product to your shopping list to remember what to buy! Then, you\n            can easily move them to your Virtual Fridge.",
       "headerTitle": "Shopping List",
-      "addBtn": "Add to Fridge"
+      "addBtn": "Add to Fridge",
+      "addToList": "Add to shopping list",
+      "addToFridge": "Add to virtual fridge"
     },
     "feedback": {
       "title": "Feedback",
@@ -115,7 +172,20 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Change app settings and preferences",
-      "headerTitle": "Zmień Ustawienia"
+      "headerTitle": "Change Settings",
+      "replay": "Replay will be shown after reset."
+    }
+  },
+  "modals": {
+    "invitationsModal": {
+      "invitations": "Invitations",
+      "noInvitations": "No invitations"
+    },
+    "logoutModal": {
+      "title": "Confirm Logout",
+      "description": "Are you sure you want to logout? This will clear your saved data.",
+      "cancelLabel": "Cancel",
+      "acceptLabel": "Yes, Logout"
     }
   },
   "filters": {
@@ -131,8 +201,17 @@
     "frozen": "Frozen",
     "other": "Other"
   },
+  "units": {
+    "g": "Gram",
+    "kg": "Kilogram",
+    "l": "Liter",
+    "ml": "Milliliter",
+    "pcs": "Pieces"
+  },
   "common": {
+    "slogan": "Fight waste. BiteBack.",
     "friends": "Friends",
+    "mutualFriends": "Mutual Friends",
     "comingSoon": "Coming Soon",
     "name": "Name",
     "description": "Description",
@@ -141,17 +220,31 @@
     "number": "Number",
     "city": "City",
     "coordinates": "Coordinates",
-    "or": "Or"
+    "or": "Or",
+    "searchFood": "Search Food",
+    "cancel": "Cancel",
+    "close": "Close",
+    "open": "Open",
+    "submit": "Submit",
+    "save": "Save",
+    "delete": "Delete",
+    "accept": "Accept",
+    "reject": "Reject",
+    "confirm": "Confirm",
+    "confirmText": "Are you sure you want to delete",
+    "fromFriends": "from friends list?",
+    "fetchingYourInfo": "Fetching your information"
   },
   "foodEditor": {
     "foodName": "Food Name",
     "amount": "Amount",
-    "unit": "Unit"
-  },
-  "logoutModal": {
-    "title": "Confirm Logout",
-    "description": "Are you sure you want to logout? This will clear your saved data.",
-    "cancelLabel": "Cancel",
-    "acceptLabel": "Yes, Logout"
+    "selectAmount": "Select amount",
+    "unit": "Unit",
+    "selectUnit": "Select unit",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "expiryDate": "Expiry Date",
+    "pickDate": "Pick date",
+    "editProduct": "Edit Product"
   }
 }

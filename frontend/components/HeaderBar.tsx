@@ -1,41 +1,33 @@
-import { GreenVar, WhiteVar } from "@/assets/colors/colors";
+import { GreenVar } from "@/assets/colors/colors";
+import NotificationsModal from "@/components/NotificationsModal";
 import { useUser } from "@/contexts/UserContext";
-import {
-  getNotificationsCount,
-} from "@/services/Storage";
 import { Courgette_400Regular, useFonts } from "@expo-google-fonts/courgette";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import { Text, View, Dimensions, Image, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
+export const HEADER_HEIGHT = 100;
+const HEADER_BAR_HEIGHT = 48;
+
 export default function HeaderBar() {
-  const { user } = useUser()
-
+  const { user, unreadNotifications, notifications } = useUser();
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
-  const [notifications, setNotifications] = useState<number>(0);
-  const [currency, setCurrency] = useState<number>(0);
-
-  // Ładowanie danych i cykliczne odświeżanie
-  useEffect(() => {
-    const fetchData = async () => {
-      const notif = await getNotificationsCount();
-      setNotifications(notif);
-      setCurrency(user?.bitescore ?? 0);
-    };
-
-    fetchData();
-
-    // odświeżaj co 30 sekund
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const [modalVisible, setModalVisible] = useState(false);
 
   if (!fontsLoaded) return null;
 
   return (
-    <View style={styles.header}>
+    // pointerEvents="box-none" pozwala przekazywać gesty do elementów pod headerem
+    <View style={styles.header} pointerEvents="box-none">
       <View style={styles.headerBar}>
         {/* Left side */}
         <View style={styles.headerLeft}>
@@ -52,45 +44,53 @@ export default function HeaderBar() {
           {/* Currency */}
           <TouchableOpacity style={{ marginRight: 16 }}>
             <View style={styles.currencyBox}>
-              {/* <Ionicons name="cash-outline" size={26} color={GreenVar} /> */}
-              <Image source={require("@/assets/images/BiteScore.png")} style={{ width: 35, height: 35 }}/>
-              <Text style={styles.currencyText}>{currency.toFixed(2)}</Text>
+              <Image
+                source={require("@/assets/images/BiteScore.png")}
+                style={{ width: 35, height: 35 }}
+              />
+              <Text style={styles.currencyText}>{user?.bitescore ?? 0}</Text>
             </View>
           </TouchableOpacity>
 
           {/* Notifications */}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
             <Ionicons name="notifications-outline" size={28} color={GreenVar} />
-            {notifications > 0 && (
+            {unreadNotifications?.length > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
-                  {notifications > 9 ? "9+" : notifications}
+                  {unreadNotifications.length > 9
+                    ? "9+"
+                    : unreadNotifications.length}
                 </Text>
               </View>
             )}
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal */}
+      <NotificationsModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        notifications={notifications}
+      />
     </View>
   );
 }
 
-const HEADER_HEIGHT = 100;
-const HEADER_BAR_HEIGHT = 48;
-
 const styles = StyleSheet.create({
   header: {
     position: "relative",
-    backgroundColor: WhiteVar,
+    backgroundColor: "snow",
     width: "100%",
     height: HEADER_HEIGHT,
     borderBottomColor: "#ddd",
     borderBottomWidth: 1,
     elevation: 2,
     paddingHorizontal: 16,
+    zIndex: 10, // upewnij się, że header jest nad treścią
   },
   headerBar: {
-    backgroundColor: WhiteVar,
     position: "absolute",
     left: 16,
     right: 16,
@@ -104,7 +104,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: WhiteVar,
   },
   logo: {
     width: screenWidth * 0.1,
@@ -119,7 +118,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   headerRight: {
-    backgroundColor: WhiteVar,
     flexDirection: "row",
     alignItems: "center",
     position: "relative",
@@ -142,7 +140,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   currencyBox: {
-    backgroundColor: WhiteVar,
     flexDirection: "row",
     alignItems: "center",
   },

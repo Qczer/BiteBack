@@ -8,7 +8,7 @@ interface LogoutModalProps {
 }
 
 export default function LogoutModal({ showConfirm, cancelOnPress, acceptOnPress }: LogoutModalProps) {
-  const tURL = "logoutModal."
+  const tURL = "modals.logoutModal."
   const t = (key: string) => translate(tURL + key);
 
   return (

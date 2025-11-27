@@ -8,23 +8,30 @@ export enum FoodCategory {
   Other = "other"
 }
 
+export enum FoodUnit {
+  g = "g",
+  kg = "kg",
+  ml = "ml",
+  l = "l",
+  pcs = "pcs",
+}
+
 export interface FoodProps {
   _id?: string;
   name: string;
   amount: number;
-  unit?: string;
-  category?: FoodCategory; 
+  unit: FoodUnit;
+  category: FoodCategory;
   iconUrl?: string;
   expDate?: Date | null; 
 }
 
 export default class Food {
   _id?: string;
-
   name: string;
   amount: number;
-  unit?: string;
-  category?: FoodCategory;
+  unit: FoodUnit;
+  category: FoodCategory;
   iconUrl?: string;
   expDate?: Date | null;
 

@@ -13,6 +13,7 @@ export default function Layout() {
         name="MapsScreen"
         options={{
           title: t("cards.maps.headerTitle"),
+          headerShown: false,
         }}
       />
       <Stack.Screen
@@ -49,6 +50,20 @@ export default function Layout() {
         name="PublicProfileScreen"
         options={{
           title: "User profile",
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="RecipesScreen"
+        options={{
+          title: "Recipe",
+        }}
+      />
+      <Stack.Screen
+        name="PointSentScreen"
+        options={{
+          title: "Point Sent",
+          headerShown: false,
         }}
       />
     </Stack>

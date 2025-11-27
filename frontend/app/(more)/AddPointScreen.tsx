@@ -5,14 +5,17 @@ import Toast from "react-native-toast-message";
 
 import toastConfig from "@/components/ToastConfig";
 import {
-  ScrollView,
+  ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
+import { createNewPoint } from "@/api/endpoints/dotationpoints";
 import translate from "@/locales/i18n";
+import { router } from "expo-router";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function AddPointScreen() {
   const tURL = "cards.addPoint.";
@@ -24,7 +27,7 @@ export default function AddPointScreen() {
   const [street, setStreet] = useState("");
   const [number, setNumber] = useState("");
   const [city, setCity] = useState("");
-  const [location, setLocation] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const showToast = (message: string) => {
     Toast.show({
@@ -34,22 +37,62 @@ export default function AddPointScreen() {
       swipeable: true,
     });
   };
+  const showSuccessfulToast = (message: string) => {
+    Toast.show({
+      type: "success",
+      text1: message,
+      position: "top",
+      swipeable: true,
+    });
+  };
+  const allFilled = name && description && zip && street && number && city;
 
-  const allFilled =
-    name && description && zip && street && number && city && location;
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!allFilled) {
       showToast("Please fill in all fields.");
       return;
     }
-
-    console.log({ name, description, zip, street, number, city, location });
+    setLoading(true);
+    try {
+      const res = await createNewPoint(
+        name,
+        description,
+        zip,
+        street,
+        number,
+        city
+      );
+      if (res.success) {
+        showSuccessfulToast("Successfully sent!");
+        router.replace("/(more)/PointSentScreen");
+      } else {
+        if (res.status == 0) {
+          showToast(`Sorry! We can't find your location.`);  
+        } else {
+          showToast(`Error ${res.status}: ${res.message}`);
+        }
+      }
+    } catch (error) {
+      showToast("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+    console.log({ name, description, zip, street, number, city });
   };
 
   return (
     <>
-      <ScrollView contentContainerStyle={styles.container}>
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          width: "90%",
+          alignSelf: "center",
+        }}
+        enableOnAndroid={true}
+        extraScrollHeight={250}
+        keyboardOpeningTime={0}
+      >
         {/* Intro banner */}
         <View style={styles.headerBox}>
           <Text style={styles.title}>{t("headerText")}</Text>
@@ -94,28 +137,27 @@ export default function AddPointScreen() {
             setVal={setCity}
             leftIcon="location-outline"
           />
-          <FormInput
-            label={translate("common.coordinates")}
-            placeholder={t("coordsEG")}
-            setVal={setLocation}
-            leftIcon="map-outline"
-          />
         </View>
 
         {/* Submit button */}
         <TouchableOpacity
           style={[
             styles.submitButton,
-            !allFilled && styles.submitButtonDisabled,
+            (!allFilled || loading) && styles.submitButtonDisabled,
           ]}
           onPress={handleSubmit}
+          disabled={!allFilled || loading}
         >
-          <Text style={styles.submitText}>{t("submit")}</Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>{t("submit")}</Text>
+          )}
         </TouchableOpacity>
 
         {/* Info note */}
         <Text style={styles.infoNote}>⚠️ {t("infoNote")}</Text>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <Toast config={toastConfig} />
     </>
   );
@@ -163,7 +205,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   submitButtonDisabled: {
-    backgroundColor: "#ccc", // szary, gdy nie wszystkie pola wypełnione
+    backgroundColor: "#ccc", // szary, gdy nie wszystkie pola wypełnione lub loading
   },
   submitText: {
     color: "white",
@@ -176,5 +218,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#777",
     textAlign: "center",
+    paddingBottom: 30,
   },
 });

@@ -1,6 +1,6 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {
   Modal,
   StyleSheet,
@@ -9,6 +9,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {sendFriendRequest} from "@/api/endpoints/friends";
+import {useUser} from "@/contexts/UserContext";
+import translate from "@/locales/i18n"
 
 interface AddFriendModalProps {
   visible: boolean;
@@ -19,14 +22,38 @@ export default function AddFriendModal({
   visible,
   onClose,
 }: AddFriendModalProps) {
-  const [code, setCode] = useState("");
-  const [status, setStatus] = useState<"success" | "error" | null>(null);
+  const tURL = "screens.profile."
+  const t = (key: string) => translate(tURL + key)
 
-  const handleSubmit = () => {
-    if (code.trim() === "ABC123") {
+  const { token } = useUser();
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState<"success" | "error" | null>(null);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!visible) {
+      const timer = setTimeout(() => {
+        setName("");
+        setStatus(null);
+        setMessage("");
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [visible]);
+
+  const handleSubmit = async () => {
+    if (name.trim() === "")
+      return;
+
+    const res = await sendFriendRequest(name, token);
+    if (res?.success) {
       setStatus("success");
-    } else {
+      setName("");
+    }
+    else {
       setStatus("error");
+      setMessage(res.message)
     }
   };
 
@@ -34,29 +61,30 @@ export default function AddFriendModal({
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalBox}>
-          <Text style={styles.panelTitle}>👥 Add Friend</Text>
+          <Text style={styles.panelTitle}>👥 {t("addFriend")}</Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Enter friend code"
-            value={code}
-            onChangeText={setCode}
+            placeholder={t("enterFriendsName")}
+            placeholderTextColor="#888"
+            value={name}
+            onChangeText={setName}
           />
 
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Ionicons name="person-add" size={20} color={WhiteVar} />
-            <Text style={styles.buttonText}>Submit</Text>
+            <Text style={styles.buttonText}>{translate("common.submit")}</Text>
           </TouchableOpacity>
 
           {status === "success" && (
-            <Text style={styles.success}>✅ Code accepted! Friend added.</Text>
+            <Text style={styles.success}>✅ {t("success")}</Text>
           )}
           {status === "error" && (
-            <Text style={styles.error}>❌ Invalid code, please try again.</Text>
+            <Text style={styles.error}>❌ {message}</Text>
           )}
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeText}>Close</Text>
+            <Text style={styles.closeText}>{translate("common.close")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -96,7 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     marginBottom: 16,
-    fontSize: 16,
+    fontSize: 16
   },
   button: {
     flexDirection: "row",

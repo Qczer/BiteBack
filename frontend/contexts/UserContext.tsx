@@ -1,18 +1,36 @@
-import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
-import { getItem, getToken, removeItem, removeToken } from '@/services/Storage'; 
-import { auth, getUser } from '@/api/endpoints/user';
-import User from '@/types/User';
-import Food from '@/types/Food';
-import { getFridge } from '@/api/endpoints/fridge';
+import { getFridge } from "@/api/endpoints/fridge";
+import {auth, getNotifications, getUnreadNotifications, getUser, removePushToken} from "@/api/endpoints/user";
+import {getToken, removeToken} from "@/services/Storage";
+import Food from "@/types/Food";
+import User, {UserFriendsInterface} from "@/types/User";
+import React, {
+  createContext,
+  ReactNode, useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {getFriends} from "@/api/endpoints/friends";
+import { registerForPushNotificationsAsync } from "@/hooks/useNotifications";
+import {axiosClient} from "@/api/axiosClient";
+import NotificationClass from "@/types/Notification";
 
 interface UserContextType {
+  isLoading: boolean;
   user: User | null;
-  userId: string;
+  userID: string;
   token: string;
   setToken: React.Dispatch<React.SetStateAction<string>>;
   userFood: Food[];
+  userFriends: UserFriendsInterface | null;
   setUserFood: React.Dispatch<React.SetStateAction<Food[]>>;
+  setUserFriends: React.Dispatch<React.SetStateAction<UserFriendsInterface | null>>;
+  notifications: NotificationClass[];
+  unreadNotifications: NotificationClass[];
   clearUser: () => void;
+  refreshData: () => Promise<void>;
+  expoPushToken: string | null;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -20,82 +38,120 @@ const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
+  const [userID, setUserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
+  const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
+  const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<NotificationClass[]>([]);
+  const [unreadNotifications, setUnreadNotifications] = useState<NotificationClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const refreshData = useCallback(async () => {
+    try {
+      const currentToken = await getToken();
+      if(!currentToken)
+        return;
+
+      setToken(currentToken);
+
+      const authRes = await auth(currentToken);
+      if (!authRes.success)
+        return;
+
+      setUserID(authRes.data.userID);
+
+      const [userRes, friendsRes, fridgeRes, notificationsRes, unreadNotificationsRes] = await Promise.all([
+        getUser(authRes.data.userID, currentToken),
+        getFriends(authRes.data.userID, currentToken),
+        getFridge(authRes.data.userID, currentToken),
+        getNotifications(authRes.data.userID, currentToken),
+        getUnreadNotifications(authRes.data.userID, currentToken)
+      ]);
+
+      if (userRes.success) setUser(userRes.data);
+      if (friendsRes.data) setUserFriends(friendsRes.data);
+      if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
+      if (notificationsRes) setNotifications(notificationsRes);
+      if (unreadNotificationsRes) setUnreadNotifications(unreadNotificationsRes);
+    }
+    catch (error) {
+      console.error("Failed to load User from storage", error);
+    }
+    finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const loadUser = async () => {
+    const registerPushToken = async () => {
+      if (!token || !userID)
+        return;
+
       try {
-        const token = await getToken();
-        setToken(token ?? "");
+        const tokenExpo = await registerForPushNotificationsAsync();
+        if (!tokenExpo || tokenExpo === expoPushToken)
+          return;
 
-        if (token) {
-          const authRes = await auth(token);
-  
-          if (authRes.success)
-            setUserId(authRes.data.userId);
-          else {
-            removeItem("userId")
-            removeToken();
-            return;
-          }
+        setExpoPushToken(tokenExpo);
 
-          const userRes = await getUser(authRes.data.userId);
-
-          if (userRes.success)
-            setUser(userRes.data)
-
-          const fetchData = async () => {
-            const fridgeRes = await getFridge(authRes.data.userId);
-            if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
-          };
-    
-          fetchData();
-        }
+        await axiosClient.post(
+          "/user/push-token",
+          { token: tokenExpo },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       }
-      catch (error) {
-        console.error("Failed to load User from storage", error);
-      }
-      finally {
-        setIsLoading(false);
+      catch (err) {
+        console.error("Error sending push token:", err);
       }
     };
 
-    loadUser();
-  }, [token])
+    registerPushToken();
+  }, [token]);
 
-  const clearUser = () => {
-    setUserId("");
+  useEffect(() => {
+    refreshData();
+
+    const intervalId = setInterval(refreshData, 10000);
+    return () => clearInterval(intervalId);
+  }, [refreshData]);
+
+  const clearUser = async () => {
+    if (user && token && expoPushToken)
+      await removePushToken(user._id, token, expoPushToken);
+
+    await removeToken();
+    setUserID("");
     setUser(null);
-  }
+    setUserFriends(null);
+    setNotifications([]);
+  };
 
   const value = useMemo(() => {
     return {
+      isLoading,
       user,
-      userId,
+      userID,
       token,
       setToken,
       userFood,
       setUserFood,
-      clearUser
+      userFriends,
+      setUserFriends,
+      expoPushToken,
+      clearUser,
+      refreshData,
+      notifications,
+      unreadNotifications
     };
-  }, [user, userId, userFood]);
+  }, [isLoading, user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications]);
 
-  if (isLoading)
-    return null; 
-
-  return (
-    <UserContext.Provider value={value}>
-        {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
+    throw new Error("useUser must be used within a UserProvider");
   }
   return context;
 };

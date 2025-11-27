@@ -2,7 +2,7 @@ import { GreenVar } from "@/assets/colors/colors";
 import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import FoodModal from "./FoodModal";
 
 interface FridgeFoodProps {
@@ -12,42 +12,46 @@ interface FridgeFoodProps {
 
 export default function FridgeFood({ food, refresh }: FridgeFoodProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const isLocalImage = typeof food.iconUrl === "number"; // require return a number
-  const isRemoteImage =
-    typeof food.iconUrl === "string" && food.iconUrl.startsWith("http");
+  const expiryDate = new Date(food.expDate!);
+  const dateDiff = expiryDate.getTime() - Date.now();
 
-  const isImage = isLocalImage || isRemoteImage;
+  const day = 24 * 60 * 60 * 1000;
+
+  const ratio = Math.max(0, Math.min(1, dateDiff / day));
+
+  const r = 85 + (33 - 85) * ratio;
+  const g = 92 + (150 - 92) * ratio;
+  const b = 20 + (243 - 20) * ratio;
+
+  const dynamicColor = `rgb(${r}, ${g}, ${b})`;
+  const dynamicOpacity = 0.3 + ratio * 0.7;
 
   return (
     <View style={{ width: "17.5%", backgroundColor: "transparent" }}>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
-        {isImage ? (
-          <Image
-            source={
-              isLocalImage
-                ? (food.iconUrl as any)
-                : { uri: food.iconUrl as any }
-            }
-            style={{
-              width: 90,
-              height: 90,
-              resizeMode: "contain",
-            }}
-          />
-        ) : (
-          // defaultowa ikonka
-          <View style={{ height: "100%", margin: 0 }}>
-            <Ionicons name="cube-outline" color={"gray"} size={50}></Ionicons>
-            <Text style={{ fontSize: 12, textAlign: "center" }} ellipsizeMode="tail" numberOfLines={1}>
-              {food.name}
-            </Text>
-          </View>
-        )}
+        <View style={{ height: "100%", margin: 0 }}>
+          <Ionicons
+            name={food?.iconUrl ?? ("cube-outline" as any)}
+            color={dynamicColor}
+            style={{opacity: dynamicOpacity}}
+            size={50}
+          ></Ionicons>
+          <Text
+            style={{ fontSize: 12, textAlign: "center" }}
+            ellipsizeMode="tail"
+            numberOfLines={1}
+          >
+            {food.name}
+          </Text>
+        </View>
         <Text style={styles.amount}>{food.amount}</Text>
       </TouchableOpacity>
       <FoodModal
         visible={modalVisible}
-        onClose={() => { setModalVisible(false); refresh?.(); }}
+        onClose={() => {
+          setModalVisible(false);
+          refresh?.();
+        }}
         food={food}
       />
     </View>

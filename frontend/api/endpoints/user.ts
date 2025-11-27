@@ -1,6 +1,5 @@
-import User from '@/types/User';
-import { axiosClient } from '../axiosClient';
 import { AxiosError } from 'axios';
+import { axiosClient } from '../axiosClient';
 
 type LoginResult =
 | { success: true; data: string }
@@ -8,20 +7,52 @@ type LoginResult =
 
 interface AuthResponse {
   message: string;
-  userId: string;
+  userID: string;
 }
 
 type AuthResult =
 | { success: true; data: AuthResponse }
 | { success: false; status: number | null; message?: string };
 
-export const getUser = async (userId: string) => {
+const BASE_URL = "https://biteback.pl/api/storage/avatars";
+const NO_PFP = `${BASE_URL}/nopfp.png`;
+
+export const getAvatarUri = (localUri: string | null, serverFilename?: string) => {
+  if (localUri) localUri;
+
+  if (serverFilename) {
+    if (serverFilename.startsWith('http')) {
+      return serverFilename;
+    }
+    return `${BASE_URL}/${serverFilename}`;
+  }
+
+  return NO_PFP;
+}
+
+export const getUser = async (userID: string, token: string) => {
   try {
-    const { data } = await axiosClient.get(`/user/${userId}`);
+    const { data } = await axiosClient.get(`/user/${userID}`, { headers: { Authorization: `Bearer ${token}` }});
     return { success: true, data }
   }
   catch (error) {
     const err = error as AxiosError<any>; 
+
+    return {
+      success: false,
+      status: err.response?.status ?? null,
+      message: err.response?.data?.message
+    }
+  }
+};
+
+export const getProfile = async (userName: string, token: string) => {
+  try {
+    const { data } = await axiosClient.get(`/profile/${userName}`, { headers: { Authorization: `Bearer ${token}` }});
+    return { success: true, data }
+  }
+  catch (error) {
+    const err = error as AxiosError<any>;
 
     return {
       success: false,
@@ -49,9 +80,26 @@ export const auth = async (token: string): Promise<AuthResult> => {
 
 export const login = async (email: string, password: string): Promise<LoginResult> => {
   const body = {  email, password };
-
   try {
     const { data } = await axiosClient.post<string>('/user/login', body);
+
+    return { success: true, data };
+  }
+  catch(error) {
+    const err = error as AxiosError<any>;
+    return {
+      success: false,
+      status: err.response?.status ?? null,
+      message: err.response?.data?.message
+    }
+  }
+};
+
+export const register = async (email: string, username: string, password: string) => {
+  try {
+    const body = {  email, username, password };
+
+    const { data } = await axiosClient.post('/user/register', body);
 
     return { success: true, data };
   }
@@ -66,21 +114,101 @@ export const login = async (email: string, password: string): Promise<LoginResul
   }
 };
 
-export const register = async (email: string, username: string, password: string): Promise<LoginResult> => {
-  const body = {  email, username, password };
+export const changeAvatar = async (userID: string, token: string, avatarUri: string) => {
+  try {
+    const formData = new FormData();
+    // W React Native trzeba dopisać typ pliku i nazwę
+    console.log('Avatar URI: ', avatarUri);
+    const filename = avatarUri.split("/").pop() || "avatar.jpg";
+    const file: any = {
+      uri: avatarUri,
+      type: "image/jpeg",
+      name: filename,
+    };
+
+    formData.append("avatar", file);
+
+    const res = await axiosClient.patch(`/user/avatar/${userID}`, formData, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return res.data;
+  }
+  catch (error) {
+    const e = error as AxiosError;
+    console.error("Błąd zmiany avatara:", e.response?.data || e.message);
+  }
+};
+
+export const changeLanguage = async (userID: string, token: string, newLanguage: string) => {
+  try {
+    const res = await axiosClient.patch(`/user/${userID}/lang`, { lang: newLanguage }, { headers: { Authorization: `Bearer ${token}` }});
+    return res.data;
+  }
+  catch (error) {
+    const e = error as AxiosError;
+    console.error("Błąd zmiany języka:", e.response?.data || e.message);
+  }
+};
+
+export const getNotifications = async (userID: string, token: string) => {
+  try {
+    const res = await axiosClient.get(`/user/${userID}/notifications`, { headers: { Authorization: `Bearer ${token}` }});
+    return res.data;
+  }
+  catch (error) {
+    const e = error as AxiosError;
+    console.error("Błąd pobierania powiadomień:", e.response?.data || e.message);
+  }
+}
+
+export const getUnreadNotifications = async (userID: string, token: string) => {
+  try {
+    const res = await axiosClient.get(`/user/${userID}/notifications/unread`, { headers: { Authorization: `Bearer ${token}` }});
+    return res.data;
+  }
+  catch (error) {
+    const e = error as AxiosError;
+    console.error("Błąd pobierania nieprzeczytanych powiadomień:", e.response?.data || e.message);
+  }
+}
+
+export const readNotification = async (userID: string, notificationID: string, token: string) => {
+  try {
+    const res = await axiosClient.patch(`/user/${userID}/notifications/${notificationID}/read`, {}, { headers: { Authorization: `Bearer ${token}` }});
+    return res.data;
+  }
+  catch (error) {
+    const e = error as AxiosError;
+    console.error("Błąd nieprzeczytanych powiadomień:", e.response?.data || e.message);
+  }
+}
+
+export const deleteNotification = async (userID: string, notificationID: string, token: string) => {
+  if (!userID)
+    return;
 
   try {
-    const { data } = await axiosClient.post('/user/register', body);
-
-    return { success: true, data };
+    const res = await axiosClient.delete(`/user/${userID}/notifications/${notificationID}`, { headers: { Authorization: `Bearer ${token}`} });
+    return { success: true, data: res.data };
   }
-  catch(error) {
-    const err = error as AxiosError<any>; 
-    
-    return {
-      success: false,
-      status: err.response?.status ?? null,
-      message: err.response?.data?.message
-    }
+  catch (e: any) {
+    console.error("Delete notification error: ", e.message);
+    return { success: false, status: e.status, message: e.message };
+  }
+};
+
+export const removePushToken = async (userID: string, token: string, pushTokenToRemove: string) => {
+  try {
+    const res = await axiosClient.delete(`/user/${userID}/push-token`, {
+      headers: { Authorization: `Bearer ${token}`},
+      data: { token: pushTokenToRemove },
+    });
+  }
+  catch (error) {
+    console.error("Błąd sieci przy usuwaniu tokenu:", error);
   }
 };

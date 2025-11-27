@@ -17,15 +17,15 @@ const upload = multer({
 
 // Routes
 router.post("/scan", upload.single("image"), async (req, res) => {
-    if (!req.file) return res.status(400).json({error: "No file uploaded"});
-
-    const form = new FormData();
-    form.append("image", req.file.buffer, {
-        filename: req.file.originalname,
-        contentType: req.file.mimetype,
-    });
-
     try {
+        if (!req.file) return res.status(400).json({error: "No file uploaded"});
+
+        const form = new FormData();
+        form.append("image", req.file.buffer, {
+            filename: req.file.originalname,
+            contentType: req.file.mimetype,
+        });
+
         const response = await axios.post("http://ai:8001/scan/", form, {
             headers: form.getHeaders(),
             maxContentLength: Infinity,
@@ -42,7 +42,8 @@ router.post("/scan", upload.single("image"), async (req, res) => {
                 expirationDate: null
             }
         }));
-    } catch (err) {
+    }
+    catch (err) {
         res
             .status(err.response?.status || 500)
             .json(err.response?.data || err.message);

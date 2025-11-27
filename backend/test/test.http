@@ -1,12 +1,14 @@
 # BiteBack
 
 @baseURL = https://biteback.pl/api/
-@userId = 69228ab94492c74f4bbd50d2
+@userID = 69228ab94492c74f4bbd50d2
+@recipientName = "User"
+@requesterName = "ODBYTNIK"
 
 ###
 # group: user
-# @name user/:userId
-GET {{baseURL}}user/{{userId}}
+# @name user/:userID
+GET {{baseURL}}user/{{userID}}
 
 ###
 # group: user
@@ -51,14 +53,29 @@ GET {{baseURL}}user/auth
 Authorization: Bearer {{token}}
 
 ###
-# group: fridge
-# @name fridge/:userId
-GET {{baseURL}}fridge/{{userId}}
+# group: user
+# @name user/:userID
+PATCH {{baseURL}}user/{{userID}}/lang
+Content-Type: application/json
+
+{
+  "params": [
+    {
+      "name": "lang",
+      "value": "en"
+    }
+  ]
+}
 
 ###
 # group: fridge
-# @name fridge/:userId
-POST {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+GET {{baseURL}}fridge/{{userID}}
+
+###
+# group: fridge
+# @name fridge/:userID
+POST {{baseURL}}fridge/{{userID}}
 Content-Type: application/json
 
 [
@@ -74,8 +91,8 @@ Content-Type: application/json
 
 ###
 # group: fridge
-# @name fridge/:userId
-PATCH {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+PATCH {{baseURL}}fridge/{{userID}}
 Content-Type: application/json
 
 {
@@ -110,8 +127,8 @@ Content-Type: application/json
 
 ###
 # group: fridge
-# @name fridge/:userId
-DELETE {{baseURL}}fridge/{{userId}}
+# @name fridge/:userID
+DELETE {{baseURL}}fridge/{{userID}}
 
 ###
 # group: ai
@@ -125,3 +142,57 @@ Content-Type: image/png
 
 < ./test.png
 --WebAppBoundary
+
+
+###
+# group: user
+# @name user/login
+POST {{baseURL}}user/login
+Content-Type: application/json
+
+{
+  "email": "user@mail.com",
+  "password": "Password123#"
+}
+
+> {%
+    const token = response.body
+
+    client.global.set("recipientToken", token)
+%}
+
+###
+# group: user
+# @name user/login
+POST {{baseURL}}user/login
+Content-Type: application/json
+
+{
+  "email": "odbyt@mail.com",
+  "password": "Password123#"
+}
+
+> {%
+    const token = response.body
+
+    client.global.set("requesterToken", token)
+%}
+
+
+###
+# group: friends
+# @name friends/:userName
+GET {{baseURL}}friends/{{recipientName}}
+Authorization: Bearer {{recipientToken}}
+
+###
+# group: friends
+# @name friends/request/:recipientId
+POST {{baseURL}}friends/request/{{recipientName}}
+Authorization: Bearer {{requesterToken}}
+
+###
+# group: friends
+# @name friends/accept/:requesterId
+POST {{baseURL}}friends/accept/{{requesterName}}
+Authorization: Bearer {{recipientToken}}

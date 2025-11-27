@@ -1,25 +1,38 @@
 import { axiosClient } from "@/api/axiosClient";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import HeaderBar from "@/components/HeaderBar";
+import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import translate from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const screenHeight = Math.round(Dimensions.get("window").height);
-export default function ScanScreen() {
+const CopilotView = walkthroughable(View);
+const CopilotText = walkthroughable(Text);
+
+function ScanScreen() {
+  const insets = useSafeAreaInsets();
+  const copilot = (key: string) => translate("copilot." + key);
+
+  const { start, totalStepsNumber } = useCopilot();
+  const hasStartedTutorial = useRef(false);
   const tURL = "screens.scan.";
   const t = (key: string) => translate(tURL + key);
+
+  const isFocused = useIsFocused();
 
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
@@ -29,20 +42,73 @@ export default function ScanScreen() {
   const [flashlightOn, setFlashlightOn] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkTutorialFlag = async () => {
+        try {
+          const hasSeen = await AsyncStorage.getItem(
+            "@hasSeenScanScreenTutorial"
+          );
+          if (!hasSeen && !hasStartedTutorial.current) {
+            // Odpalamy tutorial z opóźnieniem
+            const timer = setTimeout(() => {
+              hasStartedTutorial.current = true;
+              start();
+              AsyncStorage.setItem("@hasSeenScanScreenTutorial", "true");
+            }, 0);
+
+            return () => clearTimeout(timer);
+          }
+        } catch (error) {
+          console.error("Error checking tutorial flag.", error);
+        }
+      };
+
+      // ma byc !dev jesli production ready
+      if (!__DEV__) {
+        checkTutorialFlag();
+      }
+    }, [start])
+  );
+
   if (!permission) return null;
 
   // 1️⃣ Brak zgody na kamerę
   if (!permission.granted) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: WhiteVar,
+          paddingBottom: 60 + insets.bottom,
+        }}
+      >
         <HeaderBar />
         <View style={styles.center}>
-          <Ionicons name="camera-outline" size={64} color={GreenVar} />
+          <Image
+            source={require("@/assets/images/people/cameraPerms.png")}
+            style={{
+              alignSelf: "center",
+              marginBottom: 10,
+            }}
+            height={260}
+            width={260}
+            resizeMode="contain"
+          ></Image>
+
           <Text style={styles.title}>{t("permissionTitle")}</Text>
           <Text style={styles.description}>{t("permissionDesc")}</Text>
-          <TouchableOpacity style={styles.button} onPress={requestPermission}>
-            <Text style={styles.buttonText}>{t("grantPermission")}</Text>
-          </TouchableOpacity>
+
+          <CopilotStep order={1} name="explain2" text={copilot("scanStep1")}>
+            <CopilotView>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={requestPermission}
+              >
+                <Text style={styles.buttonText}>{t("grantPermission")}</Text>
+              </TouchableOpacity>
+            </CopilotView>
+          </CopilotStep>
         </View>
       </View>
     );
@@ -51,11 +117,33 @@ export default function ScanScreen() {
   // 2️⃣ Podgląd zdjęcia (jeśli zrobione)
   if (uri && !showCamera) {
     return (
-      <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: WhiteVar,
+          paddingBottom: 60 + insets.bottom,
+        }}
+      >
         <HeaderBar />
         <View style={styles.center}>
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: [
+                  { translateX: "-50%" },
+                  { translateY: "-50%" },
+                  { scale: 1.75 },
+                ],
+                zIndex: 100,
+              }}
+            />
+          )}
           <Image source={{ uri }} style={styles.preview} />
-          <Text style={styles.description}>Here is your photo</Text>
+          <Text style={styles.description}>{t("hereIsYourPhoto")}</Text>
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
@@ -63,7 +151,42 @@ export default function ScanScreen() {
               setShowCamera(true);
             }}
           >
-            <Text style={styles.buttonText}>Take another picture</Text>
+            <Text style={styles.buttonText}>{t("takeAnotherPicture")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={async () => {
+              try {
+                setLoading(true);
+
+                const form = new FormData();
+                form.append("image", {
+                  uri: uri,
+                  name: "image.jpg",
+                  type: "image/jpeg",
+                } as any);
+
+                const result = await axiosClient.post("/ai/scan/", form, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                });
+
+                setLoading(false);
+                router.push({
+                  pathname: "/(more)/ShoppingListsScreen",
+                  params: {
+                    food: JSON.stringify(result.data),
+                    fromScan: "true",
+                  },
+                });
+              } catch (err) {
+                setLoading(false);
+                console.error("Upload failed:", err);
+              }
+            }}
+          >
+            <Text style={styles.buttonText}>{t("addToShoppingList")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -71,7 +194,7 @@ export default function ScanScreen() {
   }
 
   // 3️⃣ Kamera
-  if (showCamera) {
+  if (showCamera && isFocused) {
     const takePicture = async () => {
       if (!ref.current) return;
 
@@ -82,32 +205,8 @@ export default function ScanScreen() {
       if (snapshot?.uri) setSnapshotUri(snapshot.uri);
 
       try {
-        const photo = await ref.current?.takePictureAsync({ imageType: "png" });
-        if (photo?.uri) {
-          setUri(photo.uri);
-
-          const form = new FormData();
-          form.append("image", {
-            uri: photo.uri,
-            name: "image.png",
-            type: "image/png",
-          } as any);
-
-          try {
-            const result = await axiosClient.post("/ai/scan/", form, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            });
-
-            router.replace({
-              pathname: "/(more)/ShoppingListsScreen",
-              params: { food: JSON.stringify(result.data), fromScan: "true" },
-            });
-          } catch (err) {
-            console.error("Upload failed:", err);
-          }
-        }
+        const photo = await ref.current?.takePictureAsync({ quality: 1.0 });
+        if (photo?.uri) setUri(photo.uri);
       } catch (e) {
         console.error("Błąd zdjęcia", e);
       } finally {
@@ -118,7 +217,7 @@ export default function ScanScreen() {
     };
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingBottom: 60 + insets.bottom }]}>
         {loading && (
           <ActivityIndicator
             size="large"
@@ -143,6 +242,7 @@ export default function ScanScreen() {
           mode="picture"
           animateShutter={true}
           enableTorch={flashlightOn}
+          active={isFocused}
         />
         {snapshotUri && (
           <Image
@@ -169,17 +269,21 @@ export default function ScanScreen() {
 
         {/* Controls */}
         <View style={styles.controls}>
-          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-            <Ionicons name="camera" size={28} color={WhiteVar} />
-          </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.flashlightButton,
-              { opacity: flashlightOn ? 0.5 : 0.9 },
+              { opacity: flashlightOn ? 0.7 : 1 },
             ]}
             onPress={() => setFlashlightOn((prev) => !prev)}
           >
             <Ionicons name="flashlight" size={28} color={WhiteVar} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={takePicture}
+            style={styles.shutterButtonOuter}
+          >
+            <View style={styles.shutterButtonInner} />
           </TouchableOpacity>
         </View>
       </View>
@@ -188,7 +292,13 @@ export default function ScanScreen() {
 
   // 4️⃣ Ekran startowy (przycisk otwarcia kamery)
   return (
-    <View style={{ flex: 1, backgroundColor: WhiteVar }}>
+    <View
+      style={{
+        flex: 1,
+        paddingBottom: 60 + insets.bottom,
+        backgroundColor: WhiteVar,
+      }}
+    >
       <HeaderBar />
       <View style={styles.center}>
         <Ionicons name="camera-outline" size={64} color={GreenVar} />
@@ -200,14 +310,46 @@ export default function ScanScreen() {
         >
           <Text style={styles.buttonText}>{t("openCamera")}</Text>
         </TouchableOpacity>
-        <View style={{ margin: 20 }}>
-          <Text style={styles.warning}>{t("cameraWarning1")}</Text>
+        <View style={styles.infoBox}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 7,
+              alignSelf: "flex-start",
+              position: "absolute",
+              top: 10,
+              left: 12,
+            }}
+          >
+            <Ionicons
+              name="warning-outline"
+              size={21}
+              color={"gray"}
+            ></Ionicons>
+            <Text
+              style={{
+                color: "gray",
+                textTransform: "uppercase",
+                width: "100%",
+                fontWeight: "700",
+              }}
+            >
+              Info
+            </Text>
+          </View>
+          <Text style={[styles.warning, { marginBottom: 10 }]}>
+            {t("cameraWarning1")}
+          </Text>
           <Text style={styles.warning}>{t("cameraWarning2")}</Text>
         </View>
       </View>
     </View>
   );
 }
+
+export default withCopilotProvider(ScanScreen);
 
 const styles = StyleSheet.create({
   center: {
@@ -249,7 +391,7 @@ const styles = StyleSheet.create({
   },
   controls: {
     position: "absolute",
-    bottom: 60,
+    bottom: 150,
     alignSelf: "center",
     display: "flex",
     flexDirection: "row",
@@ -266,10 +408,26 @@ const styles = StyleSheet.create({
   },
   flashlightButton: {
     position: "absolute",
-    backgroundColor: GreenVar,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 10,
     borderRadius: 40,
     right: 10,
+  },
+  shutterButtonOuter: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: "rgba(255,255,255,0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+  },
+  shutterButtonInner: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "white",
   },
   preview: {
     width: "80%",
@@ -299,9 +457,25 @@ const styles = StyleSheet.create({
   warning: {
     alignSelf: "center",
     textAlign: "center",
-    color: "red",
+    color: "black",
     fontSize: 16,
     fontWeight: "600",
+    zIndex: 1,
+  },
+  infoBox: {
+    backgroundColor: "lightgray",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingTop: 45,
+    paddingBottom: 20,
+    marginTop: 20,
+    width: "90%",
+    elevation: 5, // Android
+    shadowColor: "#000", // iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     zIndex: 1,
   },
 });

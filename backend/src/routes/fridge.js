@@ -3,30 +3,34 @@ import express from "express"
 import Food from "../model/Food.js"
 import User from "../model/User.js"
 import {serverError} from "../utils.js";
-
+import { authenticateToken, ensureCorrectUser } from "../middleware/auth.js";
 
 const router = express.Router();
 
-
 // Routes
-router.get("/:userID", async (req, res) => {
-    User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
-        if (user == null) {
-            res.status(404).json({
-                error: {
-                    message: `No user found with given ID: ${req.params.userID}` 
-                }
+router.get("/:userID", authenticateToken, ensureCorrectUser, async (req, res) => {
+    try {
+        User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
+            if (user == null) {
+                res.status(404).json({
+                    error: {
+                        message: `No user found with given ID: ${req.params.userID}`
+                    }
+                })
+                return
+            }
+            res.status(200).json({
+                fridgeItemsCount: user.fridge.length,
+                fridge: user.fridge
             })
-            return
-        }
-        res.status(200).json({
-            fridgeItemsCount: user.fridge.length, 
-            fridge: user.fridge
         })
-    }).catch(err => serverError(err, res))
+    }
+    catch (err) {
+        serverError(err, res)
+    }
 })
 
-router.post("/:userId", async (req, res) => {
+router.post("/:userID", authenticateToken, ensureCorrectUser, async (req, res) => {
     try {
         const user = await User.findOne({_id: req.params.userID});
         if (!user) {
@@ -34,8 +38,6 @@ router.post("/:userId", async (req, res) => {
                 error: { message: `No user found with given ID: ${req.params.userID}` }
             });
         }
-
-        console.log("Log: " + req.body[0]);
 
         const foodItems = req.body.map(item => ({
             ...item,
@@ -56,11 +58,11 @@ router.post("/:userId", async (req, res) => {
     }
 });
 
-router.put("/:userId", (req, res) => {
+router.put("/:userID", (req, res) => {
 
 })
 
-router.patch("/:userId", (req, res) => {
+router.patch("/:userID", authenticateToken, ensureCorrectUser, (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({
@@ -94,7 +96,7 @@ router.patch("/:userId", (req, res) => {
     }).catch(err => serverError(err, res))
 })
 
-router.delete("/:userID", (req, res) => {
+router.delete("/:userID", authenticateToken, ensureCorrectUser, (req, res) => {
     User.findOne({_id: req.params.userID}).populate("fridge").then(user => {
         if (user == null) {
             res.status(404).json({

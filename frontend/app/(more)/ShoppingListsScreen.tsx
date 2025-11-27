@@ -1,24 +1,66 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import ShoppingList from "@/components/ShoppingList";
 import toastConfig from "@/components/ToastConfig";
+import { withCopilotProvider } from "@/components/WithCopilotProvider";
+import translate from "@/locales/i18n";
 import { getItem, setItem } from "@/services/Storage";
 import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { showToast } from "../(auth)/LoginScreen";
+const CopilotView = walkthroughable(View);
+const CopilotText = walkthroughable(Text);
 
 const SHOPPING_LIST_KEY = "shoppingLists";
 
-export default function ShoppingListsScreen() {
+function ShoppingListsScreen() {
+  const { start, totalStepsNumber } = useCopilot();
+  const hasStartedTutorial = useRef(false);
+  const tURL = "cards.shoppingLists.";
+
+  const t = (key: string) => translate(tURL + key);
+  const copilot = (key: string) => translate("copilot." + key);
+
   const { food, fromScan } = useLocalSearchParams();
   const [list, setList] = useState<Food[]>(
     food ? JSON.parse(food as string) : []
   );
   const insets = useSafeAreaInsets();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkTutorialFlag = async () => {
+        try {
+          const hasSeen = await AsyncStorage.getItem(
+            "@hasSeenShoppingListTutorial"
+          );
+          if (!hasSeen && !hasStartedTutorial.current) {
+            // Odpalamy tutorial z opóźnieniem
+            const timer = setTimeout(() => {
+              hasStartedTutorial.current = true;
+              start();
+              AsyncStorage.setItem("@hasSeenShoppingListTutorial", "true");
+            }, 0);
+
+            return () => clearTimeout(timer);
+          }
+        } catch (error) {
+          console.error("Error checking tutorial flag.", error);
+        }
+      };
+
+      // ma byc !dev jesli production ready
+      if (!__DEV__) {
+        checkTutorialFlag();
+      }
+    }, [start])
+  );
 
   useEffect(() => {
     if (fromScan) return;
@@ -62,44 +104,46 @@ export default function ShoppingListsScreen() {
         },
       ]}
     >
-        {/* HEADER */}
-        <View style={styles.headerBlock}>
-          <View style={styles.headerRow}>
-            <Ionicons name="cart-outline" size={24} color={GreenVar} />
-            <Text style={styles.screenTitle}>Shopping List</Text>
+      {/* LIST */}
+      <CopilotStep order={1} name="explain1" text={copilot("listStep1")}>
+        <CopilotView>
+          {/* HEADER */}
+          <View style={styles.headerBlock}>
+            <View style={styles.headerRow}>
+              <Ionicons name="cart-outline" size={24} color={GreenVar} />
+              <Text style={styles.screenTitle}>{t("title")}</Text>
+            </View>
+            <Text style={styles.screenSubtitle}>{t("desc")}</Text>
           </View>
-          <Text style={styles.screenSubtitle}>
-            Add product to your shopping list to remember what to buy! Then, you
-            can easily move them to your Virtual Fridge.
-          </Text>
-        </View>
-
-        {/* LIST */}
-        <ShoppingList
-          list={list}
-          onAdd={handleAddFoodToList}
-          onRemove={handleRemoveFoodFromList}
-          onUpdate={handleUpdateFood}
-          clearList={() => {
-            setList([]);
-            if (fromScan) {
-              router.replace("/(tabs)/VirtualFridgeScreen");
-            }
-          }}
-          showToast={(key: string) => showToast(key)}
-        />
+        </CopilotView>
+      </CopilotStep>
+      <ShoppingList
+        list={list}
+        onAdd={handleAddFoodToList}
+        onRemove={handleRemoveFoodFromList}
+        onUpdate={handleUpdateFood}
+        clearList={() => {
+          setList([]);
+          if (fromScan) {
+            router.replace("/(tabs)/VirtualFridgeScreen");
+          }
+        }}
+        showToast={(key: string) => showToast(key)}
+      />
       <Toast config={toastConfig} />
     </View>
   );
 }
 
+export default withCopilotProvider(ShoppingListsScreen);
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: WhiteVar,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerBlock: {
     marginBottom: 20,
@@ -122,5 +166,5 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginBottom: 10,
-  }
+  },
 });

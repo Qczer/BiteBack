@@ -5,15 +5,30 @@
     "email": "Email",
     "password": "Hasło"
   },
-
+  "copilot": {
+    "step": "Krok",
+    "homeStep1": "Witamy w BiteBack! Jestem Max i wprowadzę cię w naszą apkę!",
+    "fridgeStep1": "To jest twoja Wirtualna Lodówka, gdzie możesz zobaczyć wszystkie przechowywane produkty. Kolory i przezroczystość wskazują na ich świeżość.",
+    "fridgeStep2": "Alternatywnie, możesz wyświetlić zawartość lodówki w formie listy klikając tutaj.",
+    "fridgeStep3": "Obecnie są 2 sposoby na dodanie jedzenia: poprzez skanowanie paragonów i za pomocą list zakupów.",
+    "scanStep1": "Z tego miejsca będziesz skanował paragony. Najpierw jednak musisz wyrazić zgodę na dostęp do kamery.",
+    "listStep1": "Oto twoja lista zakupów! Możesz tutaj dodawać produkty, które chcesz kupić, a następnie przenieść całą listę do swojej Wirtualnej Lodówki.",
+    "mapStep1": "W tej zakładce znajdziesz mapę z autoryzowanymi przez nas punktami, do których możesz oddać jedzenie, którego nie wykorzystasz.",
+    "mapStep2": "To pole pozwala wybrać odległość (od aktualnego centrum mapy) w jakiej chcesz szukać punktu.",
+    "mapStep3": "Tutaj możesz odfiltrować punkty poprzez podanie nazwy.",
+    "next": "Dalej",
+    "previous": "Wstecz",
+    "skip": "Pomiń",
+    "finish": "Zakończ"
+  },
   "screens": {
     "login": {
       "title": "Zarejestruj się",
       "welcomeBack": "Witamy ponownie!",
       "usernameLabel": "Nazwa użytkownika",
+      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "emailLabel": "Adres e-mail",
       "emailPlaceholder": "jankowalski@gmail.com",
-      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
       "passwordLabel": "Hasło",
       "passwordPlaceholder": "Twoje hasło",
       "signIn": "Zaloguj się",
@@ -35,7 +50,21 @@
       "pleaseFillAllFields": "Wypełnij poprawnie wszystkie pola"
     },
     "home": {
-      "title": "Strona główna"
+      "title": "Strona główna",
+      "hello": "Witaj",
+      "helloSub": "Gotowy zarządzać swoją lodówką?",
+      "fridgeOverview": "Przegląd Lodówki",
+      "itemsStored": "przechowywane",
+      "expiringToday": "traci ważność dzisiaj",
+      "expired": "przeterminowane",
+      "nutritionOverview": "Przegląd Żywienia",
+      "yourFridgeIsEmpty": "Twoja Lodówka Jest Pusta",
+      "scanReceipt": "Skanuj Paragon",
+      "shortcuts": "Skróty",
+      "recentlyAdded":  "Ostatnio Dodane",
+      "recipes": "Przepisy",
+      "comingSoon": "Dostępne wkrótce!",
+      "profile": "Profil"
     },
     "fridge": {
       "title": "Lodówka",
@@ -43,35 +72,63 @@
     },
     "scan": {
       "title": "Skanuj",
-      "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
-      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników.",
       "permissionTitle": "Potrzebujemy twojej zgody",
       "permissionDesc": "Proszę zezwolić na dostęp do kamery, aby kontynuować.",
       "grantPermission": "Zezwól na dostęp",
+
       "camera": "Kamera",
       "cameraDesc": "Otwórz kamerę, aby zrobić zdjęcie",
-      "openCamera": "Otwórz Kamerę"
+      "openCamera": "Otwórz Kamerę",
+      "cameraWarning1": "Zdjęcie powinno być zrobione na jasnym tle i możliwie równo względem poziomu.",
+      "cameraWarning2": "Aktualnie nasz model AI został zoptymalizowany pod kątem analizy właśnie takich ujęć, co zapewnia najwyższą jakość i spójność wyników.",
 
+      "addToShoppingList": "Dodaj do Listy Zakupów",
+
+      "hereIsYourPhoto": "Oto twoje zdjęcie",
+      "takeAnotherPicture": "Zrób nowe zdjęcie"
     },
     "profile": {
       "title": "Profil",
       "joined": "Dołączył(a)",
       "addFriend": "Dodaj Znajomego",
+      "removeFriend": "Usuń Znajomego",
+      "askToRemoveFriend": "Usunąć znajomego?",
+      "successRemove": "Usunięto pomyślnie",
       "shareCode": "Udostępnij Kod",
       "invitations": "Zaproszenia",
       "noFriends": "Brak znajomych",
       "biteScoreRewards": "Nagrody BiteScore",
-      "logout": "Wyloguj się"
+      "logout": "Wyloguj się",
+      "leaderboard": "Ranking",
+      "mutualLeaderboard": "Ranking wspólnych znajomych",
+      "rewards": "Nagrody będą dostępne wkrótce!",
+      "enterFriendsName": "Wprowadź imię znajomego",
+      "success": "Sukces! Zaproszono znajomego.",
+      "emptyLeaderboard": "Gratulacje, jesteś najlepszy wśród swoich znajomych!",
+      "noDate": "Brak Daty"
     },
     "more": {
       "title": "Więcej"
     },
     "settings": {
       "title": "Ustawienia",
+      "headerTitle": "Zmień Ustawienia",
       "language": "Język",
-      "langaugeInfo": "Wybierz preferowany język interfejsu aplikacji.",
+      "languageInfo": "Wybierz preferowany język interfejsu aplikacji.",
       "logout": "Wyloguj się",
-      "logoutInfo": "Wyloguj się ze swojego konta."
+      "logoutInfo": "Wyloguj się ze swojego konta.",
+      "replayTutorial": "Powtórz przewodnik",
+      "replayTutorialInfo": "Powtórz oprowadzenie po aplikacji."
+    },
+    "feedback": {
+      "title": "Dziękujemy za Twoją opinię!",
+      "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!",
+      "goBack": "W porządku!",
+      "findPoint": "Znajdź punkt"
+    },
+    "notFound": {
+      "title": "Ten ekran nie istnieje..",
+      "goToHomeScreen": "Przejdź do strony głównej!"
     }
   },
   "cards": {
@@ -99,9 +156,11 @@
     "shoppingLists": {
       "title": "Lista zakupów",
       "subtitle": "Stwórz i zarządzaj swoją listą zakupów",
+      "desc": "Dodaj produkt do listy zakupów, aby pamiętać, co kupić! Następnie możesz\nłatwo przenieść je do swojej Wirtualnej Lodówki.",
       "headerTitle": "Lista Zakupów",
       "addBtn": "Dodaj do Lodówki",
-      "addToList": "Dodaj do listy zakupów"
+      "addToList": "Dodaj do listy zakupów",
+      "addToFridge": "Dodaj do wirtualnej lodówki"
     },
     "feedback": {
       "title": "Informacje zwrotne",
@@ -116,7 +175,20 @@
     "settings": {
       "title": "Ustawienia",
       "subtitle": "Zmień ustawienia i preferencje aplikacji",
-      "headerTitle": "Zmień Ustawienia"
+      "headerTitle": "Zmień Ustawienia",
+      "replay": "Poradnik pokaże się po ponownym uruchomieniu aplikacji."
+    }
+  },
+  "modals": {
+    "invitationsModal": {
+      "invitations": "Zaproszenia",
+      "noInvitations": "Brak zaproszeń"
+    },
+    "logoutModal": {
+      "title": "Confirm Logout",
+      "description": "Are you sure you want to logout? This will clear your saved data.",
+      "cancelLabel": "Cancel",
+      "acceptLabel": "Yes, Logout"
     }
   },
   "filters": {
@@ -132,8 +204,17 @@
     "frozen": "Mrożonki",
     "other": "Inne"
   },
+  "units": {
+    "g": "Gram",
+    "kg": "Kilogram",
+    "l": "Litr",
+    "ml": "Mililitr",
+    "pcs": "Sztuki"
+  },
   "common": {
+    "slogan": "Fight waste. BiteBack.",
     "friends": "Znajomi",
+    "mutualFriends": "Wspólni znajomi",
     "comingSoon": "Już Wkrótce",
     "name": "Nazwa",
     "description": "Opis",
@@ -142,13 +223,32 @@
     "number": "Numer",
     "city": "Miasto",
     "coordinates": "Koordynaty",
-    "or": "Albo"
+    "or": "Albo",
+    "searchFood": "Szukaj Jedzenia",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "open": "Otwórz",
+    "submit": "Wyślij",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "confirm": "Potwierdź",
+    "confirmText": "Czy na pewno chcesz usunąć",
+    "fromFriends": "z listy znajomych?",
+    "fetchingYourInfo": "Pobieranie twoich informacji"
   },
   "foodEditor": {
     "foodName": "Nazwa Jedzenia",
     "amount": "Ilość",
+    "selectAmount": "Wybierz ilość",
     "unit": "Jednostka",
-    "category": "Kategoria"
+    "selectUnit": "Wybierz jednostkę",
+    "category": "Kategoria",
+    "selectCategory": "Wybierz kategorię",
+    "expiryDate": "Data ważności",
+    "pickDate": "Wybierz datę",
+    "editProduct": "Edytuj Produkt"
   },
   "logoutModal": {
     "title": "Potwierdź wylogowanie",

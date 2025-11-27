@@ -1,5 +1,4 @@
 // services/AuthService.ts
-import { useUser } from "@/contexts/UserContext";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
@@ -28,10 +27,6 @@ export async function removeToken() {
   await removeItem("token");
 }
 
-export const getNotificationsCount = async (): Promise<number> => {
-  const raw = await getItem("notificationsCount");
-  return raw ? parseInt(raw, 10) : 0;
-};
 export const getCurrencyCount = async (): Promise<number> => {
   const raw = await getItem("currencyCount");
   return raw ? parseInt(raw, 10) : 0;
@@ -40,8 +35,7 @@ export const getCurrencyCount = async (): Promise<number> => {
 export const handleLogout = async () => {
   try {
     await removeToken();
-
-    router.replace("/LoginScreen");
+    router.replace("/(auth)/LoginScreen");
   } catch (error) {
     console.error("Error clearing SecureStore:", error);
   }

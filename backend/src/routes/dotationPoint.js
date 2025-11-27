@@ -1,37 +1,24 @@
 import express from "express"
 import nodemailer from "nodemailer"
-
 import DotationPoint from "../model/DotationPoint.js"
-
-
 const router = express.Router();
-
 
 // Routes
 router.get("/", (req, res) => {
-    let query = {authorizied: true}
-    let projection = {}
-    let name = req.query.name ? req.query.name.replaceAll("-", " ") : null;
-    if (name) {
-        console.log(name)
-        query = {...query, $text: { $search: name } }
-        projection = { score: { $meta: "textScore" } }
-    }
-
-    DotationPoint.find(query, projection).sort(name ? { score: { $meta: "textScore" } } : {}).then(donationPoints => {
-        if (donationPoints.length <= 0) {
-            return res.status(404).json({
+    DotationPoint.find({authorized: true}).then(dotationPoints => {
+        if (dotationPoints.length <= 0) {
+            return res.status(204).json({
                 error: {
                     message: "No dotation points found"
                 }
             })
         }
         res.status(200).json({
-            count: donationPoints.length,
-            donationPoints: donationPoints.map(point => {
+            count: dotationPoints.length,
+            dotationPoints: dotationPoints.map(point => {
                 return {
                     ...point._doc,
-                    
+
                 }
             })
         })
@@ -43,37 +30,69 @@ router.get("/", (req, res) => {
     })
 })
 
-router.get("/near", (req, res) => {
-  const { lng, lat, maxDistance } = req.body;
-    DotationPoint.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)]
-          },
-          $maxDistance: parseInt(maxDistance)
+router.get("/near", async (req, res) => {
+    try {
+        const { lng, lat, maxDistance, name } = req.query;
+
+        if (!lng || !lat || !maxDistance) {
+            return res.status(400).json({ error: { message: "Missing coordinates or maxDistance" }});
         }
-      },
-      authorizied: true
-    }).then(dotationPoints => {
-        if (dotationPoints.length <= 0) {
-            res.status(404).json({
-                error: {
-                    message: `No Dotation points found near you in distance of ${maxDistance}` 
+
+        const geoQuery = {
+            location: {
+                $near: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [parseFloat(lng), parseFloat(lat)]
+                    },
+                    $maxDistance: parseInt(maxDistance)
                 }
-            })
+            },
+            authorized: true
+        };
+
+        const geoResults = await DotationPoint.find(geoQuery).lean();
+
+        if (!name) {
+            if (geoResults.length === 0) {
+                return res.status(204).json({
+                    error: { message: `No Dotation points found near you in distance of ${maxDistance}` }
+                });
+            }
+
+            return res.status(200).json({
+                count: geoResults.length,
+                dotationPoints: geoResults
+            });
         }
-        res.status(200).json({
-            count: dotationPoints.length,
-            dotationPoints: [...dotationPoints]
+
+        const textResults = await DotationPoint.find(
+            { $text: { $search: name }, authorized: true },
+            { score: { $meta: "textScore" } }
+        ).sort(name ? { score: { $meta: "textScore" } } : {}).lean();
+
+
+        const textIds = new Set(textResults.map(p => p._id.toString()));
+
+        const finalResults = geoResults.filter(p =>
+            textIds.has(p._id.toString())
+        );
+
+        if (finalResults.length === 0) {
+            return res.status(204).json({
+                error: { message: `No Dotation points found matching "${name}" in this area` }
+            });
+        }
+
+        return res.status(200).json({
+            count: finalResults.length,
+            dotationPoints: finalResults
         });
-    }).catch(err => {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: err });
+    }
 });
 
 router.get("/:dotationPointID", (req, res) => {
@@ -88,7 +107,7 @@ router.get("/:dotationPointID", (req, res) => {
         res.status(200).json({
             dotationPoint: doc
         })
-        
+
     }).catch(err => {
         res.status(500).json({
             error: err
@@ -103,7 +122,7 @@ router.post("/new", (req, res) => {
         description: request.desc,
         city: request.city,
         postalCode: request.code,
-        street: request.street, 
+        street: request.street,
         number: request.number,
         authorized: false,
         location: {
@@ -134,7 +153,7 @@ function sendPointToAuth(point) {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL, // TODO: your gmail account 
+            user: process.env.EMAIL, // TODO: your gmail account
             pass: process.env.EMAIL_PASSWORD // TODO: your gmail password
         }
     });
@@ -143,11 +162,61 @@ function sendPointToAuth(point) {
         from: `"BiteBack" ${process.env.EMAIL}`, // TODO: email sender
         to: process.env.ADMIN_EMAIL, // TODO: email receiver
         subject: 'New dotation point request',
-        text: "Hello admin, \r\nThere is new request:\r\n " + point.name +
-        `To response click: localhost:5000/dotation-point/auth/${point._id}`
+        html:   `<!DOCTYPE html>
+                <html lang="pl">
+                <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Akcja wymagana</title>
+                <style>
+                /* Ogólne style — wielu klientów ignoruje <style>, ale Gmail je akceptuje */
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f4f4f7;
+                    font-family: Arial, sans-serif;
+                }
+                .container {
+                    width: 100%;
+                    max-width: 600px;
+                    background: #ffffff;
+                    margin: 40px auto;
+                    padding: 30px;
+                    border-radius: 8px;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 14px 24px;
+                    background-color: #007bff;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+                .footer {
+                    text-align: center;
+                    color: #9a9ea6;
+                    font-size: 12px;
+                    margin-top: 30px;
+                }
+                </style>
+                </head>
+
+                <body>
+                <div class="container">
+                    <h2 style="color:#333;">${point.name}</h2>
+
+                    
+                    <h4>${point.city} ${point.postalCode} ${point.street} ${point.number}</h4>
+
+                    <a href="https://https://biteback.pl/api/dotationPoint/auth/${point._id}" class="button"> Potwierdź punkt dotacji</a>
+                </div>
+                </body>
+                </html>`
     };
 
-    result = true
+    let result = true
     transporter.sendMail(mailOptions, (err, data) => {
         if (err) {
             result = false
@@ -157,7 +226,7 @@ function sendPointToAuth(point) {
 }
 
 // auth admina
-router.patch("/auth/:dotationPointID", (req, res) => {
+router.get("/auth/:dotationPointID", (req, res) => {
     DotationPoint.findById(req.params.dotationPointID).then((doc) => {
         if (doc.authorized == true) {
             res.status(200).json({message: "Dotation point is already authorized!"})
@@ -174,8 +243,14 @@ router.patch("/auth/:dotationPointID", (req, res) => {
 })
 
 router.delete("/:dotationPointID", (req, res) => {
-    res.status(200).send("DELETE DOTATION POINT" + req.params.dotationPointID)
+    DotationPoint.deleteOne({_id: req.params.dotationPointID}).then(result => {
+        res.status(204).json({result: result, message: "Dotation point deleted successfully!"})
+    }).catch(err => {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    })
 })
-
 
 export default router

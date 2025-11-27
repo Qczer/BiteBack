@@ -1,7 +1,7 @@
-import { Text, View, Dimensions, StyleSheet } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 
 import { WhiteVar } from "@/assets/colors/colors";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getFridge } from "@/api/endpoints/fridge";
 import ExpandButton from "@/components/ExpandButton";
@@ -10,20 +10,33 @@ import FoodList from "@/components/FoodList";
 import Fridge from "@/components/Fridge";
 import HeaderBar from "@/components/HeaderBar";
 import SearchInput from "@/components/SearchInput";
+import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUser } from "@/contexts/UserContext";
+import translate from "@/locales/i18n";
 import { FoodCategory } from "@/types/Food";
 import FoodFilter from "@/types/FoodFilter";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
+import React from "react";
+import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import Modal from "react-native-modal";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const CopilotView = walkthroughable(View);
+const CopilotText = walkthroughable(Text);
 
 const allFoodCategorys = Object.keys(FoodCategory).filter((key) =>
   isNaN(Number(key))
 ) as (keyof typeof FoodCategory)[];
 
-export default function VirtualFridgeScreen() {
-  const { userId, userFood, setUserFood } = useUser();
-  const [refresh, setRefresh] = useState(false);
+function VirtualFridgeScreen() {
+  const insets = useSafeAreaInsets();
+  const copilot = (key: string) => translate("copilot." + key);
+
+  const { userID, token, userFood, setUserFood, refreshData } = useUser();
+  const { start, totalStepsNumber } = useCopilot();
+  const hasStartedTutorial = useRef(false);
 
   const [foodFilters, setFoodFilters] = useState<FoodFilter[]>(
     allFoodCategorys.map((typeName) => ({
@@ -33,32 +46,57 @@ export default function VirtualFridgeScreen() {
   );
 
   useFocusEffect(
+    React.useCallback(() => {
+      const checkTutorialFlag = async () => {
+        try {
+          const hasSeen = await AsyncStorage.getItem(
+            "@hasSeenVirtualFridgeScreenTutorial"
+          );
+          if (!hasSeen && !hasStartedTutorial.current) {
+            // Odpalamy tutorial z opóźnieniem
+            const timer = setTimeout(() => {
+              hasStartedTutorial.current = true;
+              start();
+              AsyncStorage.setItem(
+                "@hasSeenVirtualFridgeScreenTutorial",
+                "true"
+              );
+            }, 0);
+
+            return () => clearTimeout(timer);
+          }
+        } catch (error) {
+          console.error("Error checking tutorial flag.", error);
+        }
+      };
+
+      // ma byc !dev jesli production ready
+      if (!__DEV__) {
+        checkTutorialFlag();
+      }
+    }, [start])
+  );
+
+  useFocusEffect(
     useCallback(() => {
       // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
-        const res = await getFridge(userId);
-        if (res?.data)
-          setUserFood(res.data.fridge);
+        const res = await getFridge(userID, token);
+        if (res?.data) setUserFood(res.data.fridge);
       };
 
       fetchData();
-
-      return () => {
-        // Opcjonalnie: gdy WYJDZIESZ z ekranu (stracisz focus)
-      };
-    }, [])
+    }, [userID, setUserFood])
   );
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getFridge(userId);
-      if (res?.data)
-        setUserFood(res.data.fridge);
+      const res = await getFridge(userID, token);
+      if (res?.data) setUserFood(res.data.fridge);
     };
 
     fetchData();
-    setRefresh(false);
-  }, [refresh])
+  }, []);
 
   const { t } = useLanguage();
 
@@ -76,7 +114,7 @@ export default function VirtualFridgeScreen() {
     );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: 60 + insets.bottom }]}>
       <HeaderBar />
       {/* MODAL */}
       <Modal
@@ -99,25 +137,40 @@ export default function VirtualFridgeScreen() {
       {/* REST */}
       <View style={styles.mainContainer}>
         <View style={styles.topBar}>
-          <Text style={styles.title}>{t("screens.fridge.headerTitle")}</Text>
-          <ExpandButton
-            onPressIn={() => setExpanded(true)}
-            absolutePositioning={false}
-            size={28}
-          />
+          <CopilotStep order={3} name="explain1" text={copilot("fridgeStep3")}>
+            <CopilotText style={styles.title}>
+              {t("screens.fridge.headerTitle")}
+            </CopilotText>
+          </CopilotStep>
+          {/* <Text >}</Text> */}
+          <CopilotStep order={2} name="explain2" text={copilot("fridgeStep2")}>
+            <CopilotView>
+              <ExpandButton
+                onPressIn={() => setExpanded(true)}
+                absolutePositioning={false}
+                size={28}
+              />
+            </CopilotView>
+          </CopilotStep>
         </View>
         <SearchInput />
         <FoodFiltersList filters={foodFilters} setFilters={setFoodFilters} />
-        <Fridge
-          food={userFood}
-          addStyles={{ height: height * 0.55 }}
-          filters={foodFilters}
-          refresh={() => setRefresh(true) }
-        />
+        <CopilotStep order={1} name="hello" text={copilot("fridgeStep1")}>
+          <CopilotView>
+            <Fridge
+              food={userFood}
+              addStyles={{ height: height * 0.55 }}
+              filters={foodFilters}
+              refresh={() => refreshData()}
+            />
+          </CopilotView>
+        </CopilotStep>
       </View>
     </View>
   );
 }
+
+export default withCopilotProvider(VirtualFridgeScreen);
 
 const height = Dimensions.get("window").height;
 
