@@ -57,8 +57,11 @@ export async function registerForPushNotificationsAsync() {
 }
 
 
-export function useNotificationObserver() {
+export const useNotificationObserver = async (userID: string) => {
   useEffect(() => {
+    if (!userID)
+      return;
+
     const redirect = (notification: Notifications.Notification) => {
       const data = notification.request.content.data;
       console.log("🔔 Kliknięto powiadomienie, dane:", data);
@@ -87,7 +90,7 @@ export function useNotificationObserver() {
     });
 
     return () => subscription.remove();
-  }, []);
+  }, [userID]);
 }
 
 // Przykład

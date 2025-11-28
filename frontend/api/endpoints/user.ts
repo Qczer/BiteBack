@@ -155,6 +155,9 @@ export const changeLanguage = async (userID: string, token: string, newLanguage:
 };
 
 export const getNotifications = async (userID: string, token: string) => {
+  if(!userID)
+    return [];
+
   try {
     const res = await axiosClient.get(`/user/${userID}/notifications`, { headers: { Authorization: `Bearer ${token}` }});
     return res.data;
@@ -166,6 +169,9 @@ export const getNotifications = async (userID: string, token: string) => {
 }
 
 export const getUnreadNotifications = async (userID: string, token: string) => {
+  if(!userID)
+    return [];
+
   try {
     const res = await axiosClient.get(`/user/${userID}/notifications/unread`, { headers: { Authorization: `Bearer ${token}` }});
     return res.data;
@@ -201,14 +207,23 @@ export const deleteNotification = async (userID: string, notificationID: string,
   }
 };
 
-export const removePushToken = async (userID: string, token: string, pushTokenToRemove: string) => {
+export const addPushToken = async (token: string, pushToken: string) => {
   try {
-    const res = await axiosClient.delete(`/user/${userID}/push-token`, {
+    const res = await axiosClient.post(`/user/push-token`, { token: pushToken }, { headers: { Authorization: `Bearer ${token}`} });
+  }
+  catch (error) {
+    console.error("Add push token error:", error);
+  }
+};
+
+export const removePushToken = async (token: string, pushTokenToRemove: string) => {
+  try {
+    const res = await axiosClient.delete(`/user/push-token`, {
       headers: { Authorization: `Bearer ${token}`},
       data: { token: pushTokenToRemove },
     });
   }
   catch (error) {
-    console.error("Błąd sieci przy usuwaniu tokenu:", error);
+    console.error("Delete push token error:", error);
   }
 };

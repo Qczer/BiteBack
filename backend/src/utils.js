@@ -5,4 +5,15 @@ const serverError = (err, res) => {
     })
 }
 
-export { serverError }
+const timeout = (ms) => (req, res, next) => {
+    const timer = setTimeout(() => {
+        if (!res.headersSent) {
+            res.status(503).json({ error: "Request timeout" });
+        }
+    }, ms);
+
+    res.on("finish", () => clearTimeout(timer));
+    next();
+};
+
+export { serverError, timeout }

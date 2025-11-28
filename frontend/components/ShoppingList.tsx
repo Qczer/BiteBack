@@ -117,6 +117,7 @@ export default function ShoppingList({
             <Text style={styles.itemAmount}>
               {food.amount} {food.unit}
             </Text>
+            {food.expDate && <Text style={styles.itemName}>{food.expDate.toLocaleDateString()}</Text>}
           </>
         )}
         <View style={styles.buttons}>

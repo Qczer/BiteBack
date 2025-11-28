@@ -1,5 +1,12 @@
 import { getFridge } from "@/api/endpoints/fridge";
-import {auth, getNotifications, getUnreadNotifications, getUser, removePushToken} from "@/api/endpoints/user";
+import {
+  addPushToken,
+  auth,
+  getNotifications,
+  getUnreadNotifications,
+  getUser,
+  removePushToken
+} from "@/api/endpoints/user";
 import {getToken, removeToken} from "@/services/Storage";
 import Food from "@/types/Food";
 import User, {UserFriendsInterface} from "@/types/User";
@@ -29,7 +36,7 @@ interface UserContextType {
   notifications: NotificationClass[];
   unreadNotifications: NotificationClass[];
   clearUser: () => void;
-  refreshData: () => Promise<void>;
+  refreshData: (manualToken?: string) => Promise<void>;
   expoPushToken: string | null;
 }
 
@@ -46,26 +53,60 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [unreadNotifications, setUnreadNotifications] = useState<NotificationClass[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const refreshData = useCallback(async () => {
+  const clearUser = useCallback(async () => {
     try {
-      const currentToken = await getToken();
-      if(!currentToken)
+      if (token && expoPushToken && user?._id)
+        removePushToken(token, expoPushToken).catch(err => console.log("Push remove error ignored", err));
+      await removeToken();
+    }
+    catch (e) {
+      console.log("Error clearing user", e);
+    }
+    finally {
+      setUserID("");
+      setToken("");
+      setUser(null);
+      setUserFriends(null);
+      setNotifications([]);
+      setExpoPushToken(null);
+    }
+  }, [token, expoPushToken, user?._id]);
+
+  const refreshData = useCallback(async (manualToken?: string) => {
+    try {
+      let currentToken = manualToken || await getToken();
+
+      if(!currentToken) {
+        console.log("⚠️ [refreshData] Brak tokenu -> Stop.");
+        setIsLoading(false);
         return;
+      }
 
       setToken(currentToken);
 
       const authRes = await auth(currentToken);
-      if (!authRes.success)
+      if (!authRes.success) {
+        console.error("❌ [refreshData] Auth failed. Wylogowuję.");
+        await clearUser();
+        setIsLoading(false);
         return;
+      }
 
-      setUserID(authRes.data.userID);
+      const realId = authRes.data.userID || (authRes.data as any).userId  || (authRes.data as any)._id;
+      if (!realId) {
+        console.error("❌ [refreshData] Auth OK, ale brak ID! Backend zwraca:", Object.keys(authRes.data));
+        setIsLoading(false);
+        return;
+      }
+
+      setUserID(realId);
 
       const [userRes, friendsRes, fridgeRes, notificationsRes, unreadNotificationsRes] = await Promise.all([
-        getUser(authRes.data.userID, currentToken),
-        getFriends(authRes.data.userID, currentToken),
-        getFridge(authRes.data.userID, currentToken),
-        getNotifications(authRes.data.userID, currentToken),
-        getUnreadNotifications(authRes.data.userID, currentToken)
+        getUser(realId, currentToken),
+        getFriends(realId, currentToken),
+        getFridge(realId, currentToken),
+        getNotifications(realId, currentToken),
+        getUnreadNotifications(realId, currentToken)
       ]);
 
       if (userRes.success) setUser(userRes.data);
@@ -75,7 +116,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (unreadNotificationsRes) setUnreadNotifications(unreadNotificationsRes);
     }
     catch (error) {
-      console.error("Failed to load User from storage", error);
+      console.error("❌ [refreshData] CRITICAL ERROR:", error);
     }
     finally {
       setIsLoading(false);
@@ -93,20 +134,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           return;
 
         setExpoPushToken(tokenExpo);
-
-        await axiosClient.post(
-          "/user/push-token",
-          { token: tokenExpo },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await addPushToken(token, tokenExpo);
       }
-      catch (err) {
+      catch (err: any) {
+        if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+          await clearUser();
+        }
         console.error("Error sending push token:", err);
       }
     };
 
     registerPushToken();
-  }, [token]);
+  }, [token, userID]);
 
   useEffect(() => {
     refreshData();
@@ -114,17 +153,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const intervalId = setInterval(refreshData, 10000);
     return () => clearInterval(intervalId);
   }, [refreshData]);
-
-  const clearUser = async () => {
-    if (user && token && expoPushToken)
-      await removePushToken(user._id, token, expoPushToken);
-
-    await removeToken();
-    setUserID("");
-    setUser(null);
-    setUserFriends(null);
-    setNotifications([]);
-  };
 
   const value = useMemo(() => {
     return {
@@ -143,7 +171,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       notifications,
       unreadNotifications
     };
-  }, [isLoading, user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications]);
+  }, [isLoading, user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications, clearUser]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

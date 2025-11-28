@@ -198,7 +198,7 @@ router.patch("/:userID/lang", authenticateToken, ensureCorrectUser, (req, res) =
     }).catch(err => serverError(err, res));
 })
 
-router.post("/push-token", authenticateToken, ensureCorrectUser, async (req, res) => {
+router.post("/push-token", authenticateToken, async (req, res) => {
     const { token } = req.body;
     if (!token)
         return res.status(400).json({ error: "Token required" });

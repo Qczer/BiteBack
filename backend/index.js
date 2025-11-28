@@ -3,11 +3,14 @@ import mongoose from "mongoose";
 import express from "express"
 
 import { userRoutes, fridgeRoutes, dotationPointRoutes, aiRoutes, friendsRoutes, profileRoutes } from "./src/routes/index.js"
+import { timeout } from "./src/utils.js";
 
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI);
+mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000
+});
 
 
 // Configure app
@@ -28,3 +31,4 @@ app.use("/profile", profileRoutes)
 app.listen(process.env.PORT, () => {
     console.info(`API running on port ${process.env.PORT}`)
 })
+app.use(timeout(15000));

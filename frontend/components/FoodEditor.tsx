@@ -24,11 +24,11 @@ const catItems = [
 ];
 
 const unitItems = [
-  { label: `${translate("units.g")} (g)`, value: "g" },
-  { label: `${translate("units.ml")} (ml)`, value: "ml" },
-  { label: `${translate("units.l")} (l)`, value: "l" },
-  { label: `${translate("units.kg")} (kg)`, value: "kg" },
-  { label: `${translate("units.pcs")}`, value: "pcs" },
+  { label: `${translate("units.g.full")} (${translate("units.g.short")})`, value: "g" },
+  { label: `${translate("units.kg.full")} (${translate("units.kg.short")})`, value: "kg" },
+  { label: `${translate("units.ml.full")} (${translate("units.ml.short")})`, value: "ml" },
+  { label: `${translate("units.l.full")} (${translate("units.l.short")})`, value: "l" },
+  { label: `${translate("units.pcs.full")} (${translate("units.pcs.short")})`, value: "pcs" }
 ];
 
 export default function FoodEditor({
@@ -43,10 +43,12 @@ export default function FoodEditor({
   const [amount, setAmount] = useState<string>(
     initialFood?.amount?.toString() ?? ""
   );
+  Date.now()
+  const defaultDate = Date.now() + 7 * 24 * 60 * 60 * 1000;
 
   const [unitValue, setUnitValue] = useState(initialFood?.unit ?? null);
   const [catValue, setCatValue] = useState(initialFood?.category ?? null);
-  const [date, setDate] = useState(new Date(initialFood?.expDate ?? Date.now() + 24 * 60 * 60 * 1000));
+  const [date, setDate] = useState(new Date(initialFood?.expDate ?? defaultDate));
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -68,7 +70,7 @@ export default function FoodEditor({
       setAmount("");
       setUnitValue(null);
       setCatValue(null);
-      setDate(new Date());
+      setDate(new Date(defaultDate));
     }
   }, [reset]);
 

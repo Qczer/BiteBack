@@ -202,11 +202,26 @@
     "other": "Other"
   },
   "units": {
-    "g": "Gram",
-    "kg": "Kilogram",
-    "l": "Liter",
-    "ml": "Milliliter",
-    "pcs": "Pieces"
+    "g": {
+      "short": "g",
+      "full": "Gram"
+    },
+    "kg": {
+      "short": "kg",
+      "full": "Kilogram"
+    },
+    "l": {
+      "short": "l",
+      "full": "Liter"
+    },
+    "ml": {
+      "short": "ml",
+      "full": "Milliliter"
+    },
+    "pcs": {
+      "short": "szt",
+      "full": "Pieces"
+    }
   },
   "common": {
     "slogan": "Fight waste. BiteBack.",

@@ -23,7 +23,7 @@ export interface FoodProps {
   unit: FoodUnit;
   category: FoodCategory;
   iconUrl?: string;
-  expDate?: Date | null; 
+  expDate: Date;
 }
 
 export default class Food {
@@ -33,7 +33,7 @@ export default class Food {
   unit: FoodUnit;
   category: FoodCategory;
   iconUrl?: string;
-  expDate?: Date | null;
+  expDate: Date;
 
   constructor(props: FoodProps) {
     this._id = props._id;

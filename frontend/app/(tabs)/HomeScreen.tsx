@@ -216,10 +216,7 @@ function HomeScreen() {
               <View key={index + 1} style={styles.recentItem}>
                 <Text style={styles.recentName}>{item.name}</Text>
                 <Text style={styles.recentMeta}>
-                  {item.amount + (item.unit ?? "")} •{" "}
-                  {item.expDate
-                    ? new Date(item.expDate).toLocaleDateString()
-                    : ""}{" "}
+                  {`${item.amount} ${translate(`units.${item.unit}.short`)} • ${new Date(item.expDate).toLocaleDateString()}`}
                 </Text>
               </View>
             ))}

@@ -2,8 +2,8 @@
 
 @baseURL = https://biteback.pl/api/
 @userID = 69228ab94492c74f4bbd50d2
-@recipientName = "User"
-@requesterName = "ODBYTNIK"
+@recipientName = User
+@requesterName = ODBYTNIK
 
 ###
 # group: user

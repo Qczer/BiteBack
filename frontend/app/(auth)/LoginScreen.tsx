@@ -79,19 +79,23 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-
       const res = await login(email, password);
+
       if (res.success) {
-        await saveTokenToStorage(res.data);
-        setToken(res.data);
-        await refreshData();
+        const newToken = res.data;
+
+        await saveTokenToStorage(newToken);
+        setToken(newToken);
+        await refreshData(newToken);
         router.replace("/(tabs)/HomeScreen");
       }
       else
         showToast(res.message + "");
-    } catch (error) {
+    }
+    catch (error) {
       showToast("An unexpected error occurred. Please try again.");
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };

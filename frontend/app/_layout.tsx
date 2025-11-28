@@ -48,7 +48,7 @@ function InitialLayout() {
   const [launchedByNotification, setLaunchedByNotification] = useState(false);
 
   const lastNotificationResponse = Notifications.useLastNotificationResponse();
-  useNotificationObserver();
+  useNotificationObserver(userID);
 
   useEffect(() => {
     if (
@@ -80,7 +80,7 @@ function InitialLayout() {
     if (isUserLoading || isStorageLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-    const atRoot = pathname === "";
+    const atRoot = !pathname || pathname === "/";
 
     if (userID) {
       if (launchedByNotification)

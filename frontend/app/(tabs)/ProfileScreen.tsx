@@ -39,14 +39,10 @@ export default function ProfileScreen() {
   const [removeFriendName, setRemoveFriendName] = useState("");
 
   useEffect(() => {
-    console.log("Odebrano parametr showInvitations:", initialShowInvitations);
-
-    // Sprawdzamy czy to string "true" LUB boolean true
-    if (initialShowInvitations === "true" || initialShowInvitations as any === true) {
+    if (initialShowInvitations) {
       refreshData();
       setShowInvitations(true);
 
-      // Opcjonalnie: Czyścimy parametr z URL, żeby po odświeżeniu (F5) modal sam nie wyskoczył
       router.setParams({ showInvitations: "" });
     }
   }, [initialShowInvitations]);
@@ -89,8 +85,6 @@ export default function ProfileScreen() {
   const displayAvatarUri = baseAvatarUri?.startsWith("http")
     ? `${baseAvatarUri}?t=${avatarHash}`
     : baseAvatarUri;
-
-  console.log(displayAvatarUri)
 
   return (
     <View
