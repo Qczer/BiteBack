@@ -1,7 +1,13 @@
 import translate from "@/locales/i18n";
 import Food from "@/types/Food";
 import { useEffect, useState } from "react";
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import {Ionicons} from "@expo/vector-icons";
 import {GreenVar, WhiteVar} from "@/assets/colors/colors";
@@ -13,29 +19,29 @@ interface FoodEditorProps {
   onChange: (food: Food | null) => void;
 }
 
-const catItems = [
-  { label: `${translate("filters.meat")} 🍖`, value: "meat" },
-  { label: `${translate("filters.dairy")} 🥛`, value: "dairy" },
-  { label: `${translate("filters.fruit")} 🍎`, value: `fruit` },
-  { label: `${translate("filters.vegetable")} 🥦`, value: "vegetable" },
-  { label: `${translate("filters.snack")} 🍪`, value: "snack" },
-  { label: `${translate("filters.junk")} 🍔`, value: "junk" },
-  { label: `${translate("filters.other")} ❓`, value: "other" },
-];
-
-const unitItems = [
-  { label: `${translate("units.g.full")} (${translate("units.g.short")})`, value: "g" },
-  { label: `${translate("units.kg.full")} (${translate("units.kg.short")})`, value: "kg" },
-  { label: `${translate("units.ml.full")} (${translate("units.ml.short")})`, value: "ml" },
-  { label: `${translate("units.l.full")} (${translate("units.l.short")})`, value: "l" },
-  { label: `${translate("units.pcs.full")} (${translate("units.pcs.short")})`, value: "pcs" }
-];
-
 export default function FoodEditor({
   initialFood,
   reset,
   onChange,
 }: FoodEditorProps) {
+  const catItems = [
+    { label: `${translate("filters.meat")} 🍖`, value: "meat" },
+    { label: `${translate("filters.dairy")} 🥛`, value: "dairy" },
+    { label: `${translate("filters.fruit")} 🍎`, value: `fruit` },
+    { label: `${translate("filters.vegetable")} 🥦`, value: "vegetable" },
+    { label: `${translate("filters.snack")} 🍪`, value: "snack" },
+    { label: `${translate("filters.junk")} 🍔`, value: "junk" },
+    { label: `${translate("filters.other")} ❓`, value: "other" },
+  ];
+
+  const unitItems = [
+    { label: `${translate("units.g.full")} (${translate("units.g.short")})`, value: "g" },
+    { label: `${translate("units.kg.full")} (${translate("units.kg.short")})`, value: "kg" },
+    { label: `${translate("units.ml.full")} (${translate("units.ml.short")})`, value: "ml" },
+    { label: `${translate("units.l.full")} (${translate("units.l.short")})`, value: "l" },
+    { label: `${translate("units.pcs.full")} (${translate("units.pcs.short")})`, value: "pcs" }
+  ];
+
   const tURL = "foodEditor.";
   const t = (key: string) => translate(tURL + key);
 
@@ -91,6 +97,7 @@ export default function FoodEditor({
         <TextInput
           style={[styles.textInput, { flex: 0.7 }]}
           placeholder={t("amount")}
+          placeholderTextColor="#888"
           keyboardType="numeric"
           value={amount}
           onChangeText={setAmount}
@@ -98,7 +105,6 @@ export default function FoodEditor({
         />
 
         <View style={{ flex: 1.2 }}>
-          {/* TODO: przeslanie tego do bazy */}
           <Dropdown
             style={styles.dropdown}
             placeholderStyle={styles.placeholderStyle}

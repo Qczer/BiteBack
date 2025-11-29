@@ -2,7 +2,6 @@ import { login } from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
-import toastConfig from "@/components/ToastConfig";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { setToken as saveTokenToStorage } from "@/services/Storage";
@@ -35,7 +34,7 @@ export const showToast = (message: string) => {
 };
 
 export default function LoginScreen() {
-  const { setToken, refreshData } = useUser()
+  const { setToken, refreshData, isConnected } = useUser()
 
   const tURL = "screens.login.";
   const t = (key: string) => translate(tURL + key);
@@ -141,7 +140,7 @@ export default function LoginScreen() {
 
                 <Pressable
                   onPress={handleLogin}
-                  disabled={loading}
+                  disabled={loading || !isConnected}
                   style={[
                     styles.loginButton,
                     {
@@ -175,7 +174,6 @@ export default function LoginScreen() {
             <View style={styles.otherBlock}></View>
           </View>
         </ScrollView>
-        <Toast config={toastConfig} />
       </KeyboardAvoidingView>
     </View>
   );

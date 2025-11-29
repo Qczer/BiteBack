@@ -105,7 +105,8 @@
       "enterFriendsName": "Wprowadź imię znajomego",
       "success": "Sukces! Zaproszono znajomego.",
       "emptyLeaderboard": "Gratulacje, jesteś najlepszy wśród swoich znajomych!",
-      "noDate": "Brak Daty"
+      "noDate": "Brak Daty",
+      "permissionToAccessGalleryIsRequired": "Wymagane są uprawnienia na dostęp do galerii!"
     },
     "more": {
       "title": "Więcej"
@@ -124,7 +125,8 @@
       "title": "Dziękujemy za Twoją opinię!",
       "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!",
       "goBack": "W porządku!",
-      "findPoint": "Znajdź punkt"
+      "findPoint": "Znajdź punkt",
+      "searchDotationPoint": "Wyszukaj punkt dotacji"
     },
     "notFound": {
       "title": "Ten ekran nie istnieje..",
@@ -185,10 +187,10 @@
       "noInvitations": "Brak zaproszeń"
     },
     "logoutModal": {
-      "title": "Confirm Logout",
-      "description": "Are you sure you want to logout? This will clear your saved data.",
-      "cancelLabel": "Cancel",
-      "acceptLabel": "Yes, Logout"
+      "title": "Potwierdź wylogowanie",
+      "description": "Czy jesteś pewny, że chcesz się wylogować?",
+      "cancelLabel": "Anuluj",
+      "acceptLabel": "Tak, Wyloguj"
     }
   },
   "filters": {
@@ -251,7 +253,8 @@
     "confirm": "Potwierdź",
     "confirmText": "Czy na pewno chcesz usunąć",
     "fromFriends": "z listy znajomych?",
-    "fetchingYourInfo": "Pobieranie twoich informacji"
+    "fetchingYourInfo": "Pobieranie twoich informacji",
+    "noInternetConnection": "Brak internetu!"
   },
   "foodEditor": {
     "foodName": "Nazwa Jedzenia",
@@ -264,11 +267,5 @@
     "expiryDate": "Data ważności",
     "pickDate": "Wybierz datę",
     "editProduct": "Edytuj Produkt"
-  },
-  "logoutModal": {
-    "title": "Potwierdź wylogowanie",
-    "description": "Czy jesteś pewny, że chcesz się wylogować?",
-    "cancelLabel": "Anuluj",
-    "acceptLabel": "Tak, Wyloguj"
   }
 }

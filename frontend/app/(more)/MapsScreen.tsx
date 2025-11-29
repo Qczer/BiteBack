@@ -1,13 +1,12 @@
 import { getPoints, TomTomApiKey } from "@/api/endpoints/dotationpoints";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
-import toastConfig from "@/components/ToastConfig";
 import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import { default as translate } from "@/locales/i18n";
 import DotationPoint from "@/types/DotationPoint";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useRef, useState } from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {
   StyleSheet,
   Text,
@@ -18,10 +17,9 @@ import {
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import Toast from "react-native-toast-message";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
+import {useUser} from "@/contexts/UserContext";
 
-// Dodajemy style do CopilotView, aby wypełnił ekran
 const CopilotView = walkthroughable(View);
-const CopilotText = walkthroughable(Text);
 
 const showToast = (message: string) => {
     Toast.show({
@@ -40,11 +38,11 @@ const showToast = (message: string) => {
     });
   };
 
-
-
 function MapsScreen() {
   const copilot = (key: string) => translate("copilot." + key);
   const t = (key: string) => translate("screens.feedback." + key);
+
+  const { isConnected } = useUser();
 
   const webviewRef = useRef<WebView>(null);
   const [searchText, setSearchText] = useState("");
@@ -60,6 +58,9 @@ function MapsScreen() {
   const hasStartedTutorial = useRef(false);
 
   const createMarkers = async () => {
+    if (!isConnected)
+      return;
+
     const res = await getPoints(searchText, position, parseInt(distance));
 
     // Wyczyść markery
@@ -94,6 +95,9 @@ function MapsScreen() {
 
 
   const onMessage = (event: WebViewMessageEvent) => {
+    if (!isConnected)
+      return;
+
     try {
       // Parsujemy wiadomość JSON od mapy
       const rawData = event.nativeEvent.data;
@@ -215,7 +219,7 @@ function MapsScreen() {
       {/* Pasek wyszukiwania */}
       <View style={styles.searchBar}>
         <CopilotStep name="explain1" order={2} text={copilot("mapStep2")}>
-          <CopilotView style={styles.pickerContainer}>
+          <CopilotView style={styles.pickerContainer} collapsable={false} onLayout={() => {}}>
             <Picker
               selectedValue={distance}
               onValueChange={(itemValue) => setDistance(itemValue)}
@@ -232,17 +236,19 @@ function MapsScreen() {
           </CopilotView>
         </CopilotStep>
 
-        <CopilotStep name="explain2" order={3} text={copilot("mapStep3")}>
-          <CopilotView style={{ flex: 1 }}>
-            <TextInput
-              style={styles.input}
-              placeholder="Wyszukaj punkt dotacji"
-              placeholderTextColor="#888"
-              value={searchText}
-              onChangeText={setSearchText}
-            />
-          </CopilotView>
-        </CopilotStep>
+        <View style={{ flex: 1, marginLeft: 8 }}>
+          <CopilotStep name="explain2" order={3} text={copilot("mapStep3")}>
+            <CopilotView style={{ flex: 1, marginLeft: 8 }} collapsable={false}>
+              <TextInput
+                style={styles.input}
+                placeholder={t("searchDotationPoint")}
+                placeholderTextColor="#888"
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+            </CopilotView>
+          </CopilotStep>
+        </View>
 
         <TouchableOpacity style={styles.searchButton} onPress={createMarkers}>
           <Ionicons name="search" size={30} color={GreenVar} />
@@ -250,16 +256,17 @@ function MapsScreen() {
       </View>
 
       {/* WebView */}
-      <WebView
-        ref={webviewRef}
-        style={styles.webview}
-        originWhitelist={["*"]}
-        source={{ html: html }}
-        javaScriptEnabled
-        domStorageEnabled
-        onMessage={onMessage}
-      />
-      <Toast config={toastConfig}></Toast>
+      { isConnected &&
+        <WebView
+          ref={webviewRef}
+          style={styles.webview}
+          originWhitelist={["*"]}
+          source={{ html: html }}
+          javaScriptEnabled
+          domStorageEnabled
+          onMessage={onMessage}
+        />
+      }
     </View>
   );
 }
@@ -274,9 +281,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     backgroundColor: WhiteVar,
+    zIndex: 10
+  },
+  pickerContainer: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 4,
+    marginHorizontal: 8,
+    overflow: "hidden",
+    width: 130,
+    height: 40,
+    display: "flex",
+    justifyContent: "center",
+  },
+  picker: {
+    width: "100%",
+    height: 50,
+    marginTop: -5,
+    color: "#000"
   },
   input: {
-    flex: 1,
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
@@ -284,20 +308,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     backgroundColor: "#fff",
     color: "#000",
-  },
-  pickerContainer: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 4,
-    marginHorizontal: 8,
-    overflow: "visible",
-    height: 40,
-    display: "flex",
-    justifyContent: "center",
-  },
-  picker: {
-    height: 55,
-    width: 125,
+    width: "100%",
   },
   searchButton: {
     padding: 8,

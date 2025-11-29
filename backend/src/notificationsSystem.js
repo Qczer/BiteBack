@@ -9,7 +9,6 @@ const expo = new Expo();
 export async function sendNotification(userID, baseKey, args = {}, data = {}) {
     const user = await User.findById(userID);
     if (!user || !user.pushTokens || user.pushTokens.length === 0) {
-        console.log(`Użytkownik ${userID} nie ma tokenów push.`);
         return;
     }
 

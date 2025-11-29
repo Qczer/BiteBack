@@ -117,8 +117,6 @@ export const register = async (email: string, username: string, password: string
 export const changeAvatar = async (userID: string, token: string, avatarUri: string) => {
   try {
     const formData = new FormData();
-    // W React Native trzeba dopisać typ pliku i nazwę
-    console.log('Avatar URI: ', avatarUri);
     const filename = avatarUri.split("/").pop() || "avatar.jpg";
     const file: any = {
       uri: avatarUri,

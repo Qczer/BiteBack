@@ -30,32 +30,32 @@ const MoreScreen = () => {
     {
       name: "maps",
       iconName: "map-outline",
-      panel: "/MapsScreen",
+      panel: "/(more)/MapsScreen",
     },
     {
       name: "addPoint",
       iconName: "add-circle-outline",
-      panel: "/AddPointScreen",
+      panel: "/(more)/AddPointScreen",
     },
     {
       name: "shoppingLists",
       iconName: "receipt-outline",
-      panel: "/ShoppingListsScreen",
+      panel: "/(more)/ShoppingListsScreen",
     },
     {
       name: "feedback",
       iconName: "chatbubble-ellipses-outline",
-      panel: "/FeedbackScreen",
+      panel: "/(more)/FeedbackScreen",
     },
     {
       name: "reportABug",
       iconName: "bug-outline",
-      panel: "/ReportBugScreen",
+      panel: "/(more)/ReportBugScreen",
     },
     {
       name: "settings",
       iconName: "cog-outline",
-      panel: "/SettingsScreen",
+      panel: "/(more)/SettingsScreen",
     },
   ];
 

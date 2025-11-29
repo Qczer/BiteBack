@@ -1,9 +1,9 @@
 import React, { createContext, useState, useContext, ReactNode, useMemo, useEffect } from 'react';
 import { i18n, translations } from '@/locales/i18n';
 import { useUser } from './UserContext';
+import { getItem, setItem } from "@/services/Storage";
 
 const availableLangs = Object.keys(translations) as (keyof typeof translations)[];
-
 type Lang = keyof typeof translations;
 
 interface LanguageContextType {
@@ -11,47 +11,61 @@ interface LanguageContextType {
   setLang: (l: Lang) => void;
   t: (key: string) => string;
   availableLangs: readonly Lang[];
+  isLoading: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useUser()
-  const [lang, setLang] = useState(i18n.locale as Lang);
+  const { user, isLoading: isUserLoading } = useUser()
+  const [lang, setLangState] = useState(i18n.locale as Lang);
   const [forceUpdateKey, setForceUpdateKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  const setLang = async (newLang: Lang) => {
+    setLangState(newLang);
+    i18n.locale = newLang;
+    await setItem("appLanguage", newLang);
+  };
+
   useEffect(() => {
-    const loadLang = async () => {
+    const loadStoredLang = async () => {
       try {
-        if(user?.lang && availableLangs.includes(user.lang as Lang)) {
-          i18n.locale = user.lang;
-          setLang(user.lang as Lang);
+        const storedLang = await getItem("appLanguage");
+        if(storedLang && availableLangs.includes(storedLang as Lang)) {
+          setLangState(storedLang as Lang);
+          i18n.locale = storedLang;
         }
         else {
-          const initialLang =  availableLangs[0];
-          i18n.locale = initialLang;
-          setLang(initialLang);
+          const defaultLang = availableLangs[0];
+          setLangState(defaultLang);
+          i18n.locale = defaultLang;
         }
       }
-      catch (error) {
-        console.error("Failed to load language from storage", error);
-        i18n.locale = availableLangs[0];
+      catch (e) {
+        console.error("Failed to load language from storage", e);
       }
       finally {
-        // Zakończ ładowanie, aby aplikacja mogła się wyrenderować
         setIsLoading(false);
       }
     };
 
-    loadLang();
+    loadStoredLang();
   }, [])
+
+  useEffect(() => {
+    if (!isUserLoading && user?.lang && availableLangs.includes(user.lang as Lang)) {
+      if (user.lang !== lang) {
+        console.log(`Syncing language from User profile: ${user.lang}`);
+        setLang(user.lang as Lang);
+      }
+    }
+  }, [user, isUserLoading]);
 
   useEffect(() => {
     if(!isLoading) {
       i18n.locale = lang;
-
-      setForceUpdateKey(prevKey => prevKey + 1);
+      setForceUpdateKey(prev => prev + 1);
     }
   }, [lang, isLoading]);
 
@@ -62,8 +76,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
       setLang,
       t: (key: string) => i18n.t(key),
       availableLangs: availableLangs as Lang[],
+      isLoading
     };
-  }, [lang]);
+  }, [lang, isLoading]);
 
   return (
     <LanguageContext.Provider value={value}>

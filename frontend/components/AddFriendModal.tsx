@@ -25,7 +25,7 @@ export default function AddFriendModal({
   const tURL = "screens.profile."
   const t = (key: string) => translate(tURL + key)
 
-  const { token } = useUser();
+  const { token, isConnected } = useUser();
   const [name, setName] = useState("");
   const [status, setStatus] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState("");
@@ -43,7 +43,7 @@ export default function AddFriendModal({
   }, [visible]);
 
   const handleSubmit = async () => {
-    if (name.trim() === "")
+    if (name.trim() === "" || !isConnected)
       return;
 
     const res = await sendFriendRequest(name, token);

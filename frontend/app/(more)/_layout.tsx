@@ -1,12 +1,35 @@
 import t from "@/locales/i18n";
-import { Stack } from "expo-router";
+import {router, Stack} from "expo-router";
 import React from "react";
+import {TouchableOpacity} from "react-native";
+import {Ionicons} from "@expo/vector-icons";
+import {WhiteVar} from "@/assets/colors/colors";
 
 export default function Layout() {
   return (
     <Stack
       screenOptions={{
         headerShown: true,
+        headerTitleAlign: "left",
+        headerTintColor: "black",
+        headerStyle: { backgroundColor: WhiteVar },
+
+        headerLeft: () => null,
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                // Fallback: jeśli nie ma historii, wróć do głównego ekranu (Tabów)
+                router.push("/(tabs)/MoreScreen");
+              }
+            }}
+            style={{ marginLeft: 0, marginRight: 15, padding: 5 }}
+          >
+            <Ionicons name="chevron-back" size={23} />
+          </TouchableOpacity>
+        ),
       }}
     >
       <Stack.Screen

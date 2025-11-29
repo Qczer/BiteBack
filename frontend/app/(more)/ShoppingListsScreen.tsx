@@ -1,6 +1,5 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import ShoppingList from "@/components/ShoppingList";
-import toastConfig from "@/components/ToastConfig";
 import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import translate from "@/locales/i18n";
 import { getItem, setItem } from "@/services/Storage";
@@ -9,13 +8,11 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import {KeyboardAvoidingView, Platform, StyleSheet, Text, View} from "react-native";
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Toast from "react-native-toast-message";
 import { showToast } from "../(auth)/LoginScreen";
 const CopilotView = walkthroughable(View);
-const CopilotText = walkthroughable(Text);
 
 const SHOPPING_LIST_KEY = "shoppingLists";
 
@@ -95,7 +92,7 @@ function ShoppingListsScreen() {
   };
 
   return (
-    <View
+    <KeyboardAvoidingView
       style={[
         styles.screen,
         {
@@ -103,6 +100,8 @@ function ShoppingListsScreen() {
           paddingBottom: insets.bottom + 10,
         },
       ]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       {/* LIST */}
       <CopilotStep order={1} name="explain1" text={copilot("listStep1")}>
@@ -130,8 +129,7 @@ function ShoppingListsScreen() {
         }}
         showToast={(key: string) => showToast(key)}
       />
-      <Toast config={toastConfig} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -142,7 +140,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: WhiteVar,
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
   },
   headerBlock: {

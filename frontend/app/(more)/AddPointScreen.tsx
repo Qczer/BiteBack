@@ -3,7 +3,6 @@ import FormInput from "@/components/FormInput";
 import React, { useState } from "react";
 import Toast from "react-native-toast-message";
 
-import toastConfig from "@/components/ToastConfig";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -158,7 +157,6 @@ export default function AddPointScreen() {
         {/* Info note */}
         <Text style={styles.infoNote}>⚠️ {t("infoNote")}</Text>
       </KeyboardAwareScrollView>
-      <Toast config={toastConfig} />
     </>
   );
 }

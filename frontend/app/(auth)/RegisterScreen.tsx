@@ -2,7 +2,6 @@ import {login, register} from "@/api/endpoints/user";
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import FormInput from "@/components/FormInput";
 import RealButton from "@/components/RealButton";
-import toastConfig from "@/components/ToastConfig";
 import translate from "@/locales/i18n";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -35,7 +34,7 @@ export default function RegisterScreen() {
   const tURL = "screens.register.";
   const t = (key: string) => translate(tURL + key);
 
-  const { setToken, refreshData } = useUser();
+  const { setToken, refreshData, isConnected } = useUser();
 
   const [allFilled, setAllFilled] = useState(false);
   const [showPasswordHelp, setShowPasswordHelp] = useState(false);
@@ -171,11 +170,11 @@ export default function RegisterScreen() {
               />
               <Pressable
                 onPress={handleRegister}
-                disabled={loading}
+                disabled={loading || !isConnected}
                 style={[
                   styles.loginButton,
                   {
-                    backgroundColor: allFilled && !loading ? GreenVar : "gray",
+                    backgroundColor: allFilled && !loading && isConnected ? GreenVar : "gray",
                   },
                 ]}
               >
@@ -203,7 +202,6 @@ export default function RegisterScreen() {
           {/* FOOTER */}
           <View style={styles.otherBlock}></View>
         </View>
-        <Toast config={toastConfig} />
       </KeyboardAwareScrollView>
     </View>
   );

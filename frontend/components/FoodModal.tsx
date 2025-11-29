@@ -45,7 +45,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   const tURL = "foodEditor.";
   const t = (key: string) => translate(tURL + key);
 
-  const { userID, token } = useUser();
+  const { userID, token, isConnected } = useUser();
 
   const [iconModalVisible, setIconModalVisible] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(
@@ -66,7 +66,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   };
 
   const handleSave = async () => {
-    if (!food._id) return;
+    if (!food._id || !isConnected) return;
 
     let newParams: editFoodProperty[] = Object.entries(editedFood)
       .filter(
@@ -88,7 +88,7 @@ export default function FoodModal({ visible, onClose, food }: FoodModalProps) {
   };
 
   const handleDelete = async () => {
-    if (!food._id) return;
+    if (!food._id || !isConnected) return;
 
     await deleteFood(userID, token, food._id);
     onClose();

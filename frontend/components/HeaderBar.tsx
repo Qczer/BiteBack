@@ -23,7 +23,8 @@ export default function HeaderBar() {
   const [fontsLoaded] = useFonts({ Courgette_400Regular });
   const [modalVisible, setModalVisible] = useState(false);
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded)
+    return null;
 
   return (
     // pointerEvents="box-none" pozwala przekazywać gesty do elementów pod headerem

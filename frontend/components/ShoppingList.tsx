@@ -34,7 +34,7 @@ export default function ShoppingList({
   clearList,
   showToast,
 }: ShoppingListProps) {
-  const { userID, token } = useUser();
+  const { userID, token, isConnected } = useUser();
 
   const tURL = "cards.shoppingLists.";
   const t = (key: string) => translate(tURL + key)
@@ -117,7 +117,7 @@ export default function ShoppingList({
             <Text style={styles.itemAmount}>
               {food.amount} {food.unit}
             </Text>
-            {food.expDate && <Text style={styles.itemName}>{food.expDate.toLocaleDateString()}</Text>}
+            {food.expDate && <Text style={styles.itemName}>{new Date(food.expDate).toLocaleDateString()}</Text>}
           </>
         )}
         <View style={styles.buttons}>
@@ -144,11 +144,17 @@ export default function ShoppingList({
         data={list}
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderItem}
-        // Dodajemy odstęp między elementami listy (zamiast gap w kontenerze)
+
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
-        
+
+        keyboardShouldPersistTaps="handled" // Pozwala klikać przyciski (np. usuń) gdy klawiatura jest otwarta
+        keyboardDismissMode="on-drag"       // Chowa klawiaturę przy przewijaniu
+        removeClippedSubviews={false}       // Ważne na Androidzie: zapobiega znikaniu inputów przy scrollowaniu
+
+        contentContainerStyle={{ paddingBottom: 150 }}
+
         // Nagłówek listy (Formularz dodawania)
         ListHeaderComponent={
           <View style={styles.headerWrapper}>
@@ -175,9 +181,9 @@ export default function ShoppingList({
         // Stopka listy (Przycisk dodawania do lodówki)
         ListFooterComponent={
           <Pressable
-            style={[styles.addButton, isSubmitting && { opacity: 0.5 }]}
+            style={[styles.addButton, (isSubmitting || !isConnected) && { opacity: 0.5 }]}
             onPress={handleAddListToFridge}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isConnected}
           >
             <Text style={styles.addButtonText}>
               {isSubmitting ? (
@@ -197,8 +203,7 @@ export default function ShoppingList({
 
 const styles = StyleSheet.create({
   container: {
-    // Usunięto ScrollView style props, przeniesiono do View
-    flex: 1, // Ważne, aby lista zajmowała dostępną przestrzeń
+    flex: 1,
     padding: 16,
     width: "90%",
     backgroundColor: "#fff",

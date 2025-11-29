@@ -19,13 +19,15 @@ import {
 } from "react-native";
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {useUser} from "@/contexts/UserContext";
 
 const CopilotView = walkthroughable(View);
-const CopilotText = walkthroughable(Text);
 
 function ScanScreen() {
   const insets = useSafeAreaInsets();
   const copilot = (key: string) => translate("copilot." + key);
+
+  const { isConnected } = useUser();
 
   const { start, totalStepsNumber } = useCopilot();
   const hasStartedTutorial = useRef(false);
@@ -156,6 +158,9 @@ function ScanScreen() {
           <TouchableOpacity
             style={styles.button}
             onPress={async () => {
+              if (!isConnected)
+                return;
+
               try {
                 setLoading(true);
 

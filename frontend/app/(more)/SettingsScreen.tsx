@@ -1,7 +1,6 @@
 import { GreenVar, WhiteVar } from "@/assets/colors/colors";
 import LanguageSelector from "@/components/LanguageSelector";
 import LogoutModal from "@/components/LogoutModal";
-import toastConfig from "@/components/ToastConfig";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { handleLogout } from "@/services/Storage";
@@ -32,9 +31,6 @@ export default function SettingsScreen() {
   // przykładowa implementacja – możesz podpiąć własną logikę
   const replayTutorial = async () => {
     try {
-      // np. reset flagi w AsyncStorage
-      // await AsyncStorage.removeItem("@hasSeenHomeTutorial");
-      console.log("Replay tutorial triggered");
       showToast(tr("replay"));
     } catch (err) {
       console.error("Error replaying tutorial", err);
@@ -95,7 +91,6 @@ export default function SettingsScreen() {
           await handleLogout();
         }}
       />
-      <Toast config={toastConfig}></Toast>
     </View>
   );
 }

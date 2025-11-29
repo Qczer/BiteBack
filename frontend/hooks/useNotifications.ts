@@ -16,7 +16,6 @@ Notifications.setNotificationHandler({
 
 export async function registerForPushNotificationsAsync() {
   if (!Device.isDevice) {
-    alert('Must use physical device for Push Notifications');
     return undefined;
   }
 
@@ -46,7 +45,7 @@ export async function registerForPushNotificationsAsync() {
     const projectId =
       Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
     if (!projectId)
-      throw new Error('Project ID not found');
+      return;
 
     const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });
     return tokenResponse.data;
@@ -64,7 +63,6 @@ export const useNotificationObserver = async (userID: string) => {
 
     const redirect = (notification: Notifications.Notification) => {
       const data = notification.request.content.data;
-      console.log("🔔 Kliknięto powiadomienie, dane:", data);
 
       if (data?.url && typeof data.url === 'string') {
         try {

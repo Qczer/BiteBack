@@ -20,8 +20,8 @@ import React, {
 } from "react";
 import {getFriends} from "@/api/endpoints/friends";
 import { registerForPushNotificationsAsync } from "@/hooks/useNotifications";
-import {axiosClient} from "@/api/axiosClient";
 import NotificationClass from "@/types/Notification";
+import NetInfo from "@react-native-community/netinfo";
 
 interface UserContextType {
   isLoading: boolean;
@@ -38,25 +38,41 @@ interface UserContextType {
   clearUser: () => void;
   refreshData: (manualToken?: string) => Promise<void>;
   expoPushToken: string | null;
+  isConnected: boolean;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string>("");
   const [userID, setUserID] = useState<string>("");
   const [userFood, setUserFood] = useState<Food[]>([]);
   const [userFriends, setUserFriends] = useState<UserFriendsInterface | null>(null);
+
+  const [token, setToken] = useState<string>("");
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
+
   const [notifications, setNotifications] = useState<NotificationClass[]>([]);
   const [unreadNotifications, setUnreadNotifications] = useState<NotificationClass[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState<boolean>(true);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      // state.isConnected może być null, więc rzutujemy na boolean (domyślnie false)
+      const connected = state.isConnected ?? false;
+      setIsConnected(connected);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const clearUser = useCallback(async () => {
     try {
-      if (token && expoPushToken && user?._id)
+      const netState = await NetInfo.fetch();
+      if (token && expoPushToken && user?._id && netState.isConnected)
         removePushToken(token, expoPushToken).catch(err => console.log("Push remove error ignored", err));
+
       await removeToken();
     }
     catch (e) {
@@ -73,11 +89,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [token, expoPushToken, user?._id]);
 
   const refreshData = useCallback(async (manualToken?: string) => {
+    const netState = await NetInfo.fetch();
+
+    if (!netState.isConnected) {
+      if (isConnected) setIsConnected(false);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isConnected && netState.isConnected)
+      setIsConnected(true);
+
     try {
       let currentToken = manualToken || await getToken();
 
       if(!currentToken) {
-        console.log("⚠️ [refreshData] Brak tokenu -> Stop.");
         setIsLoading(false);
         return;
       }
@@ -86,7 +112,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const authRes = await auth(currentToken);
       if (!authRes.success) {
-        console.error("❌ [refreshData] Auth failed. Wylogowuję.");
         await clearUser();
         setIsLoading(false);
         return;
@@ -94,7 +119,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       const realId = authRes.data.userID || (authRes.data as any).userId  || (authRes.data as any)._id;
       if (!realId) {
-        console.error("❌ [refreshData] Auth OK, ale brak ID! Backend zwraca:", Object.keys(authRes.data));
         setIsLoading(false);
         return;
       }
@@ -121,11 +145,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isConnected, clearUser]);
 
   useEffect(() => {
     const registerPushToken = async () => {
-      if (!token || !userID)
+      const netState = await NetInfo.fetch();
+      if (!token || !userID || !netState.isConnected)
         return;
 
       try {
@@ -150,9 +175,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     refreshData();
 
+    if (!isConnected)
+      return;
+
     const intervalId = setInterval(refreshData, 10000);
     return () => clearInterval(intervalId);
-  }, [refreshData]);
+  }, [refreshData, isConnected]);
 
   const value = useMemo(() => {
     return {
@@ -169,9 +197,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       clearUser,
       refreshData,
       notifications,
-      unreadNotifications
+      unreadNotifications,
+      isConnected
     };
-  }, [isLoading, user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications, clearUser]);
+  }, [isLoading, user, token, setToken, setUserFood, setUserFriends, expoPushToken, refreshData, notifications, unreadNotifications, clearUser, isConnected]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

@@ -1,16 +1,22 @@
 import { useFonts } from "expo-font";
 import {Slot, usePathname, useRouter, useSegments} from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { UserProvider, useUser } from "@/contexts/UserContext";
 import { getItem } from "@/services/Storage";
 import * as Notifications from "expo-notifications";
 import { useNotificationObserver } from "@/hooks/useNotifications";
 import CustomSplashScreen from "@/components/SplashScreen";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import {LanguageProvider, useLanguage} from "@/contexts/LanguageContext";
+import { StatusBar } from "expo-status-bar";
+import Toast from "react-native-toast-message";
+import translate from "@/locales/i18n";
+import toastConfig from "@/components/ToastConfig";
 
 SplashScreen.preventAutoHideAsync();
+
+let hasAppNavigatedOnce = false;
 
 export default function RootLayout() {
   const [fontsLoaded, error] = useFonts({
@@ -31,6 +37,7 @@ export default function RootLayout() {
   return (
     <UserProvider>
       <LanguageProvider>
+        <StatusBar style="dark" hidden={false} backgroundColor="transparent" />
         <InitialLayout />
       </LanguageProvider>
     </UserProvider>
@@ -38,7 +45,8 @@ export default function RootLayout() {
 }
 
 function InitialLayout() {
-  const { userID, isLoading: isUserLoading } = useUser();
+  const { userID, isLoading: isUserLoading, isConnected } = useUser();
+  const { isLoading: isLangLoading } = useLanguage();
   const segments = useSegments();
   const router = useRouter();
   const pathname = usePathname();
@@ -61,6 +69,20 @@ function InitialLayout() {
   }, [lastNotificationResponse]);
 
   useEffect(() => {
+    if (!isConnected) {
+      Toast.show({
+        type: "error",
+        text1: translate("common.noInternetConnection"),
+        position: "top",
+        autoHide: false,
+        swipeable: false,
+      });
+    }
+    else
+      Toast.hide();
+  }, [isConnected]);
+
+  useEffect(() => {
     const checkFirstLaunch = async () => {
       try {
         const hasSeen = await getItem("hasSeenWelcomeScreen");
@@ -77,7 +99,9 @@ function InitialLayout() {
   }, []);
 
   useEffect(() => {
-    if (isUserLoading || isStorageLoading) return;
+    if (isUserLoading || isLangLoading || isStorageLoading || hasAppNavigatedOnce) return;
+
+    hasAppNavigatedOnce = true;
 
     const inAuthGroup = segments[0] === "(auth)";
     const atRoot = !pathname || pathname === "/";
@@ -86,8 +110,9 @@ function InitialLayout() {
       if (launchedByNotification)
         return;
 
-      if (inAuthGroup || atRoot)
+      if (inAuthGroup || atRoot) {
         router.replace("/(tabs)/HomeScreen");
+      }
     }
     else {
       if (!inAuthGroup) {
@@ -95,10 +120,15 @@ function InitialLayout() {
         router.replace(`/(auth)/${routeName}`);
       }
     }
-  }, [userID, isUserLoading, isStorageLoading, segments, isFirstLaunch, launchedByNotification]);
+  }, [userID, isUserLoading, isLangLoading, isStorageLoading, segments, isFirstLaunch, launchedByNotification]);
 
-  if (pathname === "/" || isUserLoading || isStorageLoading)
+  if (!hasAppNavigatedOnce && (pathname === "/" || isUserLoading || isLangLoading || isStorageLoading))
     return <CustomSplashScreen />;
 
-  return <Slot />;
+  return (
+    <>
+      <Slot />
+      <Toast config={toastConfig} />
+    </>
+  );
 }

@@ -1,15 +1,12 @@
-import {Link, Stack, usePathname} from 'expo-router';
+import { Link, Stack } from 'expo-router';
 import { Text, View, StyleSheet } from 'react-native';
 import t from "@/locales/i18n"
-import {useEffect} from "react";
+import {useUser} from "@/contexts/UserContext";
 
 export default function NotFoundScreen() {
-  const pathname = usePathname();
+  const { user } = useUser();
 
-  useEffect(() => {
-    // Logujemy błędną ścieżkę zaraz po wejściu na ten ekran
-    console.warn(`[404] Użytkownik próbował wejść na: ${pathname}`);
-  }, [pathname]);
+  const newScreen = user ? "/(tabs)/HomeScreen" : "/(auth)/LoginScreen";
 
   return (
     <>
@@ -17,7 +14,7 @@ export default function NotFoundScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>{t("screens.notFound.title")}</Text>
 
-        <Link href="/(auth)/LoginScreen" style={styles.link}>
+        <Link href={newScreen} style={styles.link}>
           <Text style={styles.linkText}>{t("screens.notFound.goToHomeScreen")}</Text>
         </Link>
       </View>

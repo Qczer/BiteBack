@@ -13,6 +13,9 @@
     "fridgeStep3": "Currently there are 2 ways to add food: by scanning receipts and through shopping lists.",
     "scanStep1": "From here you'll be scanning receipts. But first, you need to grant camera access.",
     "listStep1": "Here is your shopping list! You can add items you want to buy here, and then move the entire list to your Virtual Fridge.",
+    "mapStep1": "In this tab, you will find a map with our authorized locations where you can drop off any food you won’t use.",
+    "mapStep2": "This field lets you choose the distance (from the current map center) within which you want to search for a location.",
+    "mapStep3": "Here you can filter locations by entering a name.",
     "next": "Next",
     "previous": "Previous",
     "skip": "Skip",
@@ -23,7 +26,7 @@
       "title": "Sign In",
       "welcomeBack": "Welcome Back!",
       "usernameLabel": "Username",
-      "usernamePlaceholder": "Wprowadź swoją nazwę użytkownika",
+      "usernamePlaceholder": "Enter your username",
       "emailLabel": "Email address",
       "emailPlaceholder": "johndoe@mail.com",
       "passwordLabel": "Password",
@@ -102,7 +105,8 @@
       "enterFriendsName": "Enter friend's name",
       "success": "Success! Friend invited.",
       "emptyLeaderboard": "Congratulations, You're the best among your friends!",
-      "noDate": "No Date"
+      "noDate": "No Date",
+      "permissionToAccessGalleryIsRequired": "Permission to access gallery is required!"
     },
     "more": {
       "title": "More"
@@ -121,7 +125,8 @@
       "title": "Thanks for Your opinion!",
       "subtitle": "It'll help us improve our app and make it even better!",
       "goBack": "Fine!",
-      "findPoint": "Find point"
+      "findPoint": "Find point",
+      "searchDotationPoint": "Search dodation point"
     },
     "notFound": {
       "title": "This screen doesn't exist.",
@@ -219,7 +224,7 @@
       "full": "Milliliter"
     },
     "pcs": {
-      "short": "szt",
+      "short": "pcs",
       "full": "Pieces"
     }
   },
@@ -248,7 +253,8 @@
     "confirm": "Confirm",
     "confirmText": "Are you sure you want to delete",
     "fromFriends": "from friends list?",
-    "fetchingYourInfo": "Fetching your information"
+    "fetchingYourInfo": "Fetching your information",
+    "noInternetConnection": "No internet connection!"
   },
   "foodEditor": {
     "foodName": "Food Name",

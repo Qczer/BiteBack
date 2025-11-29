@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 
 import { WhiteVar } from "@/assets/colors/colors";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { getFridge } from "@/api/endpoints/fridge";
 import ExpandButton from "@/components/ExpandButton";
@@ -34,7 +34,7 @@ function VirtualFridgeScreen() {
   const insets = useSafeAreaInsets();
   const copilot = (key: string) => translate("copilot." + key);
 
-  const { userID, token, userFood, setUserFood, refreshData } = useUser();
+  const { userID, token, userFood, setUserFood, refreshData, isConnected } = useUser();
   const { start, totalStepsNumber } = useCopilot();
   const hasStartedTutorial = useRef(false);
 
@@ -79,24 +79,17 @@ function VirtualFridgeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // Ten kod wykonuje sie gdy wejdziesz na ekran
       const fetchData = async () => {
+        if (!isConnected)
+          return;
+
         const res = await getFridge(userID, token);
         if (res?.data) setUserFood(res.data.fridge);
       };
 
       fetchData();
-    }, [userID, setUserFood])
+    }, [userID, setUserFood, isConnected, token])
   );
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await getFridge(userID, token);
-      if (res?.data) setUserFood(res.data.fridge);
-    };
-
-    fetchData();
-  }, []);
 
   const { t } = useLanguage();
 

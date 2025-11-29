@@ -47,7 +47,8 @@ router.post("/:userID", authenticateToken, ensureCorrectUser, async (req, res) =
         const savedFoods = await Food.insertMany(foodItems);
         
         user.fridge.push(...savedFoods.map(f => f._id));
-        user.bitescore += 5;
+        user.bitescore += savedFoods.length * 5;
+        console.log(user.bitescore)
         await user.save();
 
         res.status(201).json({

@@ -20,8 +20,7 @@ import {Image} from 'expo-image';
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
 
-  const { user, userID, userFriends, token, clearUser, refreshData } =
-    useUser();
+  const { user, userID, userFriends, token, clearUser, refreshData, isConnected } = useUser();
 
   const { showInvitations: initialShowInvitations } = useLocalSearchParams<{ showInvitations: string }>();
   const [showFriendsModal, setShowFriendsModal] = useState(false);
@@ -50,7 +49,7 @@ export default function ProfileScreen() {
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      alert("Permission to access gallery is required!");
+      alert(t("permissionToAccessGalleryIsRequired"));
       return;
     }
 
@@ -69,6 +68,9 @@ export default function ProfileScreen() {
   };
 
   const handleChangeAvatar = async () => {
+    if (!isConnected)
+      return;
+
     const avatarUri = await pickImage(); // ustawienie lokalnego podglądu
     if (!avatarUri) return;
 
@@ -119,7 +121,7 @@ export default function ProfileScreen() {
         onClose={() => setShowInvitations(false)}
         invitations={userFriends?.requests.map((r) => r.username) ?? []}
         onAccept={async (index: number) => {
-          if (!userFriends) return;
+          if (!userFriends || !isConnected) return;
           await acceptFriendRequest(
             userFriends.requests[index].username,
             token
@@ -127,7 +129,7 @@ export default function ProfileScreen() {
           await refreshData();
         }}
         onReject={async (index: number) => {
-          if (!userFriends) return;
+          if (!userFriends || !isConnected) return;
           await rejectFriendRequest(
             userFriends.requests[index].username,
             token
@@ -229,6 +231,9 @@ export default function ProfileScreen() {
                       }}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       onPress={() => {
+                        if (!isConnected)
+                          return;
+
                         setRemoveFriendName(f.username);
                         setShowRemoveFriendModal(true);
                       }}
