@@ -4,7 +4,6 @@ import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import React, { useRef } from "react";
 import {
@@ -20,6 +19,7 @@ import {
 import { PieChart } from "react-native-chart-kit";
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {getItem, setItem} from "@/services/Storage";
 
 interface Category {
   name: string;
@@ -30,7 +30,6 @@ interface Category {
 }
 
 const CopilotView = walkthroughable(View);
-const CopilotText = walkthroughable(Text);
 
 const screenWidth = Dimensions.get("window").width;
 function HomeScreen() {
@@ -47,15 +46,15 @@ function HomeScreen() {
     React.useCallback(() => {
       const checkTutorialFlag = async () => {
         try {
-          const hasSeen = await AsyncStorage.getItem(
-            "@hasSeenHomeScreenTutorial"
+          const hasSeen = await getItem(
+            "hasSeenHomeScreenTutorial"
           );
           if (!hasSeen && !hasStartedTutorial.current) {
             // Odpalamy tutorial z opóźnieniem
             const timer = setTimeout(() => {
               hasStartedTutorial.current = true;
               start();
-              AsyncStorage.setItem("@hasSeenHomeScreenTutorial", "true");
+              setItem("hasSeenHomeScreenTutorial", "true");
             }, 250);
 
             return () => clearTimeout(timer);
@@ -66,9 +65,8 @@ function HomeScreen() {
       };
 
       // ma byc !dev jesli production ready
-      if (!__DEV__) {
+      if (!__DEV__)
         checkTutorialFlag();
-      }
     }, [start])
   );
 

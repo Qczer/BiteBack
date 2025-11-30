@@ -124,7 +124,9 @@
     "feedback": {
       "title": "Dziękujemy za Twoją opinię!",
       "subtitle": "Pomoże nam to uczynić naszą aplikację jeszcze lepszą!",
-      "goBack": "W porządku!",
+      "goBack": "W porządku!"
+    },
+    "maps": {
       "findPoint": "Znajdź punkt",
       "searchDotationPoint": "Wyszukaj punkt dotacji"
     },

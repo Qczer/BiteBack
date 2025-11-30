@@ -3,7 +3,7 @@ import LanguageSelector from "@/components/LanguageSelector";
 import LogoutModal from "@/components/LogoutModal";
 import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
-import { handleLogout } from "@/services/Storage";
+import { handleLogout, removeItem } from "@/services/Storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -11,7 +11,7 @@ import Toast from "react-native-toast-message";
 
 const showToast = (message: string) => {
   Toast.show({
-    type: "error",
+    type: "info",
     text1: message,
     position: "top",
     swipeable: true,
@@ -32,6 +32,11 @@ export default function SettingsScreen() {
   const replayTutorial = async () => {
     try {
       showToast(tr("replay"));
+      removeItem("hasSeenVirtualFridgeScreenTutorial");
+      removeItem("hasSeenShoppingListTutorial");
+      removeItem("hasSeenHomeScreenTutorial");
+      removeItem("hasSeenScanScreenTutorial");
+      removeItem("hasSeenMapsScreenTutorial");
     } catch (err) {
       console.error("Error replaying tutorial", err);
     }

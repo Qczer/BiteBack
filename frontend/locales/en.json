@@ -124,7 +124,9 @@
     "feedback": {
       "title": "Thanks for Your opinion!",
       "subtitle": "It'll help us improve our app and make it even better!",
-      "goBack": "Fine!",
+      "goBack": "Fine!"
+    },
+    "maps": {
       "findPoint": "Find point",
       "searchDotationPoint": "Search dodation point"
     },

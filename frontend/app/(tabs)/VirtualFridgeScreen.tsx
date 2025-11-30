@@ -16,12 +16,12 @@ import { useUser } from "@/contexts/UserContext";
 import translate from "@/locales/i18n";
 import { FoodCategory } from "@/types/Food";
 import FoodFilter from "@/types/FoodFilter";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
 import React from "react";
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import Modal from "react-native-modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {getItem, setItem} from "@/services/Storage";
 
 const CopilotView = walkthroughable(View);
 const CopilotText = walkthroughable(Text);
@@ -49,16 +49,14 @@ function VirtualFridgeScreen() {
     React.useCallback(() => {
       const checkTutorialFlag = async () => {
         try {
-          const hasSeen = await AsyncStorage.getItem(
-            "@hasSeenVirtualFridgeScreenTutorial"
-          );
+          const hasSeen = await getItem("hasSeenVirtualFridgeScreenTutorial");
           if (!hasSeen && !hasStartedTutorial.current) {
             // Odpalamy tutorial z opóźnieniem
             const timer = setTimeout(() => {
               hasStartedTutorial.current = true;
               start();
-              AsyncStorage.setItem(
-                "@hasSeenVirtualFridgeScreenTutorial",
+              setItem(
+                "hasSeenVirtualFridgeScreenTutorial",
                 "true"
               );
             }, 0);
@@ -71,9 +69,8 @@ function VirtualFridgeScreen() {
       };
 
       // ma byc !dev jesli production ready
-      if (!__DEV__) {
+      if (!__DEV__)
         checkTutorialFlag();
-      }
     }, [start])
   );
 

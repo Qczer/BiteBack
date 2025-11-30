@@ -55,10 +55,8 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!isUserLoading && user?.lang && availableLangs.includes(user.lang as Lang)) {
-      if (user.lang !== lang) {
-        console.log(`Syncing language from User profile: ${user.lang}`);
+      if (user.lang !== lang)
         setLang(user.lang as Lang);
-      }
     }
   }, [user, isUserLoading]);
 

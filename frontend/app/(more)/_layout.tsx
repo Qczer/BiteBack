@@ -1,8 +1,6 @@
 import t from "@/locales/i18n";
-import {router, Stack} from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
-import {TouchableOpacity} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
 import {WhiteVar} from "@/assets/colors/colors";
 
 export default function Layout() {
@@ -12,29 +10,13 @@ export default function Layout() {
         headerShown: true,
         headerTitleAlign: "left",
         headerTintColor: "black",
-        headerStyle: { backgroundColor: WhiteVar },
-
-        headerLeft: () => null,
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={() => {
-              if (router.canGoBack())
-                router.back();
-              else
-                router.push("/(tabs)/MoreScreen");
-            }}
-            style={{ marginLeft: 0, marginRight: 15, padding: 5 }}
-          >
-            <Ionicons name="chevron-back" size={23} />
-          </TouchableOpacity>
-        ),
+        headerStyle: { backgroundColor: WhiteVar }
       }}
     >
       <Stack.Screen
         name="MapsScreen"
         options={{
-          title: t("cards.maps.headerTitle"),
-          headerShown: false,
+          title: t("screens.maps.findPoint")
         }}
       />
       <Stack.Screen

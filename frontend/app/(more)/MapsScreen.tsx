@@ -5,11 +5,10 @@ import { default as translate } from "@/locales/i18n";
 import DotationPoint from "@/types/DotationPoint";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { router, useFocusEffect } from "expo-router";
-import React, {useCallback, useRef, useState} from "react";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useRef, useState } from "react";
 import {
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -17,7 +16,8 @@ import {
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import Toast from "react-native-toast-message";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
-import {useUser} from "@/contexts/UserContext";
+import { useUser } from "@/contexts/UserContext";
+import { getItem, setItem } from "@/services/Storage";
 
 const CopilotView = walkthroughable(View);
 
@@ -40,7 +40,7 @@ const showToast = (message: string) => {
 
 function MapsScreen() {
   const copilot = (key: string) => translate("copilot." + key);
-  const t = (key: string) => translate("screens.feedback." + key);
+  const t = (key: string) => translate("screens.maps." + key);
 
   const { isConnected } = useUser();
 
@@ -56,6 +56,7 @@ function MapsScreen() {
 
   const { start, totalStepsNumber } = useCopilot();
   const hasStartedTutorial = useRef(false);
+
 
   const createMarkers = async () => {
     if (!isConnected)
@@ -102,19 +103,19 @@ function MapsScreen() {
       // Parsujemy wiadomość JSON od mapy
       const rawData = event.nativeEvent.data;
       // Czasami przychodzą logi tekstowe, więc próbujemy parsować
-      if (!rawData.startsWith("{")) return;
+      if (!rawData.startsWith("{"))
+        return;
 
       const data: { lng?: number; lat?: number; type: string } =
         JSON.parse(rawData);
 
       // KLUCZOWE: Odbieramy sygnał, że mapa jest gotowa
-      if (data.type === "map-ready") {
-        console.log("TomTom Map is fully rendered!");
+      if (data.type === "map-ready")
         setIsTomTomReady(true);
-      } else if (data.type === "map-center" && data.lng && data.lat) {
+      else if (data.type === "map-center" && data.lng && data.lat)
         setPosition([data.lng, data.lat]);
-      }
-    } catch (e) {
+    }
+    catch (e) {
       console.log("Non-JSON message:", event.nativeEvent.data);
     }
   };
@@ -122,24 +123,34 @@ function MapsScreen() {
   // Logika startowania tutoriala
   useFocusEffect(
     useCallback(() => {
-      // Startujemy TYLKO gdy isTomTomReady == true
-      if (!hasStartedTutorial.current && isTomTomReady) {
-        console.log("Map ready inside effect. Starting copilot...");
+      const checkTutorialFlag = async () => {
+        try {
+          const hasSeen = await getItem("hasSeenMapsScreenTutorial");
+          if (!hasSeen && !hasStartedTutorial.current && isTomTomReady) {
+            // Odpalamy tutorial z opóźnieniem
+            const timer = setTimeout(() => {
+              hasStartedTutorial.current = true;
+              start();
+              setItem("hasSeenMapsScreenTutorial", "true");
+            }, 0);
 
-        // Mały timeout dla pewności, że UI Reacta zdążył się przerysować
-        const timer = setTimeout(() => {
-          hasStartedTutorial.current = true;
-          start();
-        }, 500);
+            return () => clearTimeout(timer);
+          }
+        }
+        catch (error) {
+          console.error("Error checking tutorial flag.", error);
+        }
+      };
 
-        return () => clearTimeout(timer);
-      }
+      // ma byc !dev jesli production ready
+      // if (!__DEV__)
+        checkTutorialFlag();
     }, [isTomTomReady, start])
   );
 
   const html =
     `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.14.0/maps/maps.css" />
@@ -203,57 +214,46 @@ function MapsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Pasek wyszukiwania */}
       <CopilotStep name="hello" order={1} text={copilot("mapStep1")}>
-        <CopilotView style={styles.header}>
-          <Text style={styles.headerTitle}>{t("findPoint")}</Text>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.replace("/(tabs)/MoreScreen")}
-          >
-            <Ionicons name="chevron-back" size={23} />
+        <CopilotView style={styles.searchBar}>
+          <CopilotStep name="explain1" order={2} text={copilot("mapStep2")}>
+            <CopilotView style={styles.pickerContainer} collapsable={false} onLayout={() => {}}>
+              <Picker
+                selectedValue={distance}
+                onValueChange={(itemValue) => setDistance(itemValue)}
+                mode="dropdown"
+                style={styles.picker}
+                dropdownIconColor="#000000"
+              >
+                <Picker.Item label="+5km" value="5000" />
+                <Picker.Item label="+10km" value="10000" />
+                <Picker.Item label="+15km" value="15000" />
+                <Picker.Item label="+20km" value="20000" />
+                <Picker.Item label="+100km" value="100000" />
+              </Picker>
+            </CopilotView>
+          </CopilotStep>
+
+          <View style={{ flex: 1, marginLeft: 8 }}>
+            <CopilotStep name="explain2" order={3} text={copilot("mapStep3")}>
+              <CopilotView style={{ flex: 1, marginLeft: 8 }} collapsable={false}>
+                <TextInput
+                  style={styles.input}
+                  placeholder={t("searchDotationPoint")}
+                  placeholderTextColor="#888"
+                  value={searchText}
+                  onChangeText={setSearchText}
+                />
+              </CopilotView>
+            </CopilotStep>
+          </View>
+
+          <TouchableOpacity style={styles.searchButton} onPress={createMarkers}>
+            <Ionicons name="search" size={30} color={GreenVar} />
           </TouchableOpacity>
         </CopilotView>
       </CopilotStep>
-
-      {/* Pasek wyszukiwania */}
-      <View style={styles.searchBar}>
-        <CopilotStep name="explain1" order={2} text={copilot("mapStep2")}>
-          <CopilotView style={styles.pickerContainer} collapsable={false} onLayout={() => {}}>
-            <Picker
-              selectedValue={distance}
-              onValueChange={(itemValue) => setDistance(itemValue)}
-              mode="dropdown"
-              style={styles.picker}
-              dropdownIconColor="#000000"
-            >
-              <Picker.Item label="+5km" value="5000" />
-              <Picker.Item label="+10km" value="10000" />
-              <Picker.Item label="+15km" value="15000" />
-              <Picker.Item label="+20km" value="20000" />
-              <Picker.Item label="+100km" value="100000" />
-            </Picker>
-          </CopilotView>
-        </CopilotStep>
-
-        <View style={{ flex: 1, marginLeft: 8 }}>
-          <CopilotStep name="explain2" order={3} text={copilot("mapStep3")}>
-            <CopilotView style={{ flex: 1, marginLeft: 8 }} collapsable={false}>
-              <TextInput
-                style={styles.input}
-                placeholder={t("searchDotationPoint")}
-                placeholderTextColor="#888"
-                value={searchText}
-                onChangeText={setSearchText}
-              />
-            </CopilotView>
-          </CopilotStep>
-        </View>
-
-        <TouchableOpacity style={styles.searchButton} onPress={createMarkers}>
-          <Ionicons name="search" size={30} color={GreenVar} />
-        </TouchableOpacity>
-      </View>
 
       {/* WebView */}
       { isConnected &&

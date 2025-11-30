@@ -4,7 +4,6 @@ import HeaderBar from "@/components/HeaderBar";
 import { withCopilotProvider } from "@/components/WithCopilotProvider";
 import translate from "@/locales/i18n";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router, useFocusEffect } from "expo-router";
@@ -20,6 +19,7 @@ import {
 import { CopilotStep, useCopilot, walkthroughable } from "react-native-copilot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {useUser} from "@/contexts/UserContext";
+import {getItem, setItem} from "@/services/Storage";
 
 const CopilotView = walkthroughable(View);
 
@@ -48,15 +48,15 @@ function ScanScreen() {
     React.useCallback(() => {
       const checkTutorialFlag = async () => {
         try {
-          const hasSeen = await AsyncStorage.getItem(
-            "@hasSeenScanScreenTutorial"
+          const hasSeen = await getItem(
+            "hasSeenScanScreenTutorial"
           );
           if (!hasSeen && !hasStartedTutorial.current) {
             // Odpalamy tutorial z opóźnieniem
             const timer = setTimeout(() => {
               hasStartedTutorial.current = true;
               start();
-              AsyncStorage.setItem("@hasSeenScanScreenTutorial", "true");
+              setItem("hasSeenScanScreenTutorial", "true");
             }, 0);
 
             return () => clearTimeout(timer);
@@ -67,9 +67,8 @@ function ScanScreen() {
       };
 
       // ma byc !dev jesli production ready
-      if (!__DEV__) {
+      if (!__DEV__)
         checkTutorialFlag();
-      }
     }, [start])
   );
 

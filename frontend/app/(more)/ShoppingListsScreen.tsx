@@ -5,7 +5,6 @@ import translate from "@/locales/i18n";
 import { getItem, setItem } from "@/services/Storage";
 import Food from "@/types/Food";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {KeyboardAvoidingView, Platform, StyleSheet, Text, View} from "react-native";
@@ -34,15 +33,15 @@ function ShoppingListsScreen() {
     React.useCallback(() => {
       const checkTutorialFlag = async () => {
         try {
-          const hasSeen = await AsyncStorage.getItem(
-            "@hasSeenShoppingListTutorial"
+          const hasSeen = await getItem(
+            "hasSeenShoppingListTutorial"
           );
           if (!hasSeen && !hasStartedTutorial.current) {
             // Odpalamy tutorial z opóźnieniem
             const timer = setTimeout(() => {
               hasStartedTutorial.current = true;
               start();
-              AsyncStorage.setItem("@hasSeenShoppingListTutorial", "true");
+              setItem("hasSeenShoppingListTutorial", "true");
             }, 0);
 
             return () => clearTimeout(timer);
@@ -53,9 +52,8 @@ function ShoppingListsScreen() {
       };
 
       // ma byc !dev jesli production ready
-      if (!__DEV__) {
+      if (!__DEV__)
         checkTutorialFlag();
-      }
     }, [start])
   );
 
