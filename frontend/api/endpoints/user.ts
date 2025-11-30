@@ -15,10 +15,10 @@ type AuthResult =
 | { success: false; status: number | null; message?: string };
 
 const BASE_URL = "https://biteback.pl/api/storage/avatars";
-const NO_PFP = `${BASE_URL}/nopfp.png`;
 
 export const getAvatarUri = (localUri: string | null, serverFilename?: string) => {
-  if (localUri) localUri;
+  if (localUri)
+    return localUri;
 
   if (serverFilename) {
     if (serverFilename.startsWith('http')) {
@@ -27,7 +27,7 @@ export const getAvatarUri = (localUri: string | null, serverFilename?: string) =
     return `${BASE_URL}/${serverFilename}`;
   }
 
-  return NO_PFP;
+  return null;
 }
 
 export const getUser = async (userID: string, token: string) => {

@@ -133,10 +133,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         getUnreadNotifications(realId, currentToken)
       ]);
 
-      if (userRes.success) setUser(userRes.data);
-      if (friendsRes.data) setUserFriends(friendsRes.data);
-      if (fridgeRes?.data) setUserFood(fridgeRes.data.fridge);
-      if (notificationsRes) setNotifications(notificationsRes);
+      if (userRes.success)        setUser(userRes.data);
+      if (friendsRes.data)        setUserFriends(friendsRes.data);
+      if (fridgeRes?.data)        setUserFood(fridgeRes.data.fridge);
+      if (notificationsRes)       setNotifications(notificationsRes);
       if (unreadNotificationsRes) setUnreadNotifications(unreadNotificationsRes);
     }
     catch (error) {

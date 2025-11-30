@@ -1,14 +1,14 @@
 import { useFonts } from "expo-font";
-import {Slot, usePathname, useRouter, useSegments} from "expo-router";
+import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { UserProvider, useUser } from "@/contexts/UserContext";
 import { getItem } from "@/services/Storage";
 import * as Notifications from "expo-notifications";
 import { useNotificationObserver } from "@/hooks/useNotifications";
 import CustomSplashScreen from "@/components/SplashScreen";
-import {LanguageProvider, useLanguage} from "@/contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { StatusBar } from "expo-status-bar";
 import Toast from "react-native-toast-message";
 import translate from "@/locales/i18n";
@@ -127,7 +127,11 @@ function InitialLayout() {
 
   return (
     <>
-      <Slot />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(more)" />
+        <Stack.Screen name="(auth)" />
+      </Stack>
       <Toast config={toastConfig} />
     </>
   );

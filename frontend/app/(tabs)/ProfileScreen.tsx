@@ -27,7 +27,6 @@ export default function ProfileScreen() {
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
-  const [avatarHash, setAvatarHash] = useState(Date.now());
 
   const tURL = "screens.profile.";
   const t = (key: string) => translate(tURL + key);
@@ -77,16 +76,14 @@ export default function ProfileScreen() {
     setAvatarUri(avatarUri);
 
     const response = await changeAvatar(userID, token, avatarUri);
-    if (response) {
+    if (response)
       await refreshData();
-      setAvatarHash(Date.now());
-    }
   };
 
-  const baseAvatarUri = getAvatarUri(avatarUri, user?.avatar);
-  const displayAvatarUri = baseAvatarUri?.startsWith("http")
-    ? `${baseAvatarUri}?t=${avatarHash}`
-    : baseAvatarUri;
+  const displayAvatarUri = getAvatarUri(avatarUri, user?.avatar);
+  const hasUrl = displayAvatarUri && displayAvatarUri.trim() !== "";
+
+  const noPfpImage = require("@/assets/avatars/nopfp.png");
 
   return (
     <View
@@ -148,11 +145,12 @@ export default function ProfileScreen() {
             style={{ position: "relative", backgroundColor: "transparent" }}
           >
             <Image
-              source={{ uri: displayAvatarUri }}
+              source={hasUrl ? [{ uri: displayAvatarUri }, noPfpImage] : noPfpImage}
               style={styles.avatar}
               contentFit="cover"
-              transition={500}
+              transition={hasUrl ? 500 : 0}
               cachePolicy="memory-disk"
+              placeholder={noPfpImage}
             />
             {/* Ikonka edycji */}
             <TouchableOpacity
@@ -211,44 +209,52 @@ export default function ProfileScreen() {
           <View style={styles.friendsList}>
             {userFriends && userFriends.friends?.length > 0 ? (
               <>
-                {userFriends?.friends.slice(0, 9).map((f, index) => (
-                  <TouchableOpacity
-                    key={f._id ? f._id.toString() : index}
-                    style={styles.friendCard}
-                    onPress={() => {
-                      router.push({
-                        pathname: "/(more)/PublicProfileScreen",
-                        params: { userName: f.username },
-                      });
-                    }}
-                  >
+                {userFriends?.friends.slice(0, 9).map((f, index) =>
+                  {
+                    const ImageUrl = getAvatarUri(null, f.avatar);
+                    return (
                     <TouchableOpacity
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        zIndex: 10,
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      key={f._id ? f._id.toString() : index}
+                      style={styles.friendCard}
                       onPress={() => {
-                        if (!isConnected)
-                          return;
-
-                        setRemoveFriendName(f.username);
-                        setShowRemoveFriendModal(true);
+                        router.push({
+                          pathname: "/(more)/PublicProfileScreen",
+                          params: { userName: f.username },
+                        });
                       }}
                     >
-                      <Feather name="x" color="red" size={22} />
+                      <TouchableOpacity
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                          zIndex: 10,
+                        }}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        onPress={() => {
+                          if (!isConnected)
+                            return;
+
+                          setRemoveFriendName(f.username);
+                          setShowRemoveFriendModal(true);
+                        }}
+                      >
+                        <Feather name="x" color="red" size={22} />
+                      </TouchableOpacity>
+                      <Image
+                        style={styles.friendAvatar}
+                        contentFit="cover"
+                        source={[
+                          ImageUrl ? { uri: getAvatarUri(null, f.avatar) } : null,
+                          noPfpImage
+                        ]}
+                        cachePolicy="memory-disk"
+                        placeholder={noPfpImage}
+                      />
+                      <Text style={styles.friendName}>{f.username}</Text>
                     </TouchableOpacity>
-                    <Image
-                      style={styles.friendAvatar}
-                      contentFit="cover"
-                      source={{ uri: getAvatarUri(null, f.avatar) }}
-                      cachePolicy="memory-disk"
-                    />
-                    <Text style={styles.friendName}>{f.username}</Text>
-                  </TouchableOpacity>
-                ))}
+                  )}
+                )}
 
                 {userFriends?.friends.length > 9 && (
                   <Pressable

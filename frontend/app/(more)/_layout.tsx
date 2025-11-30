@@ -18,12 +18,10 @@ export default function Layout() {
         headerRight: () => (
           <TouchableOpacity
             onPress={() => {
-              if (router.canGoBack()) {
+              if (router.canGoBack())
                 router.back();
-              } else {
-                // Fallback: jeśli nie ma historii, wróć do głównego ekranu (Tabów)
+              else
                 router.push("/(tabs)/MoreScreen");
-              }
             }}
             style={{ marginLeft: 0, marginRight: 15, padding: 5 }}
           >
